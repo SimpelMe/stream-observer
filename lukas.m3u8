@@ -1,0 +1,21 @@
+#EXTM3U
+#EXTINF:0,Stream 0
+https://live.kurz.pw/hls/s0_native_hd.m3u8
+#EXTINF:0,Stream 1
+https://live.kurz.pw/hls/s1_native_hd.m3u8
+#EXTINF:0,Stream 2
+https://live.kurz.pw/hls/s2_native_hd.m3u8
+#EXTINF:0,Stream 3
+https://live.kurz.pw/hls/s3_native_hd.m3u8
+#EXTINF:0,Stream 4
+https://live.kurz.pw/hls/s4_native_hd.m3u8
+#EXTINF:0,Stream 5
+https://live.kurz.pw/hls/s5_native_hd.m3u8
+#EXTINF:0,Stream 6
+https://live.kurz.pw/hls/s6_native_hd.m3u8
+#EXTINF:0,Stream 7
+https://live.kurz.pw/hls/s7_native_hd.m3u8
+#EXTINF:0,Stream 8
+https://live.kurz.pw/hls/s8_native_hd.m3u8
+#EXTINF:0,Stream 9
+https://live.kurz.pw/hls/s9_native_hd.m3u8
