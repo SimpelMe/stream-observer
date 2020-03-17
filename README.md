@@ -6,6 +6,10 @@ Audio-Observer is a script to observe running voc-video-streams.
 It is starting audio-observer.m3u8 in mpv with various options:
 * --fs
  * full screen
+* --keep-open=always
+ * don't terminate if the current file is ending and playback will never automatically advance to the next file
+* --keep-open-pause=no
+ * instead of pausing when --keep-open is active, just stop at end of file and continue playing forward when you seek backwards until end where it stops again (default: yes)
 * --idle=yes
  * wait idly instead of quitting when there is no file to play
 * --hls-bitrate=min
