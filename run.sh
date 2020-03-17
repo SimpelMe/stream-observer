@@ -6,7 +6,7 @@ curl https://streaming.media.ccc.de/streams/v2.json
 echo ""
 echo "Ende JSON"
 
-mpv audio-observer.m3u8 \
+mpv stream-observer.m3u8 \
   --fs \
   --keep-open=always \
   --keep-open-pause=no \
