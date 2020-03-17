@@ -1,44 +1,107 @@
 #EXTM3U
 #EXT-X-VERSION:3
 
-#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID="audio",NAME="Native",DEFAULT=YES
-
-#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID="audio",NAME="Translation 1",DEFAULT=NO,URI="https://cdn.c3voc.de/hls/s1/chunks_3.m3u8"
-#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID="audio",NAME="Translation 2",DEFAULT=NO,URI="https://cdn.c3voc.de/hls/s1/chunks_4.m3u8"
-
-#EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=100000,RESOLUTION=1024x576,CODECS="avc1.4d0028,mp4a.40.2",AUDIO="audio"
-https://cdn.c3voc.de/hls/s1/chunks_2.m3u8
-#EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=5000000,RESOLUTION=1920x1080,CODECS="avc1.4d0028,mp4a.40.2",AUDIO="audio"
-https://cdn.c3voc.de/hls/s1/chunks_0.m3u8
-#EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=800000,RESOLUTION=1024x576,CODECS="avc1.4d0028,mp4a.40.2",AUDIO="audio"
-https://cdn.c3voc.de/hls/s1/chunks_1.m3u8
+#EXTINF:0,s1
+http://live.ber.c3voc.de:7999/s1
 
 #EXT-X-DISCONTINUITY
 
-#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID="audio",NAME="Native",DEFAULT=YES
-
-#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID="audio",NAME="Translation 1",DEFAULT=NO,URI="https://cdn.c3voc.de/hls/s2/chunks_3.m3u8"
-#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID="audio",NAME="Translation 2",DEFAULT=NO,URI="https://cdn.c3voc.de/hls/s2/chunks_4.m3u8"
-
-#EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=100000,RESOLUTION=1024x576,CODECS="avc1.4d0028,mp4a.40.2",AUDIO="audio"
-https://cdn.c3voc.de/hls/s2/chunks_2.m3u8
-#EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=5000000,RESOLUTION=1920x1080,CODECS="avc1.4d0028,mp4a.40.2",AUDIO="audio"
-https://cdn.c3voc.de/hls/s2/chunks_0.m3u8
-#EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=800000,RESOLUTION=1024x576,CODECS="avc1.4d0028,mp4a.40.2",AUDIO="audio"
-https://cdn.c3voc.de/hls/s2/chunks_1.m3u8
+#EXTINF:0,s2
+http://live.ber.c3voc.de:7999/s2
 
 #EXT-X-DISCONTINUITY
 
-#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID="audio",NAME="Native",DEFAULT=YES
+#EXTINF:0,s3
+http://live.ber.c3voc.de:7999/s3
 
-#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID="audio",NAME="Translation 1",DEFAULT=NO,URI="https://cdn.c3voc.de/hls/s3/chunks_3.m3u8"
-#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID="audio",NAME="Translation 2",DEFAULT=NO,URI="https://cdn.c3voc.de/hls/s3/chunks_4.m3u8"
+#EXT-X-DISCONTINUITY
 
-#EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=100000,RESOLUTION=1024x576,CODECS="avc1.4d0028,mp4a.40.2",AUDIO="audio"
-https://cdn.c3voc.de/hls/s3/chunks_2.m3u8
-#EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=5000000,RESOLUTION=1920x1080,CODECS="avc1.4d0028,mp4a.40.2",AUDIO="audio"
-https://cdn.c3voc.de/hls/s3/chunks_0.m3u8
-#EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=800000,RESOLUTION=1024x576,CODECS="avc1.4d0028,mp4a.40.2",AUDIO="audio"
-https://cdn.c3voc.de/hls/s3/chunks_1.m3u8
+#EXTINF:0,s4
+http://live.ber.c3voc.de:7999/s4
+
+#EXT-X-DISCONTINUITY
+
+#EXTINF:0,s5
+http://live.ber.c3voc.de:7999/s5
+
+#EXT-X-DISCONTINUITY
+
+#EXTINF:0,s6
+http://live.ber.c3voc.de:7999/s6
+
+#EXT-X-DISCONTINUITY
+
+#EXTINF:0,s23 cccb
+http://live.ber.c3voc.de:7999/s23
+
+#EXT-X-DISCONTINUITY
+
+#EXTINF:0,s32 cccfr
+http://live.ber.c3voc.de:7999/s32
+
+#EXT-X-DISCONTINUITY
+
+#EXTINF:0,s41 osc 1
+http://live.ber.c3voc.de:7999/s41
+
+#EXT-X-DISCONTINUITY
+
+#EXTINF:0,s42 osc 2
+http://live.ber.c3voc.de:7999/s42
+
+#EXT-X-DISCONTINUITY
+
+#EXTINF:0,s190 Seibert
+http://live.ber.c3voc.de:7999/s190
+
+#EXT-X-DISCONTINUITY
+
+#EXTINF:0,s191 Seibert 1
+http://live.ber.c3voc.de:7999/s191
+
+#EXT-X-DISCONTINUITY
+
+#EXTINF:0,s192 Seibert 2
+http://live.ber.c3voc.de:7999/s192
+
+#EXT-X-DISCONTINUITY
+
+#EXTINF:0,s193 Seibert 3
+http://live.ber.c3voc.de:7999/s193
+
+#EXT-X-DISCONTINUITY
+
+#EXTINF:0,s194 Seibert 4
+http://live.ber.c3voc.de:7999/s194
+
+#EXT-X-DISCONTINUITY
+
+#EXTINF:0,s80 muCCC
+http://live.ber.c3voc.de:7999/s80
+
+#EXT-X-DISCONTINUITY
+
+#EXTINF:0,s89 Ulm / VSH
+http://live.ber.c3voc.de:7999/s89
+
+#EXT-X-DISCONTINUITY
+
+#EXTINF:0,s97 C4
+http://live.ber.c3voc.de:7999/s97
+
+#EXT-X-DISCONTINUITY
+
+#EXTINF:0,s98 derpeter
+http://live.ber.c3voc.de:7999/s98
+
+#EXT-X-DISCONTINUITY
+
+#EXTINF:0,s99 MaZderMind
+http://live.ber.c3voc.de:7999/s99
+
+#EXT-X-DISCONTINUITY
+
+#EXTINF:0,ENDE der Liste
+ende.png
 
 #EXT-X-ENDLIST
