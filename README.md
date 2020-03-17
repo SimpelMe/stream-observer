@@ -1,9 +1,8 @@
-# audio-observer
+# Stream-Observer
 
-Audio-Observer is a script to observe running voc-video-streams.
+Stream-Observer is a script to observe running voc-video-streams.
 
-
-It is starting audio-observer.m3u8 in mpv with various options:
+It is starting stream-observer.m3u8 in mpv with various options:
 * --fs
  * full screen
 * --keep-open=always
