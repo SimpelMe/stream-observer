@@ -9,6 +9,10 @@ It is starting stream-observer.m3u8 in mpv with various options:
   * no messages from youtube-dl
 * --no-input-default-bindings
   * deactivate all default key bindings
+* --load-scripts=no
+  * don't load any scripts from personal config
+* --scripts=select-audio.lua:select-venue.lua:reload.lua
+  * load these scripts: audio.lua, select-venue.lua, reload.lua
 * --keep-open=always
   * don't terminate if the current file is ending and playback will never automatically advance to the next file
 * --keep-open-pause=no

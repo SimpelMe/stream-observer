@@ -10,6 +10,8 @@ mpv stream-observer.m3u8 \
   --fs \
   --msg-level=ytdl_hook=no \
   --no-input-default-bindings \
+  --load-scripts=no \
+  --scripts=select-audio.lua:select-venue.lua:reload.lua \
   --keep-open=always \
   --keep-open-pause=no \
   --idle=yes \
