@@ -8,6 +8,7 @@ echo "Ende JSON"
 
 mpv stream-observer.m3u8 \
   --fs \
+  --msg-level=ytdl_hook=no \
   --keep-open=always \
   --keep-open-pause=no \
   --idle=yes \
