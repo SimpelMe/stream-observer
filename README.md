@@ -1,8 +1,16 @@
 # Stream-Observer
 
-Stream-Observer is a script to observe running voc-video-streams.
+* [Options](#options)
+* [Keys](#keys)
+  * [defined by lua scripts](#defined-by-lua-scripts)
+  * [defined defaults by input.conf](#defined-defaults-by-inputconf)
 
-It is starting stream-observer.m3u8 in mpv with various options:
+Stream-Observer is a script to observe running voc-video-streams.  
+Execute `./run.sh`
+
+## Options
+
+It is starting stream-observer.m3u8 in mpv with following options:
 * --fs
   * full screen
 * --msg-level=ytdl_hook=no
@@ -43,4 +51,30 @@ It is starting stream-observer.m3u8 in mpv with various options:
 * --osd-margin-y=5
   * top and bottom screen margin for the OSD in scaled pixels
 
-Note: Keybinding will follow. Use /Users/xxx/.config/mpv/scripts/ to add special functions to keys.
+## Keys
+### defined by lua scripts
+* 1 … 0 room number 1 to 10
+* q select native audio
+* w select translation 1
+* e select translation 2
+
+### defined defaults by input.conf
+* RIGHT seek  5
+* LEFT  seek -5
+* UP    seek  60
+* DOWN  seek -60
+* Shift+PGUP seek 600
+* Shift+PGDWN seek -600
+* SPACE cycle pause
+* \> playlist-next; skip to next room
+* < playlist-previous; skip to previous room
+* I (upper i) toggle display stats
+* ctrl++ add audio-delay 100ms; this changes audio/video sync
+* ctrl+- add audio-delay -100ms
+* m cycle mute
+* d cycle deinterlace
+* \# cycle audio
+* _ cycle video
+* f cycle fullscreen
+* s screenshot
+* F8 show rooms
