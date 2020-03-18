@@ -1,12 +1,11 @@
 # Stream-Observer
 
+Stream-Observer is a script to observe running voc-video-streams. Execute `./run.sh`
+
 * [Options](#options)
 * [Keys](#keys)
   * [defined by lua scripts](#defined-by-lua-scripts)
   * [defined defaults by input.conf](#defined-defaults-by-inputconf)
-
-Stream-Observer is a script to observe running voc-video-streams.  
-Execute `./run.sh`
 
 ## Options
 
