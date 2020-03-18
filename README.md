@@ -5,6 +5,10 @@ Stream-Observer is a script to observe running voc-video-streams.
 It is starting stream-observer.m3u8 in mpv with various options:
 * --fs
   * full screen
+* --msg-level=ytdl_hook=no
+  * no messages from youtube-dl
+* --no-input-default-bindings
+  * deactivate all default key bindings
 * --keep-open=always
   * don't terminate if the current file is ending and playback will never automatically advance to the next file
 * --keep-open-pause=no
