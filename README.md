@@ -9,6 +9,8 @@ It is starting stream-observer.m3u8 in mpv with various options:
   * no messages from youtube-dl
 * --no-input-default-bindings
   * deactivate all default key bindings
+* --config-dir=.
+  * place config files where run.sh is starting (e.g. input.conf for default key bindings)
 * --load-scripts=no
   * don't load any scripts from personal config
 * --scripts=select-audio.lua:select-venue.lua:reload.lua
