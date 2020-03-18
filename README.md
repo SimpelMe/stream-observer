@@ -32,3 +32,5 @@ It is starting stream-observer.m3u8 in mpv with various options:
   * left and right screen margin for the OSD in scaled pixels
 * --osd-margin-y=5
   * top and bottom screen margin for the OSD in scaled pixels
+
+Note: Keybinding will follow. Use /Users/xxx/.config/mpv/scripts/ to add special functions to keys.
