@@ -34,8 +34,8 @@ fi
 # eventuell kann man damit in der Playlist die aktuellen Säle benennen oder alle inaktiven rauslassen
 echo "Aktive Stream als JSON:"
 echo "curl https://streaming.media.ccc.de/streams/v2.json"
-curl https://streaming.media.ccc.de/streams/v2.json
-echo ""
+JSON="$(curl https://streaming.media.ccc.de/streams/v2.json 2>/dev/null)"
+echo $JSON
 echo "Ende JSON"
 
 # That is really playing
