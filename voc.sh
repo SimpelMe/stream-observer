@@ -2,6 +2,8 @@
 
 # Set default values:
 ALL=unset
+RED='\033[0;31m'
+YELLOW='\033[1;33m'
 
 # Short manual
 manual()
@@ -38,7 +40,7 @@ echo ""
 
 # Check if trimmed (leading and trailing white spaces) $JSON is empty
 if [[ $(echo $JSON | tr -d "[:blank:]") = "[]" ]]; then
-  echo "Warning: no active servers available"
+  echo "${YELLOW}Warning: no active servers available"
   exit 1
 fi
 
