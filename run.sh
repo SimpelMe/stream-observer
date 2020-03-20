@@ -1,3 +1,32 @@
+#! /bin/sh
+
+# Set default values:
+ALL=unset
+
+# Short manual
+manual()
+{
+  echo "Usage: run.sh [-ah]"
+  exit 2
+}
+
+# Check options
+while getopts 'ah' option; do
+  case $option in
+    a )  ALL=true;;
+    h )  manual;;
+    * )  manual;;
+  esac
+done
+
+if [[ $ALL = true ]]; then
+  # This playlist has all server
+  PLAYLIST="stream-observer.m3u8"
+else
+  # This playlist should have only server found in https://streaming.media.ccc.de/streams/v2.json
+  PLAYLIST="voctocat.png"
+fi
+
 # im folgenden curl werden die aktiv laufenden Streams als json ausgegeben
 # eventuell kann man damit in der Playlist die aktuellen Säle benennen oder alle inaktiven rauslassen
 echo "Aktive Stream als JSON:"
@@ -6,7 +35,8 @@ curl https://streaming.media.ccc.de/streams/v2.json
 echo ""
 echo "Ende JSON"
 
-mpv stream-observer.m3u8 \
+# That is really playing
+mpv $PLAYLIST \
   --fs \
   --msg-level=ytdl_hook=no \
   --no-input-default-bindings \
