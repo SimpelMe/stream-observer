@@ -2,23 +2,26 @@
 
 # Set default values:
 ALL=unset
+FORCE=false
 RED='\033[0;31m'
 YELLOW='\033[1;33m'
 
 # Short manual
 manual()
 {
-  echo "Usage: voc.sh [-a | -h]"
+  echo "Usage: voc.sh [-a | -f | -h]"
   echo "       opens mpv with all active voc streams"
   echo "       -a tries to open all possible streams"
+  echo "       -f forces default playlist if no active server is available"
   echo "       -h shows this help"
   exit 2
 }
 
 # Check options
-while getopts 'ah' option; do
+while getopts 'afh' option; do
   case $option in
     a )  ALL=true;shift;;
+    f )  FORCE=true;shift;;
     h )  manual;;
     * )  manual;;
   esac
@@ -38,10 +41,12 @@ JSON="$(curl https://streaming.media.ccc.de/streams/v2.json 2>/dev/null)"
 echo $JSON
 echo ""
 
-# Check if trimmed (leading and trailing white spaces) $JSON is empty
-if [[ $(echo $JSON | tr -d "[:blank:]") = "[]" ]]; then
+# Check if trimmed (all white spaces) $JSON is empty
+if [[ $(echo $JSON | tr -d "[:blank:]") = "[]" && $ALL = unset ]]; then
   echo "${YELLOW}Warning: no active servers available"
-  exit 1
+  if [[ $FORCE = false ]]; then
+    exit 1
+  fi
 fi
 
 # That is really playing
