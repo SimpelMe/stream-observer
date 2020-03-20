@@ -16,7 +16,7 @@ manual()
 # Check options
 while getopts 'ah' option; do
   case $option in
-    a )  ALL=true;;
+    a )  ALL=true;shift;;
     h )  manual;;
     * )  manual;;
   esac
