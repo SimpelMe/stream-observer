@@ -6,7 +6,10 @@ ALL=unset
 # Short manual
 manual()
 {
-  echo "Usage: run.sh [-ah]"
+  echo "Usage: run.sh [-a | -h]"
+  echo "       opens mpv with all active voc streams"
+  echo "       -a tries to open all possible streams"
+  echo "       -h shows this help"
   exit 2
 }
 
