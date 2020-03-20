@@ -1,6 +1,7 @@
 # Stream-Observer
 
-Stream-Observer is a script to observe running voc-video-streams. Execute `./voc.sh`
+Stream-Observer is a script to observe running voc-video-streams.  
+First make `obs` executable with `chmod +x obs`. Then execute `obs`.
 
 * [Options](#options)
 * [Keys](#keys)

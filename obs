@@ -9,7 +9,7 @@ YELLOW='\033[1;33m'
 # Short manual
 manual()
 {
-  echo "Usage: voc.sh [-a | -f | -h]"
+  echo "Usage: obs [-a | -f | -h]"
   echo "       opens mpv with all active voc streams"
   echo "       -a tries to open all possible streams"
   echo "       -f forces default playlist if no active server is available"
