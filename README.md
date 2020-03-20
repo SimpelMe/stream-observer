@@ -1,6 +1,6 @@
 # Stream-Observer
 
-Stream-Observer is a script to observe running voc-video-streams. Execute `./run.sh`
+Stream-Observer is a script to observe running voc-video-streams. Execute `./voc.sh`
 
 * [Options](#options)
 * [Keys](#keys)
