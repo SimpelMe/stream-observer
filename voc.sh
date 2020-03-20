@@ -23,20 +23,24 @@ while getopts 'ah' option; do
 done
 
 if [[ $ALL = true ]]; then
-  # This playlist has all server
+  # This playlist has all servers
   PLAYLIST="stream-observer.m3u8"
 else
-  # This playlist should have only server found in https://streaming.media.ccc.de/streams/v2.json
+  # This playlist should have only servers found in https://streaming.media.ccc.de/streams/v2.json
   PLAYLIST="voctocat.png"
 fi
 
-# im folgenden curl werden die aktiv laufenden Streams als json ausgegeben
-# eventuell kann man damit in der Playlist die aktuellen Säle benennen oder alle inaktiven rauslassen
-echo "Aktive Stream als JSON:"
-echo "curl https://streaming.media.ccc.de/streams/v2.json"
+# Read current active streams by api json
+echo "Active streams:"
 JSON="$(curl https://streaming.media.ccc.de/streams/v2.json 2>/dev/null)"
 echo $JSON
-echo "Ende JSON"
+echo ""
+
+# Check if trimmed (leading and trailing white spaces) $JSON is empty
+if [[ $(echo $JSON | tr -d "[:blank:]") = "[]" ]]; then
+  echo "Warning: no active servers available"
+  exit 1
+fi
 
 # That is really playing
 mpv $PLAYLIST \
