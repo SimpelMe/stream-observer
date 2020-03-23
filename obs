@@ -1,7 +1,7 @@
 #! /bin/sh
-
-# Set default values:
-ALL=unset
+# Declare variables:
+SERVERPATH="http://live.ber.c3voc.de:7999/"
+ALL=false
 FORCE=false
 RED='\033[0;31m'
 YELLOW='\033[1;33m'
@@ -29,24 +29,45 @@ done
 
 if [[ $ALL = true ]]; then
   # This playlist has all servers
-  PLAYLIST="stream-observer.m3u8"
+  PLAYLIST="complete-playlist.m3u8"
 else
-  # This playlist should have only servers found in https://streaming.media.ccc.de/streams/v2.json
-  PLAYLIST="voctocat.png"
-fi
+  # This playlist should have only servers found in https://streaming.media.ccc.de/streams/v2.json and will be created
+  PLAYLIST="current-playlist.m3u8"
 
-# Read current active streams by api json
-echo "Active streams:"
-JSON="$(curl https://streaming.media.ccc.de/streams/v2.json 2>/dev/null)"
-echo $JSON
-echo ""
+  # Read current active streams by api json
+  JSON="$(curl https://streaming.media.ccc.de/streams/v2.json 2>/dev/null)"
+  # JSON="$(cat example.json 2>/dev/null)"
 
-# Check if trimmed (all white spaces) $JSON is empty
-if [[ $(echo $JSON | tr -d "[:blank:]") = "[]" && $ALL = unset ]]; then
-  echo "${YELLOW}Warning: no active servers available"
-  if [[ $FORCE = false ]]; then
-    exit 1
+  # Check if trimmed (all white spaces) $JSON is empty
+  if [[ $(echo $JSON | tr -d "[:blank:]") = "[]" && $ALL = false ]]; then
+    echo "${YELLOW}Warning: no active servers available"
+    if [[ $FORCE = false ]]; then
+      exit 1
+    fi
   fi
+
+  # Find all streaming servers in $JSON trim to server only and push into array
+  # source: https://stackoverflow.com/questions/10586153/split-string-into-an-array-in-bash/13196466
+  REGEX="s\d{1,3}_native_hd.webm"
+  SERVER="$(echo "$JSON" | grep -oE $REGEX | tr -d "_native_hd.webm")"
+  SERVER_ARRAY=(`echo $SERVER | sed 's/,/\n/g'`)
+
+  # Create playlist
+  # Playlist header
+  echo "#EXTM3U" > $PLAYLIST
+  echo "#EXT-X-VERSION:3" >> $PLAYLIST
+  # Repeat playlist names and servers and "#EXT-X-DISCONTINUITY"
+  for index in "${!SERVER_ARRAY[@]}"
+  do
+      echo "#EXTINF:0,${SERVER_ARRAY[index]}" >> $PLAYLIST
+      echo "$SERVERPATH${SERVER_ARRAY[index]}" >> $PLAYLIST
+      echo "#EXT-X-DISCONTINUITY" >> $PLAYLIST
+  done
+  # Set a picture as last server, so mpv will not end by accident
+  echo "#EXTINF:0,end of list" >> $PLAYLIST
+  echo "voctocat.png" >> $PLAYLIST
+  # End of playlist
+  echo "#EXT-X-ENDLIST" >> $PLAYLIST
 fi
 
 # That is really playing
@@ -70,3 +91,8 @@ mpv $PLAYLIST \
   --osd-font-size=30 \
   --osd-margin-y=5 \
   --osd-margin-x=10
+
+# Delete the playlist
+if [[ $ALL = false ]]; then
+  rm $PLAYLIST
+fi
