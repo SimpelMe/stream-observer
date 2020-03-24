@@ -19,7 +19,7 @@ manual()
 }
 
 # Check options
-while getopts 'afh' option; do
+while getopts 'afh' option 2>/dev/null; do
   case $option in
     a )  ALL=true;shift;;
     f )  FORCE=true;shift;;
