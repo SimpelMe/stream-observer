@@ -45,10 +45,8 @@ else
 
   # Check if trimmed (all white spaces) $JSON is empty
   if [[ $(echo $JSON | tr -d "[:blank:]") = "[]" && $ALL = false ]]; then
-    echo "${YELLOW}Warning: no active servers available"
-    if [[ $FORCE = false ]]; then
-      exit 1
-    fi
+    echo "${YELLOW}Warning: no active servers available${NC}"
+    exit 1
   fi
 
   # Find all streaming servers in $JSON trim to server only and push into array
