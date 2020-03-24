@@ -32,6 +32,9 @@ done
 if [[ $ALL = true ]]; then
   # This playlist has all servers
   PLAYLIST="complete-playlist.m3u8"
+elif [[ $FORCE = true ]]; then
+  # This playlist can be defined manually as partial copy of complete-playlist
+  PLAYLIST="default-playlist.m3u8"
 else
   # This playlist should have only servers found in https://streaming.media.ccc.de/streams/v2.json and will be created
   PLAYLIST="current-playlist.m3u8"
