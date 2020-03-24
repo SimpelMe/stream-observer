@@ -24,7 +24,8 @@ while getopts 'afh' option 2>/dev/null; do
     a )  ALL=true;shift;;
     f )  FORCE=true;shift;;
     h )  manual;;
-    * )  manual;;
+    * )  echo "${YELLOW}Warning: illegal option $1${NC}"
+         manual;;
   esac
 done
 
