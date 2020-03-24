@@ -80,7 +80,7 @@ mpv $PLAYLIST \
   --no-input-default-bindings \
   --config-dir=. \
   --load-scripts=no \
-  --scripts=select-audio.lua:select-venue.lua:reload.lua \
+  --scripts=select-audio.lua:select-venue.lua \
   --keep-open=always \
   --keep-open-pause=no \
   --idle=yes \
