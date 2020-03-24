@@ -96,6 +96,6 @@ mpv $PLAYLIST \
   --osd-margin-x=10
 
 # Delete the playlist
-if [[ $ALL = false ]]; then
+if [[ $ALL = false && $FORCE = false ]]; then
   rm $PLAYLIST
 fi
