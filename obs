@@ -41,7 +41,7 @@ else
 
   # Read current active streams by api json
   JSON="$(curl https://streaming.media.ccc.de/streams/v2.json 2>/dev/null)"
-  # JSON="$(cat example.json 2>/dev/null)"
+  # JSON="$(cat xtemp/example.json 2>/dev/null)"
 
   # Check if trimmed (all white spaces) $JSON is empty
   if [[ $(echo $JSON | tr -d "[:blank:]") = "[]" && $ALL = false ]]; then
