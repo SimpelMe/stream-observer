@@ -14,18 +14,21 @@ options.read_options(opts)
 
 function select_audio_native()
   count = mp.get_property_number('track-list/count', 0)
-  count = count - 1
-  mp.set_property("aid", count)
+--  count = count - 1
+--  mp.set_property("aid", count)
+  mp.set_property("aid", 1)
 end
 
 function select_audio_trans1()
-  mp.set_property("aid", 1)
+--  mp.set_property("aid", 1)
+  mp.set_property("aid", 2)
 end
 
 function select_audio_trans2()
   count = mp.get_property_number('track-list/count', 0)
-  count = count - 2
-  mp.set_property("aid", count)
+--  count = count - 2
+--  mp.set_property("aid", count)
+  mp.set_property("aid", 3)
 end
 
 mp.add_forced_key_binding(opts.one, "Select_Audio_1", select_audio_native)
