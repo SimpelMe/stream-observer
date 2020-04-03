@@ -99,7 +99,7 @@ mpv $PLAYLIST \
   --demuxer-cache-wait=no \
   --demuxer-thread=yes \
   --osd-duration=5000 \
-  --osd-msg1="room: 1 … 0        audio: q, w, e - native, translated 1, translated 2        video: y, x - mixer, slides" \
+  --osd-msg1="room: 1 – 0        audio: q, w, e - native, translated, translated-2        video: y, x - mixer, slides" \
   --osd-font-size=30 \
   --osd-margin-y=5 \
   --osd-margin-x=10
