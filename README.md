@@ -21,8 +21,8 @@ It is starting stream-observer.m3u8 in mpv with following options:
   * place config files where run.sh is starting (e.g. input.conf for default key bindings)
 * --load-scripts=no
   * don't load any scripts from personal config
-* --scripts=select-audio.lua:select-venue.lua:reload.lua
-  * load these scripts: audio.lua, select-venue.lua, reload.lua
+* --scripts=select-audio.lua:select-video.lua:select-venue.lua
+  * load these scripts: select-audio.lua, select-video.lua, select-venue.lua
 * --keep-open=always
   * don't terminate if the current file is ending and playback will never automatically advance to the next file
 * --keep-open-pause=no
@@ -41,7 +41,7 @@ It is starting stream-observer.m3u8 in mpv with following options:
   * run the demuxer in a separate thread and let it prefetch a certain amount of packets (default: yes)
 * --osd-duration=5000
   * set the duration of the OSD messages in ms (default: 1000)
-* --osd-msg1="switch stream: < >    switch audio: #"
+*   --osd-msg1="room: 1 … 0        audio: q, w, e - native, translated 1, translated 2        video: y, x - mixer, slides"
   * show this string as message on OSD with OSD level 1 (visible by default)
   * used as minimal manual
 * --osd-font-size=30
@@ -57,6 +57,8 @@ It is starting stream-observer.m3u8 in mpv with following options:
 * q select native audio
 * w select translation 1
 * e select translation 2
+* y select video mixer output
+* x select slides
 
 ### defined defaults by input.conf
 * RIGHT seek  5
@@ -78,3 +80,4 @@ It is starting stream-observer.m3u8 in mpv with following options:
 * f cycle fullscreen
 * s screenshot
 * F8 show rooms
+* F9 show list of audio/sub streams
