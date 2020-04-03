@@ -53,7 +53,7 @@ It is starting stream-observer.m3u8 in mpv with following options:
 
 ## Keys
 ### defined by lua scripts
-* 1 … 0 room number 1 to 10
+* 1 – 0 room number 1 to 10
 * q select native audio
 * w select translation 1
 * e select translation 2
