@@ -33,7 +33,7 @@ while getopts 'afhk' option 2>/dev/null; do
     f )  FORCE=true;shift;;
     h )  manual;;
     k )  keys;;
-    * )  echo "${YELLOW}Warning: illegal option $1${NC}"
+    * )  printf "${YELLOW}Warning: illegal option $1${NC}\n"
          manual;;
   esac
 done
@@ -54,7 +54,7 @@ else
 
   # Check if trimmed (all white spaces) $JSON is empty
   if [[ $(echo $JSON | tr -d "[:blank:]") = "[]" && $ALL = false ]]; then
-    echo "${YELLOW}Warning: no active servers available${NC}"
+    printf "${YELLOW}Warning: no active servers available${NC}\n"
     exit 1
   fi
 
