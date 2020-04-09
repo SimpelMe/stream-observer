@@ -13,8 +13,8 @@ First make `obs` executable with `chmod +x obs`. Then execute `obs`.
 It is starting stream-observer.m3u8 in mpv with following options:
 * --fs
   * full screen
-* --msg-level=ytdl_hook=no
-  * no messages from youtube-dl
+* --no-ytdl
+  * disable the youtube-dl hook-script (404 should try next stream immediately)
 * --no-input-default-bindings
   * deactivate all default key bindings
 * --config-dir=.

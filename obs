@@ -85,7 +85,7 @@ fi
 # That is really playing
 mpv $PLAYLIST \
   --fs \
-  --msg-level=ytdl_hook=no \
+  --no-ytdl \
   --no-input-default-bindings \
   --config-dir=. \
   --load-scripts=no \
