@@ -43,14 +43,18 @@ It is starting stream-observer.m3u8 in mpv with following options:
   * run the demuxer in a separate thread and let it prefetch a certain amount of packets (default: yes)
 * --osd-duration=5000
   * set the duration of the OSD messages in ms (default: 1000)
-*   --osd-msg1="room: 1 … 0        audio: q, w, e - Native, Translated 1, Translated 2        video: y, x - HD, Slides"
+*   --osd-msg1="room: 1 … 0       audio: q, w, e - Native, Translated 1, Translated 2       video: y, x - HD, Slides"
   * show this string as message on OSD with OSD level 1 (visible by default)
   * used as minimal manual
 * --osd-font-size=30
   * specify the OSD font size (default: 55)
+* --osd-spacing=1
+  * horizontal OSD font spacing in scaled pixels (default: 0)
+* --osd-border-size=1
+  * size of the OSD font border in scaled pixels (default: 3)
 * --osd-margin-x=10
   * left and right screen margin for the OSD in scaled pixels
-* --osd-margin-y=5
+* --osd-margin-y=4
   * top and bottom screen margin for the OSD in scaled pixels
 
 ## Keys

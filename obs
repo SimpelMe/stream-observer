@@ -100,10 +100,12 @@ mpv $PLAYLIST \
   --demuxer-cache-wait=no \
   --demuxer-thread=yes \
   --osd-duration=5000 \
-  --osd-msg1="room: 1 – 0        audio: q, w, e - Native, Translated, Translated-2        video: y, x - HD, Slides" \
+  --osd-msg1="room: 1 – 0       audio: q, w, e - Native, Translated, Translated-2       video: y, x - HD, Slides" \
   --osd-font-size=30 \
-  --osd-margin-y=3 \
-  --osd-margin-x=10
+  --osd-spacing=1 \
+  --osd-border-size=1 \
+  --osd-margin-x=10 \
+  --osd-margin-y=4
 
 # Delete the playlist
 if [[ $ALL = false && $FORCE = false ]]; then
