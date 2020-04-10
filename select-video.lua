@@ -11,11 +11,12 @@ options.read_options(opts)
 
 
 function select_video()
-  count = mp.get_property_number('track-list/count', 0)
+  mp.command('show-text "Video: (1) HD"')
   mp.set_property("vid", 1)
 end
 
 function select_slides()
+  mp.command('show-text "Video: (2) Slides"')
   mp.set_property("vid", 2)
 end
 

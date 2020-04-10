@@ -14,18 +14,21 @@ options.read_options(opts)
 
 function select_audio_native()
   count = mp.get_property_number('track-list/count', 0)
+  mp.command('show-text "Audio: (1) Native"')
 --  count = count - 1
 --  mp.set_property("aid", count)
   mp.set_property("aid", 1)
 end
 
 function select_audio_trans1()
+  mp.command('show-text "Audio: (2) Translated"')
 --  mp.set_property("aid", 1)
   mp.set_property("aid", 2)
 end
 
 function select_audio_trans2()
   count = mp.get_property_number('track-list/count', 0)
+  mp.command('show-text "Audio: (3) Translated-2"')
 --  count = count - 2
 --  mp.set_property("aid", count)
   mp.set_property("aid", 3)
