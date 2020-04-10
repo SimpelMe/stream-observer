@@ -34,7 +34,7 @@ It is starting stream-observer.m3u8 in mpv with following options:
 * --vd-lavc-show-all=yes
   * don't wail until an initial keyframe was decoded for a quicker startup
 * --no-initial-audio-sync
-  * audio is started immediately even if start timestamp differs from video, if necessary video timing is gradually adjusted 
+  * audio is started immediately even if start timestamp differs from video, if necessary video timing is gradually adjusted
 * --script-opts=osc-visibility=always
   * visibility mode of on screen controller
 * --audio-stream-silence=yes
@@ -48,6 +48,8 @@ It is starting stream-observer.m3u8 in mpv with following options:
 *   --osd-msg1="room: 1 … 0       audio: q, w, e - Native, Translated 1, Translated 2       video: y, x - HD, Slides"
   * show this string as message on OSD with OSD level 1 (visible by default)
   * used as minimal manual
+* --no-osd-bar
+  * disable display of the OSD bar while seeking
 * --osd-font-size=30
   * specify the OSD font size (default: 55)
 * --osd-spacing=1
