@@ -90,6 +90,7 @@ mpv $PLAYLIST \
   --config-dir=. \
   --load-scripts=no \
   --scripts=select-audio.lua:select-video.lua:select-venue.lua \
+  --force-window=immediate \
   --keep-open=always \
   --keep-open-pause=no \
   --idle=yes \

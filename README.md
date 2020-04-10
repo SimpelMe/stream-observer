@@ -23,6 +23,8 @@ It is starting stream-observer.m3u8 in mpv with following options:
   * don't load any scripts from personal config
 * --scripts=select-audio.lua:select-video.lua:select-venue.lua
   * load these scripts: select-audio.lua, select-video.lua, select-venue.lua
+* --force-window=immediate
+  * create the gui immediately on program start
 * --keep-open=always
   * don't terminate if the current file is ending and playback will never automatically advance to the next file
 * --keep-open-pause=no
