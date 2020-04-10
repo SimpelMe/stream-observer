@@ -86,6 +86,7 @@ fi
 mpv $PLAYLIST \
   --fs \
   --no-ytdl \
+  --msg-level=all=error,ffmpeg/video=fatal \
   --no-input-default-bindings \
   --config-dir=. \
   --load-scripts=no \
