@@ -41,8 +41,6 @@ It is starting stream-observer.m3u8 in mpv with following options:
   * when pausing playback or stop and restart audio on seeks, audio is not stopped and silence is played
 * --demuxer-cache-wait=no
   * don't read data until the demuxer cache has reached maximum capacity
-* --demuxer-thread=no
-  * run the demuxer in a separate thread and let it prefetch a certain amount of packets (default: yes)
 * --screenshot-format=png
   * set the screenshot image file type to png (default: jpg)
 * --script-opts=osc-visibility=always

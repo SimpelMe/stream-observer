@@ -99,7 +99,6 @@ mpv $PLAYLIST \
   --no-initial-audio-sync \
   --audio-stream-silence=yes \
   --demuxer-cache-wait=no \
-  --demuxer-thread=yes \
   --screenshot-format=png \
   --script-opts=osc-visibility=always \
   --osd-duration=5000 \
