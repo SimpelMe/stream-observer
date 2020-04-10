@@ -45,7 +45,7 @@ It is starting stream-observer.m3u8 in mpv with following options:
   * visibility mode of on screen controller
 * --osd-duration=5000
   * set the duration of the OSD messages in ms (default: 1000)
-*   --osd-msg1="room: 1 … 0       audio: q, w, e - Native, Translated 1, Translated 2       video: y, x - HD, Slides"
+*   --osd-msg1="room: 1 – 0       audio: q, w, e - Native, Translated 1, Translated 2       video: y, x - HD, Slides"
   * show this string as message on OSD with OSD level 1 (visible by default)
   * used as minimal manual
 * --no-osd-bar
