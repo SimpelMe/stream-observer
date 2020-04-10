@@ -31,8 +31,6 @@ It is starting stream-observer.m3u8 in mpv with following options:
   * instead of pausing when --keep-open is active, just stop at end of file and continue playing forward when you seek backwards until end where it stops again (default: yes)
 * --idle=yes
   * wait idly instead of quitting when there is no file to play
-* --hls-bitrate=min
-  * pick the streams with the lowest bitrate
 * --script-opts=osc-visibility=always
   * visibility mode of on screen controller
 * --audio-stream-silence=yes

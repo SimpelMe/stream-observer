@@ -94,7 +94,6 @@ mpv $PLAYLIST \
   --keep-open=always \
   --keep-open-pause=no \
   --idle=yes \
-  --hls-bitrate=min \
   --script-opts=osc-visibility=always \
   --audio-stream-silence=yes \
   --demuxer-cache-wait=no \
