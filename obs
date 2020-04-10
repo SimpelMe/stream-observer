@@ -96,10 +96,10 @@ mpv $PLAYLIST \
   --idle=yes \
   --vd-lavc-show-all=yes \
   --no-initial-audio-sync \
-  --script-opts=osc-visibility=always \
   --audio-stream-silence=yes \
   --demuxer-cache-wait=no \
   --demuxer-thread=yes \
+  --script-opts=osc-visibility=always \
   --osd-duration=5000 \
   --osd-msg1="room: 1 – 0       audio: q, w, e - Native, Translated, Translated-2       video: y, x - HD, Slides" \
   --no-osd-bar \

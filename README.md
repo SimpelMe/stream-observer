@@ -35,14 +35,14 @@ It is starting stream-observer.m3u8 in mpv with following options:
   * don't wail until an initial keyframe was decoded for a quicker startup
 * --no-initial-audio-sync
   * audio is started immediately even if start timestamp differs from video, if necessary video timing is gradually adjusted
-* --script-opts=osc-visibility=always
-  * visibility mode of on screen controller
 * --audio-stream-silence=yes
   * when pausing playback or stop and restart audio on seeks, audio is not stopped and silence is played
 * --demuxer-cache-wait=no
   * don't read data until the demuxer cache has reached maximum capacity
 * --demuxer-thread=no
   * run the demuxer in a separate thread and let it prefetch a certain amount of packets (default: yes)
+* --script-opts=osc-visibility=always
+  * visibility mode of on screen controller
 * --osd-duration=5000
   * set the duration of the OSD messages in ms (default: 1000)
 *   --osd-msg1="room: 1 … 0       audio: q, w, e - Native, Translated 1, Translated 2       video: y, x - HD, Slides"
