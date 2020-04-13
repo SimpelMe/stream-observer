@@ -1,6 +1,7 @@
 #! /bin/sh
 # Declare variables:
 SERVERPATH="http://live.ber.c3voc.de:7999/"
+RTMPPATH="rtmp://ingest.c3voc.de/stream/"
 ALL=false
 FORCE=false
 RED='\033[0;31m'
@@ -19,6 +20,7 @@ manual()
   exit
 }
 
+# Show extracted shortcuts from input.conf
 keys()
 {
   echo "Shortcuts:"
@@ -38,6 +40,7 @@ while getopts 'afhk' option 2>/dev/null; do
   esac
 done
 
+# Choose the playlist
 if [[ $ALL = true ]]; then
   # This playlist has all servers
   PLAYLIST="complete-playlist.m3u8"
@@ -49,6 +52,7 @@ else
   PLAYLIST="current-playlist.m3u8"
 
   # Read current active streams by api json
+  # JSON="$(curl https://streaming.media.ccc.de/streams/v2.json?forceopen=1 2>/dev/null)"
   JSON="$(curl https://streaming.media.ccc.de/streams/v2.json 2>/dev/null)"
   # JSON="$(cat xtemp/example.json 2>/dev/null)"
 
@@ -58,9 +62,9 @@ else
     exit 1
   fi
 
-  # Find all streaming servers in $JSON trim to server only and push into array
+  # Find all streaming servers in $JSON, trim to server only [sq]\d{1,3} and push into array
   # source: https://stackoverflow.com/questions/10586153/split-string-into-an-array-in-bash/13196466
-  REGEX="s\d{1,3}_native_hd.webm"
+  REGEX="[sq]\d{1,3}_native_hd.webm"
   SERVER="$(echo "$JSON" | grep -oE $REGEX | tr -d "_native_hd.webm")"
   SERVER_ARRAY=(`echo $SERVER | sed 's/,/\n/g'`)
 
@@ -71,8 +75,16 @@ else
   # Repeat playlist names and servers and "#EXT-X-DISCONTINUITY"
   for index in "${!SERVER_ARRAY[@]}"
   do
+      # Write servers name as info into playlist
       echo "#EXTINF:0,${SERVER_ARRAY[index]}" >> $PLAYLIST
-      echo "$SERVERPATH${SERVER_ARRAY[index]}" >> $PLAYLIST
+      # If servers first letter is "q" write it as an rtmp server
+      if [[ $(echo "${SERVER_ARRAY[index]}" | head -c1) = "q" ]]; then
+        echo "$RTMPPATH${SERVER_ARRAY[index]}" >> $PLAYLIST
+      # Write normal server with http into playlist
+      else
+        echo "$SERVERPATH${SERVER_ARRAY[index]}" >> $PLAYLIST
+      fi
+      # Write playlist divider
       echo "#EXT-X-DISCONTINUITY" >> $PLAYLIST
   done
   # Set a picture as last server, so mpv will not end by accident
