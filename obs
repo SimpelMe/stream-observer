@@ -33,6 +33,17 @@ keys()
   exit
 }
 
+# Cleanup on exit
+cleanup ()
+{
+  # Delete the current playlist if defined and exists
+  if [[ $ALL = false && $FORCE = false ]]; then
+    if [ -e $PLAYLIST ]; then
+        rm $PLAYLIST
+    fi
+  fi
+}
+
 # Check options
 while getopts 'afhk' option 2>/dev/null; do
   case $option in
@@ -44,6 +55,9 @@ while getopts 'afhk' option 2>/dev/null; do
          manual;;
   esac
 done
+
+# Exit handler
+trap cleanup exit
 
 # Choose the playlist
 if [[ $ALL = true ]]; then
@@ -126,7 +140,4 @@ mpv $PLAYLIST \
   --osd-margin-x=10 \
   --osd-margin-y=4
 
-# Delete the playlist
-if [[ $ALL = false && $FORCE = false ]]; then
-  rm $PLAYLIST
-fi
+exit
