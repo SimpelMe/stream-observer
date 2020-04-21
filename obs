@@ -1,4 +1,8 @@
 #! /bin/sh
+
+# set e: exit if something fails; set u: exit if a variable is unset
+set -eu
+
 # Declare variables:
 SERVERPATH="http://live.ber.c3voc.de:7999/"
 RTMPPATH="rtmp://ingest.c3voc.de/stream/"
