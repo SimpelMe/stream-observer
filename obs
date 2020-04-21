@@ -71,7 +71,7 @@ else
   # source: https://stackoverflow.com/questions/10586153/split-string-into-an-array-in-bash/13196466
   REGEX="[sq]\d{1,3}_native_hd.webm"
   SERVER="$(echo "$JSON" | grep -oE $REGEX | tr -d "_native_hd.webm")"
-  SERVER_ARRAY=(`echo $SERVER | sed 's/,/\n/g'`)
+  SERVER_ARRAY="$(echo $SERVER | sed 's/,/\n/g')"
 
   # Create playlist
   # Playlist header
