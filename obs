@@ -56,7 +56,7 @@ while getopts 'afhk' option 2>/dev/null; do
 done
 
 # Exit handler
-trap cleanup exit
+trap cleanup 0 1 2 3 6
 
 # Choose the playlist
 if [[ $ALL = true ]]; then
