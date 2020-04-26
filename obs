@@ -105,11 +105,13 @@ else
       # Write playlist divider
       echo "#EXT-X-DISCONTINUITY" >> $PLAYLIST
   done
-  # Set a picture as last server, so mpv will not end by accident
-  echo "#EXTINF:0,end of list" >> $PLAYLIST
-  echo "voctocat.png" >> $PLAYLIST
-  # End of playlist
-  echo "#EXT-X-ENDLIST" >> $PLAYLIST
+  {
+    # Set a picture as last server, so mpv will not end by accident
+    echo "#EXTINF:0,end of list"
+    echo "voctocat.png"
+    # End of playlist
+    echo "#EXT-X-ENDLIST"
+  } >> $PLAYLIST
 fi
 
 # That is really playing
