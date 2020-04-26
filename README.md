@@ -15,7 +15,7 @@ It is starting stream-observer.m3u8 in mpv with following options:
   * full screen
 * --no-ytdl
   * disable the youtube-dl hook-script (404 should try next stream immediately)
-* --msg-level=all=error,ffmpeg/video=fatal
+* --msg-level=all=error,ffmpeg=fatal
   * all modules just error messages, but ffmpeg/video fatal (because of permanent irrelevant PoC errors)
 * --no-input-default-bindings
   * deactivate all default key bindings
