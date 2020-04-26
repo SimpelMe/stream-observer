@@ -91,16 +91,16 @@ else
   echo "#EXTM3U" > $PLAYLIST
   echo "#EXT-X-VERSION:3" >> $PLAYLIST
   # Repeat playlist names and servers and "#EXT-X-DISCONTINUITY"
-  for index in "${!SERVER_ARRAY[@]}"
+  for STREAM in $SERVER_ARRAY
   do
       # Write servers name as info into playlist
-      echo "#EXTINF:0,${SERVER_ARRAY[index]}" >> $PLAYLIST
+      echo "#EXTINF:0,$STREAM" >> $PLAYLIST
       # If servers first letter is "q" write it as an rtmp server
-      if [[ $(echo "${SERVER_ARRAY[index]}" | head -c1) = "q" ]]; then
-        echo "$RTMPPATH${SERVER_ARRAY[index]}" >> $PLAYLIST
+      if [ "$(echo "$STREAM" | head -c1)" = "q" ]; then
+        echo "$RTMPPATH$STREAM" >> $PLAYLIST
       # Write normal server with http into playlist
       else
-        echo "$SERVERPATH${SERVER_ARRAY[index]}" >> $PLAYLIST
+        echo "$SERVERPATH$STREAM" >> $PLAYLIST
       fi
       # Write playlist divider
       echo "#EXT-X-DISCONTINUITY" >> $PLAYLIST
