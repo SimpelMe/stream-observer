@@ -36,11 +36,12 @@ keys()
 cleanup ()
 {
   # Delete the current playlist if defined and exists
-  if [[ $ALL = false && $FORCE = false ]]; then
-    if [ -e $PLAYLIST ]; then
-        rm $PLAYLIST
+  if [ $ALL = false ] && [ $FORCE = false ]; then
+    if [ -e "$PLAYLIST" ]; then
+        rm "$PLAYLIST"
     fi
   fi
+  exit
 }
 
 # Check options
@@ -59,10 +60,10 @@ done
 trap cleanup 0 1 2 3 6
 
 # Choose the playlist
-if [[ $ALL = true ]]; then
+if [ $ALL = true ]; then
   # This playlist has all servers
   PLAYLIST="complete-playlist.m3u8"
-elif [[ $FORCE = true ]]; then
+elif [ $FORCE = true ]; then
   # This playlist can be defined manually as partial copy of complete-playlist
   PLAYLIST="default-playlist.m3u8"
 else
