@@ -50,7 +50,7 @@ while getopts 'afhk' option 2>/dev/null; do
     f )  FORCE=true;shift;;
     h )  manual;;
     k )  keys;;
-    * )  printf "${YELLOW}Warning: illegal option $1${NC}\n" 1>&2
+    * )  printf "%b\n" "${YELLOW}Warning: illegal option $1${NC}" 1>&2
          manual;;
   esac
 done
@@ -75,8 +75,8 @@ else
   # JSON="$(cat xtemp/example.json 2>/dev/null)"
 
   # Check if trimmed (all white spaces) $JSON is empty
-  if [[ $(echo $JSON | tr -d "[:blank:]") = "[]" && $ALL = false ]]; then
-    printf "${YELLOW}Warning: no active servers available${NC}\n" 1>&2
+  if [ "$(echo "$JSON" | tr -d "[:blank:]")" = "[]" ] && [ $ALL = false ]; then
+    printf "%b\n" "${YELLOW}Warning: no active servers available${NC}" 1>&2
     exit 1
   fi
 
