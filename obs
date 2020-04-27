@@ -146,7 +146,6 @@ else
   fi
 
   # Find all streaming servers in $JSON, trim to server only
-  # source: https://stackoverflow.com/questions/10586153/split-string-into-an-array-in-bash/13196466
   REGEX="\"stream\": \".+\""
   SERVER="$(echo "$JSON" | grep -oE "$REGEX")"
   verbose "Grep '$REGEX' from json: $?" 2
