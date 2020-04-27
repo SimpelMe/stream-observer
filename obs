@@ -157,6 +157,10 @@ else
   verbose "Sort servers: $?" 2
   SERVER="$(echo "$SERVER" | uniq)"
   verbose "Shrink to unique servers: $?" 2
+  if [ "${SERVER}" = "" ]; then
+    printf "%b\n" "${YELLOW}Warning: no extractable streams available${NC}" 1>&2
+    exit 1
+  fi
   verbose "Extracted servers:\n$SERVER" 3
 
   # Create playlist
