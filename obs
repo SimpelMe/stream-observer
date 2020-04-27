@@ -4,11 +4,12 @@
 set -eu
 
 # Declare variables:
-unset FORCE_DAYS
+unset FORCE_DAYS PLAYLIST_FILE
 readonly SERVERPATH="http://live.ber.c3voc.de:7999/"
 readonly RTMPPATH="rtmp://ingest.c3voc.de/stream/"
 readonly YELLOW='\033[1;33m'
 readonly NC='\033[0m' # No Color
+readonly UNDERLINED='\033[4m'
 readonly PROGNAME="${0##*/}"
 VERBOSITY=0
 ALL=false
@@ -32,12 +33,13 @@ verbose() {
 # Short manual
 manual()
 {
-  echo "Usage: ${PROGNAME} [-a | -f | -h | -k | -v]"
+  echo "Usage: ${PROGNAME} [-a | -f | -h | -k | -p ${UNDERLINED}file${NC} | -v]"
   echo "       opens mpv with all active voc streams"
   echo "       -a tries to open all streams listed in 'complete-playlist.m3u8'"
   echo "       -f tries to open all active and planned streams"
   echo "       -h shows this help"
   echo "       -k shows shortcuts"
+  echo "       -p use playlist ${UNDERLINED}file${NC} in format m3u8"
   echo "       -v increases verbosity"
   exit
 }
@@ -65,14 +67,15 @@ cleanup ()
 }
 
 # Check options
-while getopts 'af:hkv' option 2>/dev/null; do
+while getopts 'af:hkp:v' option 2>/dev/null; do
   case $option in
     a ) ALL=true;;
     f ) FORCE_DAYS="${OPTARG}"
         FORCE=true;;
     h ) manual;;
     k ) keys;;
-    v)  VERBOSITY=$(( ${VERBOSITY} + 1 ));;
+    p ) PLAYLIST_FILE="${OPTARG}";;
+    v ) VERBOSITY=$(( ${VERBOSITY} + 1 ));;
     * ) if [ $1 != "-?" ]; then
           curropt=$(($OPTIND - 1))
           eval "curropt=\$$curropt"
@@ -92,6 +95,13 @@ if [ $ALL = true ]; then
   # This playlist has all servers
   PLAYLIST="complete-playlist.m3u8"
   verbose "Used playlist: $PLAYLIST"
+elif [ -n "$PLAYLIST_FILE" ]; then
+  PLAYLIST="${PLAYLIST_FILE}"
+  verbose "Used playlist: $PLAYLIST"
+  if [ ! -f "$PLAYLIST" ]; then
+    printf "%b\n" "${YELLOW}Warning: playlist '$PLAYLIST' does not exist${NC}" 1>&2
+    exit 1
+  fi
 else
   # This playlist should have only servers found in https://streaming.media.ccc.de/streams/v2.json and will be created
   PLAYLIST="current-playlist.m3u8"
@@ -190,4 +200,5 @@ mpv $PLAYLIST \
   --osd-margin-x=10 \
   --osd-margin-y=4
 
+verbose "Exit"
 exit
