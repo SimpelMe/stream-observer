@@ -68,11 +68,11 @@ keys()
 cleanup ()
 {
   # Delete the current playlist if exists
-  verbose "Cleanup on exit" 2
+  verbose "Cleanup on exit" 3
   PLAYLIST="current-playlist.m3u8"
   if [ -e "$PLAYLIST" ]; then
     rm "$PLAYLIST"
-    verbose "Delete 'current-playlist.m3u8': $?" 2
+    verbose "Delete 'current-playlist.m3u8': $?" 3
   fi
   exit
 }
@@ -127,9 +127,10 @@ else
   verbose "Used playlist: $PLAYLIST"
 
   # Read current active streams by api json
-  verbose "Read stream api with option forceopen=1: $FORCE"
+  verbose "Read stream api"
   if [ $FORCE = true ]; then
     # with option forceopen=1 (shows all streams done, running and planned)
+    verbose "With option forceopen=1: $FORCE" 2
     JSON="$(curl -sSf https://streaming.media.ccc.de/streams/v2.json?forceopen=1)"
     verbose "Curl json: $?" 2
   else
