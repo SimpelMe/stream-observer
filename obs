@@ -47,6 +47,7 @@ keys()
 {
   echo "Shortcuts:"
   grep '^[[:blank:]]*[^[:blank:]#]' input.conf
+  verbose "grep shortcuts from 'input.conf': $?" 2
   exit
 }
 
@@ -54,9 +55,11 @@ keys()
 cleanup ()
 {
   # Delete the current playlist if exists
+  verbose "Cleanup on exit" 2
   PLAYLIST="current-playlist.m3u8"
   if [ -e "$PLAYLIST" ]; then
-      rm "$PLAYLIST"
+    rm "$PLAYLIST"
+    verbose "Delete 'current-playlist.m3u8': $?" 2
   fi
   exit
 }
@@ -78,7 +81,8 @@ while getopts 'af:hkv' option 2>/dev/null; do
         manual;;
   esac
 done
-verbose "Verbosity: $VERBOSITY"
+verbose "${YELLOW}Note: number after colon usually represents commands exit code${NC}"
+verbose "Level of verbosity: $VERBOSITY"
 
 # Exit handler
 trap cleanup 0 1 2 3 6
@@ -87,19 +91,25 @@ trap cleanup 0 1 2 3 6
 if [ $ALL = true ]; then
   # This playlist has all servers
   PLAYLIST="complete-playlist.m3u8"
+  verbose "Used playlist: $PLAYLIST"
 else
   # This playlist should have only servers found in https://streaming.media.ccc.de/streams/v2.json and will be created
   PLAYLIST="current-playlist.m3u8"
+  verbose "Used playlist: $PLAYLIST"
 
   # Read current active streams by api json
+  verbose "Read stream api with option forceopen=1: $FORCE"
   if [ $FORCE = true ]; then
     # with option forceopen=1 (shows all streams done, running and planned)
     JSON="$(curl https://streaming.media.ccc.de/streams/v2.json?forceopen=1 2>/dev/null)"
+    verbose "Curl json: $?" 2
   else
     # shows only running streams
     JSON="$(curl https://streaming.media.ccc.de/streams/v2.json 2>/dev/null)"
     # JSON="$(cat xtemp/example.json 2>/dev/null)"
+    verbose "Curl json: $?" 2
   fi
+  verbose "Stream api json:\n$JSON" 4
 
   # Check if trimmed (all white spaces) $JSON is empty
   if [ "$(echo "$JSON" | tr -d "[:blank:]")" = "[]" ] && [ $ALL = false ]; then
@@ -107,14 +117,20 @@ else
     exit 1
   fi
 
-  # Find all streaming servers in $JSON, trim to server only [sq]\d{1,3} and push into array
+  # Find all streaming servers in $JSON, trim to server only
   # source: https://stackoverflow.com/questions/10586153/split-string-into-an-array-in-bash/13196466
   REGEX="\"stream\": \".+\""
   SERVER="$(echo "$JSON" | grep -oE "$REGEX")"
+  verbose "Grep '$REGEX' from json: $?" 2
   SERVER="$(echo "$SERVER" | sed 's/"stream": "//g')"
+  verbose "Clear result before servers: $?" 2
   SERVER="$(echo "$SERVER" | sed 's/"//g')"
+  verbose "Clear result after servers: $?" 2
   SERVER="$(echo "$SERVER" | sort)"
+  verbose "Sort servers: $?" 2
   SERVER="$(echo "$SERVER" | uniq)"
+  verbose "Shrink to unique servers: $?" 2
+  verbose "Extracted servers:\n$SERVER" 3
 
   # Create playlist
   # Playlist header
@@ -128,9 +144,11 @@ else
       # If servers first letter is "q" write it as an rtmp server
       if [ "$(echo "$STREAM" | head -c1)" = "q" ]; then
         echo "$RTMPPATH$STREAM" >> $PLAYLIST
+        verbose "Add $RTMPPATH$STREAM to playlist: $?" 3
       # Write normal server with http into playlist
       else
         echo "$SERVERPATH$STREAM" >> $PLAYLIST
+        verbose "Add $SERVERPATH$STREAM to playlist: $?" 3
       fi
       # Write playlist divider
       echo "#EXT-X-DISCONTINUITY" >> $PLAYLIST
@@ -142,6 +160,7 @@ else
     # End of playlist
     echo "#EXT-X-ENDLIST"
   } >> $PLAYLIST
+  verbose "Playlist complete: $?"
 fi
 
 # That is really playing
