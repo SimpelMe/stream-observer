@@ -56,7 +56,9 @@ while getopts 'af:hk' option 2>/dev/null; do
     h ) manual;;
     k ) keys;;
     * ) if [ $1 != "-?" ]; then
-          printf "%b\n" "${YELLOW}Warning: illegal option $1${NC}" 1>&2
+          curropt=$(($OPTIND - 1))
+          eval "curropt=\$$curropt"
+          printf "%b\n" "${YELLOW}Warning: illegal option ${curropt}${NC}" 1>&2
         fi
         manual;;
   esac
