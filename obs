@@ -94,6 +94,8 @@ else
   REGEX="\"stream\": \".+\""
   SERVER="$(echo "$JSON" | grep -oE "$REGEX" | sed 's/"stream": "//g' | sed 's/"//g')"
   SERVER_ARRAY="$(echo "$SERVER" | sed 's/,/\n/g')"
+  SERVER_ARRAY="$(echo "$SERVER_ARRAY" | sort)"
+  SERVER_ARRAY="$(echo "$SERVER_ARRAY" | uniq)"
 
   # Create playlist
   # Playlist header
