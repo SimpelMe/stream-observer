@@ -110,17 +110,18 @@ else
   # Find all streaming servers in $JSON, trim to server only [sq]\d{1,3} and push into array
   # source: https://stackoverflow.com/questions/10586153/split-string-into-an-array-in-bash/13196466
   REGEX="\"stream\": \".+\""
-  SERVER="$(echo "$JSON" | grep -oE "$REGEX" | sed 's/"stream": "//g' | sed 's/"//g')"
-  SERVER_ARRAY="$(echo "$SERVER" | sed 's/,/\n/g')"
-  SERVER_ARRAY="$(echo "$SERVER_ARRAY" | sort)"
-  SERVER_ARRAY="$(echo "$SERVER_ARRAY" | uniq)"
+  SERVER="$(echo "$JSON" | grep -oE "$REGEX")"
+  SERVER="$(echo "$SERVER" | sed 's/"stream": "//g')"
+  SERVER="$(echo "$SERVER" | sed 's/"//g')"
+  SERVER="$(echo "$SERVER" | sort)"
+  SERVER="$(echo "$SERVER" | uniq)"
 
   # Create playlist
   # Playlist header
   echo "#EXTM3U" > $PLAYLIST
   echo "#EXT-X-VERSION:3" >> $PLAYLIST
   # Repeat playlist names and servers and "#EXT-X-DISCONTINUITY"
-  for STREAM in $SERVER_ARRAY
+  for STREAM in $SERVER
   do
       # Write servers name as info into playlist
       echo "#EXTINF:0,$STREAM" >> $PLAYLIST
