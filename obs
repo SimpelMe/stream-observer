@@ -47,9 +47,9 @@ cleanup ()
 # Check options
 while getopts 'af:hk' option 2>/dev/null; do
   case $option in
-    a ) ALL=true;shift;;
+    a ) ALL=true;break;;
     f ) FORCE_DAYS="${OPTARG}"
-        FORCE=true;;
+        FORCE=true;break;;
     h ) manual;;
     k ) keys;;
     * ) if [ $1 != "-?" ]; then
