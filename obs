@@ -130,12 +130,11 @@ else
   verbose "Read stream api with option forceopen=1: $FORCE"
   if [ $FORCE = true ]; then
     # with option forceopen=1 (shows all streams done, running and planned)
-    JSON="$(curl https://streaming.media.ccc.de/streams/v2.json?forceopen=1 2>/dev/null)"
+    JSON="$(curl -sSf https://streaming.media.ccc.de/streams/v2.json?forceopen=1)"
     verbose "Curl json: $?" 2
   else
     # shows only running streams
-    JSON="$(curl https://streaming.media.ccc.de/streams/v2.json 2>/dev/null)"
-    # JSON="$(cat xtemp/example.json 2>/dev/null)"
+    JSON="$(curl -sSf https://streaming.media.ccc.de/streams/v2.json)"
     verbose "Curl json: $?" 2
   fi
   verbose "Stream api json:\n$JSON" 4
