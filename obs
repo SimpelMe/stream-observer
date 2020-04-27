@@ -5,8 +5,11 @@ set -eu
 
 # Declare variables:
 unset FORCE_DAYS
-SERVERPATH="http://live.ber.c3voc.de:7999/"
-RTMPPATH="rtmp://ingest.c3voc.de/stream/"
+readonly SERVERPATH="http://live.ber.c3voc.de:7999/"
+readonly RTMPPATH="rtmp://ingest.c3voc.de/stream/"
+readonly YELLOW='\033[1;33m'
+readonly NC='\033[0m' # No Color
+readonly PROGNAME="${0##*/}"
 ALL=false
 FORCE=false
 YELLOW='\033[1;33m'
