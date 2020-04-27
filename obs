@@ -4,6 +4,7 @@
 set -eu
 
 # Declare variables:
+unset FORCE_DAYS
 SERVERPATH="http://live.ber.c3voc.de:7999/"
 RTMPPATH="rtmp://ingest.c3voc.de/stream/"
 ALL=false
@@ -44,13 +45,14 @@ cleanup ()
 }
 
 # Check options
-while getopts 'afhk' option 2>/dev/null; do
+while getopts 'af:hk' option 2>/dev/null; do
   case $option in
     a ) ALL=true;shift;;
-    f ) FORCE=true;shift;;
+    f ) FORCE_DAYS=$OPTARG
+        FORCE=true;;
     h ) manual;;
     k ) keys;;
-    ? ) if [ $1 != "-?" ]; then
+    * ) if [ $1 != "-?" ]; then
           printf "%b\n" "${YELLOW}Warning: illegal option $1${NC}" 1>&2
         fi
         manual;;
