@@ -42,10 +42,11 @@ verbose() {
 # Short manual
 manual()
 {
-  echo "Usage: ${PROGNAME} [-a | -d | -f | -h | -k | -p ${UNDERLINED}file${NC} | -v]"
+  echo "Usage: ${PROGNAME} [-a | -d | -D | -f | -h | -k | -p ${UNDERLINED}file${NC} | -v]"
   echo "       opens mpv with all active voc streams"
   echo "       -a tries to open all streams listed in 'complete-playlist.m3u8'"
-  echo "       -d runs in debug mode"
+  echo "       -d debug mode: print commands and arguments while executed"
+  echo "       -D debug mode: print script lines while read"
   echo "       -f tries to open all active and planned streams"
   echo "       -h shows this help"
   echo "       -k shows shortcuts"
@@ -77,10 +78,12 @@ cleanup ()
 }
 
 # Check options
-while getopts 'adf:hkp:v' option 2>/dev/null; do
+while getopts 'adDf:hkp:v' option 2>/dev/null; do
   case $option in
     a ) ALL=true;;
     d ) set -x
+        DEBUG=true;;
+    D ) set -v
         DEBUG=true;;
     f ) FORCE_DAYS="${OPTARG}"
         FORCE=true;;
