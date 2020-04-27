@@ -46,12 +46,14 @@ cleanup ()
 # Check options
 while getopts 'afhk' option 2>/dev/null; do
   case $option in
-    a )  ALL=true;shift;;
-    f )  FORCE=true;shift;;
-    h )  manual;;
-    k )  keys;;
-    * )  printf "%b\n" "${YELLOW}Warning: illegal option $1${NC}" 1>&2
-         manual;;
+    a ) ALL=true;shift;;
+    f ) FORCE=true;shift;;
+    h ) manual;;
+    k ) keys;;
+    ? ) if [ $1 != "-?" ]; then
+          printf "%b\n" "${YELLOW}Warning: illegal option $1${NC}" 1>&2
+        fi
+        manual;;
   esac
 done
 
