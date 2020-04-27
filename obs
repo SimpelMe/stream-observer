@@ -66,17 +66,19 @@ trap cleanup 0 1 2 3 6
 if [ $ALL = true ]; then
   # This playlist has all servers
   PLAYLIST="complete-playlist.m3u8"
-elif [ $FORCE = true ]; then
-  # This playlist can be defined manually as partial copy of complete-playlist
-  PLAYLIST="default-playlist.m3u8"
 else
   # This playlist should have only servers found in https://streaming.media.ccc.de/streams/v2.json and will be created
   PLAYLIST="current-playlist.m3u8"
 
   # Read current active streams by api json
-  # JSON="$(curl https://streaming.media.ccc.de/streams/v2.json?forceopen=1 2>/dev/null)"
-  JSON="$(curl https://streaming.media.ccc.de/streams/v2.json 2>/dev/null)"
-  # JSON="$(cat xtemp/example.json 2>/dev/null)"
+  if [ $FORCE = true ]; then
+    # with option forceopen=1 (shows all streams done, running and planned)
+    JSON="$(curl https://streaming.media.ccc.de/streams/v2.json?forceopen=1 2>/dev/null)"
+  else
+    # shows only running streams
+    JSON="$(curl https://streaming.media.ccc.de/streams/v2.json 2>/dev/null)"
+    # JSON="$(cat xtemp/example.json 2>/dev/null)"
+  fi
 
   # Check if trimmed (all white spaces) $JSON is empty
   if [ "$(echo "$JSON" | tr -d "[:blank:]")" = "[]" ] && [ $ALL = false ]; then
