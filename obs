@@ -19,7 +19,7 @@ manual()
   echo "Usage: ${PROGNAME} [-a | -f | -h | -k]"
   echo "       opens mpv with all active voc streams"
   echo "       -a tries to open all streams listed in 'complete-playlist.m3u8'"
-  echo "       -f forces default playlist if no active server is available"
+  echo "       -f tries to open all active and planned streams"
   echo "       -h shows this help"
   echo "       -k shows shortcuts"
   exit
