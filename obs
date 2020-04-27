@@ -48,7 +48,7 @@ cleanup ()
 while getopts 'af:hk' option 2>/dev/null; do
   case $option in
     a ) ALL=true;shift;;
-    f ) FORCE_DAYS=$OPTARG
+    f ) FORCE_DAYS="${OPTARG}"
         FORCE=true;;
     h ) manual;;
     k ) keys;;
