@@ -4,7 +4,7 @@
 set -eu
 
 # Declare variables:
-unset FORCE_DAYS PLAYLIST_FILE DEBUG
+unset FORCE_DATE PLAYLIST_FILE DEBUG SORT
 readonly SERVERPATH="http://live.ber.c3voc.de:7999/"
 readonly RTMPPATH="rtmp://ingest.c3voc.de/stream/"
 readonly RED='\033[0;31m'
@@ -67,6 +67,48 @@ keys()
   exit
 }
 
+# Convert stream api json to server array - output: endsAt \t display \t stream [ \t display \t stream ]
+server_array ()
+{
+  verbose "Create server array"
+  result="$(echo "$1" | grep -E "\"endsAt\": \"?.+\"?,|^\s{24}\"display\": \"?.+\"?,|\"stream\": \"?.+\"?,")"
+  verbose "Grep 'endsAt, display, stream including values': $?" 2
+  result="$(echo "$result" | awk '{$1=$1;print}')"
+  verbose "Remove leading/trailing white spaces: $?" 2
+  result="$(echo "$result" | sed 's/,$//g')"
+  verbose "Remove trailing commas: $?" 2
+  result="$(echo "$result" | tr '\n' '\t')"
+  verbose "Replace all newlines with tabs: $?" 2
+  result="$(echo "$result" | sed 's/\"endsAt/\'$'\n\"endsAt/g')"
+  verbose "Insert newlines before endsAt: $?" 2
+  result="$(echo "$result" | tail -n +2)"
+  verbose "Remove first newline: $?" 2
+  result="$(echo "$result" | sed 's/\"endsAt\": //g')"
+  verbose "Remove 'endsAt': $?" 2
+  result="$(echo "$result" | sed 's/\"display\": //g')"
+  verbose "Remove 'display': $?" 2
+  result="$(echo "$result" | sed 's/\"stream\": //g')"
+  verbose "Remove 'stream': $?" 2
+  result="$(echo "$result" | sed 's/\"//g')"
+  verbose "Remove all \": $?" 2
+  result="$(echo "$result" | awk -F '\t' '{print $0}')"
+  if [ $FORCE = true ]; then
+    verbose "Forced date: $FORCE_DATE"
+    result="$(echo "$result" | awk -F '\t' -v force_date="$FORCE_DATE" '$1>=force_date && $1!="null" {print $0}')"
+    verbose "Strip server array to forced days"
+  fi
+  echo "$result"
+}
+
+# Returning only servers from server array
+server_only ()
+{
+  # returns odd fields started at 3
+  result="$(echo "$1" | awk -F '\t' '{s="";for (i=3;i<=NF;i+=2) {s=s?s FS $i:$i} print s}')"
+  verbose "Shrink server array to servers only: $?" 2
+  echo "$result"
+}
+
 # Cleanup on exit
 cleanup ()
 {
@@ -88,7 +130,7 @@ while getopts 'adDf:hkp:v' option 2>/dev/null; do
         DEBUG=true;;
     D ) set -v
         DEBUG=true;;
-    f ) FORCE_DAYS="${OPTARG}"
+    f ) FORCE_DATE="$(date -v-"${OPTARG}"d -u +"%Y-%m-%dT%H:%M:%S+0000")"
         FORCE=true;;
     h ) manual;;
     k ) keys;;
