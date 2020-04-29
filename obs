@@ -45,16 +45,18 @@ verbose() {
 # Short manual
 manual()
 {
-  echo "Usage: ${PROGNAME} [-a | -d | -D | -f | -h | -k | -p ${UNDERLINED}file${NC} | -v]"
+  echo "Usage: ${PROGNAME} [-a | -d | -D | -f ${UNDERLINED}days${NC} | -h | -k | -p ${UNDERLINED}file${NC} | -s | -v]"
   echo "       opens mpv with all active voc streams"
-  echo "       -a tries to open all streams listed in 'complete-playlist.m3u8'"
+  echo "       -a all streams listed in complete-playlist.m3u8 are tried"
   echo "       -d debug mode: print commands and arguments while executed"
   echo "       -D debug mode: print script lines while read"
-  echo "       -f tries to open all active and planned streams"
-  echo "       -h shows this help"
-  echo "       -k shows shortcuts"
-  echo "       -p use playlist ${UNDERLINED}file${NC} in format m3u8"
-  echo "       -v increases verbosity"
+  echo "       -f force to open all planned, active and past streams"
+  echo "          ${UNDERLINED}days${NC} to the past are mandatory (to omit set 0)"
+  echo "       -h help shown"
+  echo "       -k keys/shortcuts shown"
+  echo "       -p playlist ${UNDERLINED}file${NC} with servers in format m3u8"
+  echo "       -s sort server list alphabetically"
+  echo "       -v verbosity increasing with ${UNDERLINED}v${NC}"
   exit
 }
 
