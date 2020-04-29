@@ -222,7 +222,8 @@ else
   for STREAM in $SERVER
   do
       # Write servers name as info into playlist
-      echo "#EXTINF:0,$STREAM" >> $PLAYLIST
+      NAME="$(echo "$SERVER_ARRAY" | awk -F '\t' -v stream="$STREAM" '{ for (x=1;x<=NF;x++) if ($x==stream) {print $(x-1); exit} }')"
+      echo "#EXTINF:0,$NAME ($STREAM)" >> $PLAYLIST
       # If servers first letter is "q" write it as an rtmp server
       if [ "$(echo "$STREAM" | head -c1)" = "q" ]; then
         echo "$RTMPPATH$STREAM" >> $PLAYLIST
