@@ -125,7 +125,7 @@ cleanup ()
 }
 
 # Check options
-while getopts 'adDf:hkp:v' option 2>/dev/null; do
+while getopts 'adDf:hkp:sv' option 2>/dev/null; do
   case $option in
     a ) ALL=true;;
     d ) set -x
@@ -137,6 +137,7 @@ while getopts 'adDf:hkp:v' option 2>/dev/null; do
     h ) manual;;
     k ) keys;;
     p ) PLAYLIST_FILE="${OPTARG}";;
+    s ) SORT=true;;
     v ) VERBOSITY=$(( ${VERBOSITY} + 1 ));;
     * ) if [ $1 != "-?" ]; then
           curropt=$(($OPTIND - 1))
