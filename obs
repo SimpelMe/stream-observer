@@ -197,16 +197,16 @@ else
   fi
 
   # Find all streaming servers in $JSON, trim to server only
-  REGEX="\"stream\": \".+\""
-  SERVER="$(echo "$JSON" | grep -oE "$REGEX")"
-  verbose "Grep '$REGEX' from json: $?" 2
-  SERVER="$(echo "$SERVER" | sed 's/"stream": "//g')"
-  verbose "Clear result before servers: $?" 2
-  SERVER="$(echo "$SERVER" | sed 's/"//g')"
-  verbose "Clear result after servers: $?" 2
-  SERVER="$(echo "$SERVER" | sort)"
-  verbose "Sort servers: $?" 2
-  SERVER="$(echo "$SERVER" | uniq)"
+  SERVER_ARRAY="$(server_array "$JSON")"
+  verbose "Server array:\n$SERVER_ARRAY" 4
+  SERVER="$(server_only "$SERVER_ARRAY")"
+  SERVER="$(echo "$SERVER" | tr '\t' '\n')"
+  verbose "Newline separated server list: $?" 2
+  if [ -n "${SORT-}" ]; then
+    SERVER="$(echo "$SERVER" | sort -n)"
+    verbose "Sort servers: $?" 2
+  fi
+  SERVER="$(echo "$SERVER" | awk '!a[$0]++')"
   verbose "Shrink to unique servers: $?" 2
   if [ "${SERVER}" = "" ]; then
     printf "%b\n" "${YELLOW}Warning: no extractable streams available${NC}" 1>&2
