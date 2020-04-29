@@ -19,11 +19,13 @@ FORCE=false
 # Verbose messages
 verbose() {
 	msg="${1}"
-	level="${2:-1}"
+	level="${2:-1}" # default 1 if not given
 	i=0
-
+  # print all verbose messages up to verbosity level
 	if [ ${level} -le ${VERBOSITY} ]; then
+    # print '=' for every level
 		while [ ${i} -lt ${level} ]; do
+      # colorize them in debug mode
       if [ -n "${DEBUG-}" ]; then
         printf "${RED}=${NC}\n" >&2
       else
@@ -31,6 +33,7 @@ verbose() {
       fi
 			i=$(( ${i} + 1 ))
 		done
+    # print verbose message (colorize in debug mode)
     if [ -n "${DEBUG-}" ]; then
   		echo "${RED}> ${msg}${NC}" >&2
     else
@@ -106,6 +109,7 @@ verbose "Level of verbosity: $VERBOSITY"
 trap cleanup 0 1 2 3 6
 
 # Choose the playlist
+# Option -a; all servers should be tried
 if [ $ALL = true ]; then
   # This playlist has all servers
   PLAYLIST="complete-playlist.m3u8"
@@ -114,6 +118,7 @@ if [ $ALL = true ]; then
     printf "%b\n" "${YELLOW}Warning: playlist '$PLAYLIST' with all servers does not exist${NC}" 1>&2
     exit 1
   fi
+# Playlist given with option -p
 elif [ -n "${PLAYLIST_FILE-}" ]; then
   PLAYLIST="${PLAYLIST_FILE}"
   verbose "Used playlist: $PLAYLIST"
@@ -140,7 +145,7 @@ else
   fi
   verbose "Stream api json:\n$JSON" 4
 
-  # Check if trimmed (all white spaces) $JSON is empty
+  # Exit if trimmed (all white spaces) $JSON is empty
   if [ "$(echo "$JSON" | tr -d "[:blank:]")" = "[]" ] && [ $ALL = false ]; then
     printf "%b\n" "${YELLOW}Warning: no active streams available${NC}" 1>&2
     exit 1
