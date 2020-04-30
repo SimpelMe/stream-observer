@@ -11,10 +11,25 @@ First make `obs` executable with `chmod +x obs`. Then execute `obs`.
 Install mpv if not existing.
 
 ## Table of contents
+* [Options](#options)
 * [Keys and shortcuts](#keys-and-shortcuts)
   * [defined by lua scripts](#defined-by-lua-scripts)
   * [defined defaults by input.conf](#defined-defaults-by-inputconf)
 * [Fixed mpv options](#fixed-mpv-options)
+
+## Options
+Usage: obs [-a | -d | -D | -f _days_ | -h | -k | -n | -p _file_ | -s | -v]
+* -a all streams listed in complete-playlist.m3u8 are tried
+* -d debug mode: print commands and arguments while executed
+* -D debug mode: print script lines while read
+* -f force to open all planned, active and past streams
+    * _days_ to the past are mandatory (to omit set 0)
+* -h help shown
+* -k keys/shortcuts shown
+* -n name server with original extension
+* -p playlist _file_ with servers in format m3u8
+* -s sort server list alphanumerical
+* -v verbosity increasing with _v_
 
 ## Keys and shortcuts
 ### defined by lua scripts
