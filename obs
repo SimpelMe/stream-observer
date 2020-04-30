@@ -65,7 +65,7 @@ manual()
   echo "       -k keys/shortcuts shown"
   echo "       -n name server with original extension"
   echo "       -p playlist ${UNDERLINED}file${NC} with servers in format m3u8"
-  echo "       -s sort server list alphabetically"
+  echo "       -s sort server list alphanumerical"
   echo "       -v verbosity increasing with ${UNDERLINED}v${NC}"
   exit
 }
