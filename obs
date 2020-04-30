@@ -148,8 +148,12 @@ while getopts 'adDf:hknp:sv' option 2>/dev/null; do
         DEBUG=true;;
     D ) set -v
         DEBUG=true;;
-    f ) FORCE_DATE="$(date -v-"${OPTARG}"d -u +"%Y-%m-%dT%H:%M:%S+0000")"
-        FORCE=true;;
+    f ) case ${OPTARG} in
+          *[!0-9]* ) printf "%b\n" "${YELLOW}Warning: illegal option ${OPTARG} (no number)${NC}" 1>&2
+                    exit 1;;
+          * ) FORCE_DATE="$(date -v-${OPTARG}d -u +"%Y-%m-%dT%H:%M:%S+0000")"
+             FORCE=true;;
+        esac;;
     h ) manual;;
     k ) keys;;
     n ) NAME_EXT=true;;
