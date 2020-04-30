@@ -76,31 +76,31 @@ server_array ()
   verbose "Create server array"
   result="$(echo "$1" | grep -E "\"endsAt\": \"?.+\"?,|^\s{24}\"display\": \"?.+\"?,|\"stream\": \"?.+\"?,")"
   verbose "Grep 'endsAt, display, stream including values': $?" 2
-  result="$(echo "$result" | awk '{$1=$1;print}')"
+  result="$(echo "${result}" | awk '{$1=$1;print}')"
   verbose "Remove leading/trailing white spaces: $?" 2
-  result="$(echo "$result" | sed 's/,$//g')"
+  result="$(echo "${result}" | sed 's/,$//g')"
   verbose "Remove trailing commas: $?" 2
-  result="$(echo "$result" | tr '\n' '\t')"
+  result="$(echo "${result}" | tr '\n' '\t')"
   verbose "Replace all newlines with tabs: $?" 2
-  result="$(echo "$result" | sed 's/\"endsAt/\'$'\n\"endsAt/g')"
+  result="$(echo "${result}" | sed 's/\"endsAt/\'$'\n\"endsAt/g')"
   verbose "Insert newlines before endsAt: $?" 2
-  result="$(echo "$result" | tail -n +2)"
+  result="$(echo "${result}" | tail -n +2)"
   verbose "Remove first newline: $?" 2
-  result="$(echo "$result" | sed 's/\"endsAt\": //g')"
+  result="$(echo "${result}" | sed 's/\"endsAt\": //g')"
   verbose "Remove 'endsAt': $?" 2
-  result="$(echo "$result" | sed 's/\"display\": //g')"
+  result="$(echo "${result}" | sed 's/\"display\": //g')"
   verbose "Remove 'display': $?" 2
-  result="$(echo "$result" | sed 's/\"stream\": //g')"
+  result="$(echo "${result}" | sed 's/\"stream\": //g')"
   verbose "Remove 'stream': $?" 2
-  result="$(echo "$result" | sed 's/\"//g')"
+  result="$(echo "${result}" | sed 's/\"//g')"
   verbose "Remove all \": $?" 2
-  result="$(echo "$result" | awk -F '\t' '{print $0}')"
-  if [ $FORCE = true ]; then
-    verbose "Forced date: $FORCE_DATE"
-    result="$(echo "$result" | awk -F '\t' -v force_date="$FORCE_DATE" '$1>=force_date && $1!="null" {print $0}')"
+  result="$(echo "${result}" | awk -F '\t' '{print $0}')"
+  if [ "${FORCE}" = true ]; then
+    verbose "Forced date: ${FORCE_DATE}"
+    result="$(echo "${result}" | awk -F '\t' -v force_date="${FORCE_DATE}" '$1>=force_date && $1!="null" {print $0}')"
     verbose "Strip server array to forced days"
   fi
-  echo "$result"
+  echo "${result}"
 }
 
 # Returning only servers from server array
@@ -109,7 +109,7 @@ server_only ()
   # returns odd fields started at 3
   result="$(echo "$1" | awk -F '\t' '{s="";for (i=3;i<=NF;i+=2) {s=s?s FS $i:$i} print s}')"
   verbose "Shrink server array to servers only: $?" 2
-  echo "$result"
+  echo "${result}"
 }
 
 # Returning servers sorted alphanumerical
@@ -118,13 +118,13 @@ sort_alphanum ()
   # fill numbers with leading zeros, sort, split at numbers, remove leading zeros and merge
   result="$(echo "$1" | awk '{ gsub(/([^[:digit:]]+|[[:digit:]]+)/,"&\t") ; printf("%s%05d\n", $1, $2)}')"
   verbose "Fill numbers with leading zeros: $?" 2
-  result="$(echo "$result" | sort -n)"
+  result="$(echo "${result}" | sort -n)"
   verbose "Sort numerical: $?" 2
-  result="$(echo "$result" | awk '{ gsub(/([^[:digit:]]+|[[:digit:]]+)/,"&\t") ; print  $1, $2}')"
+  result="$(echo "${result}" | awk '{ gsub(/([^[:digit:]]+|[[:digit:]]+)/,"&\t") ; print  $1, $2}')"
   verbose "Split at beginning of number: $?" 2
-  result="$(echo "$result" | awk '{gsub ("^0*", "", $2); printf("%s%s\n", $1, $2)}')"
+  result="$(echo "${result}" | awk '{gsub ("^0*", "", $2); printf("%s%s\n", $1, $2)}')"
   verbose "Strip leading zero and merge: $?" 2
-  echo "$result"
+  echo "${result}"
 }
 
 # Cleanup on exit
@@ -133,8 +133,8 @@ cleanup ()
   # Delete the current playlist if exists
   verbose "Cleanup on exit" 3
   PLAYLIST="current-playlist.m3u8"
-  if [ -e "$PLAYLIST" ]; then
-    rm "$PLAYLIST"
+  if [ -e "${PLAYLIST}" ]; then
+    rm "${PLAYLIST}"
     verbose "Delete 'current-playlist.m3u8': $?" 3
   fi
   exit
@@ -142,7 +142,7 @@ cleanup ()
 
 # Check options
 while getopts 'adDf:hknp:sv' option 2>/dev/null; do
-  case $option in
+  case "${option}" in
     a ) ALL=true;;
     d ) set -x
         DEBUG=true;;
@@ -157,47 +157,47 @@ while getopts 'adDf:hknp:sv' option 2>/dev/null; do
     s ) SORT=true;;
     v ) VERBOSITY=$(( ${VERBOSITY} + 1 ));;
     * ) if [ $1 != "-?" ]; then
-          curropt=$(($OPTIND - 1))
-          eval "curropt=\$$curropt"
+          curropt=$(( ${OPTIND} - 1 ))
+          eval "curropt=\$${curropt}"
           printf "%b\n" "${YELLOW}Warning: illegal option ${curropt}${NC}" 1>&2
         fi
         manual;;
   esac
 done
 verbose "${YELLOW}Note: number after colon usually represents commands exit code${NC}"
-verbose "Level of verbosity: $VERBOSITY"
+verbose "Level of verbosity: ${VERBOSITY}"
 
 # Exit handler
 trap cleanup 0 1 2 3 6
 
 # Choose the playlist
 # Option -a; all servers should be tried
-if [ $ALL = true ]; then
+if [ "${ALL}" = true ]; then
   # This playlist has all servers
   PLAYLIST="complete-playlist.m3u8"
-  verbose "Used playlist: $PLAYLIST"
-  if [ ! -f "$PLAYLIST" ]; then
-    printf "%b\n" "${YELLOW}Warning: playlist '$PLAYLIST' with all servers does not exist${NC}" 1>&2
+  verbose "Used playlist: ${PLAYLIST}"
+  if [ ! -f "${PLAYLIST}" ]; then
+    printf "%b\n" "${YELLOW}Warning: playlist '${PLAYLIST}' with all servers does not exist${NC}" 1>&2
     exit 1
   fi
 # Playlist given with option -p
 elif [ -n "${PLAYLIST_FILE-}" ]; then
   PLAYLIST="${PLAYLIST_FILE}"
-  verbose "Used playlist: $PLAYLIST"
-  if [ ! -f "$PLAYLIST" ]; then
-    printf "%b\n" "${YELLOW}Warning: playlist '$PLAYLIST' does not exist${NC}" 1>&2
+  verbose "Used playlist: ${PLAYLIST}"
+  if [ ! -f "${PLAYLIST}" ]; then
+    printf "%b\n" "${YELLOW}Warning: playlist '${PLAYLIST}' does not exist${NC}" 1>&2
     exit 1
   fi
 else
   # This playlist should have only servers found in https://streaming.media.ccc.de/streams/v2.json and will be created
   PLAYLIST="current-playlist.m3u8"
-  verbose "Used playlist: $PLAYLIST"
+  verbose "Used playlist: ${PLAYLIST}"
 
   # Read current active streams by api json
   verbose "Read stream api"
-  if [ $FORCE = true ]; then
+  if [ "${FORCE}" = true ]; then
     # with option forceopen=1 (shows all streams done, running and planned)
-    verbose "With option forceopen=1: $FORCE" 2
+    verbose "With option forceopen=1: ${FORCE}" 2
     JSON="$(curl -sSf https://streaming.media.ccc.de/streams/v2.json?forceopen=1)"
     verbose "Curl json: $?" 2
   else
@@ -205,21 +205,21 @@ else
     JSON="$(curl -sSf https://streaming.media.ccc.de/streams/v2.json)"
     verbose "Curl json: $?" 2
   fi
-  verbose "Stream api json:\n$JSON" 4
+  verbose "Stream api json:\n${JSON}" 4
 
   # Exit if trimmed (all white spaces) $JSON is empty
-  if [ "$(echo "$JSON" | tr -d "[:blank:]")" = "[]" ] && [ $ALL = false ]; then
+  if [ "$(echo "${JSON}" | tr -d "[:blank:]")" = "[]" ] && [ "${ALL}" = false ]; then
     printf "%b\n" "${YELLOW}Warning: no active streams available${NC}" 1>&2
     exit 1
   fi
 
   # Find all streaming servers in $JSON, trim to server only
-  SERVER_ARRAY="$(server_array "$JSON")"
-  verbose "Server array:\n$SERVER_ARRAY" 4
-  SERVER="$(server_only "$SERVER_ARRAY")"
-  SERVER="$(echo "$SERVER" | tr '\t' '\n')"
+  SERVER_ARRAY="$(server_array "${JSON}")"
+  verbose "Server array:\n${SERVER_ARRAY}" 4
+  SERVER="$(server_only "${SERVER_ARRAY}")"
+  SERVER="$(echo "${SERVER}" | tr '\t' '\n')"
   verbose "Newline separated server list: $?" 2
-  SERVER="$(echo "$SERVER" | awk '!a[$0]++')"
+  SERVER="$(echo "${SERVER}" | awk '!a[$0]++')"
   verbose "Shrink to unique servers: $?" 2
   if [ -n "${SORT-}" ]; then
     verbose "Sorting servers"
@@ -233,29 +233,29 @@ else
 
   # Create playlist
   # Playlist header
-  echo "#EXTM3U" > $PLAYLIST
-  echo "#EXT-X-VERSION:3" >> $PLAYLIST
+  echo "#EXTM3U" > "${PLAYLIST}"
+  echo "#EXT-X-VERSION:3" >> "${PLAYLIST}"
   # Repeat playlist names and servers and "#EXT-X-DISCONTINUITY"
-  for STREAM in $SERVER
+  for STREAM in ${SERVER}
   do
       # Write servers name as info into playlist; if option '-n' add ($STREAM)
-      NAME="$(echo "$SERVER_ARRAY" | awk -F '\t' -v stream="$STREAM" '{ for (x=1;x<=NF;x++) if ($x==stream) {print $(x-1); exit} }')"
+      NAME="$(echo "${SERVER_ARRAY}" | awk -F '\t' -v stream="${STREAM}" '{ for (x=1;x<=NF;x++) if ($x==stream) {print $(x-1); exit} }')"
       if [ -n "${NAME_EXT-}" ]; then
-        echo "#EXTINF:0,$NAME ($STREAM)" >> $PLAYLIST
+        echo "#EXTINF:0,${NAME} (${STREAM})" >> "${PLAYLIST}"
       else
-        echo "#EXTINF:0,$NAME" >> $PLAYLIST
+        echo "#EXTINF:0,${NAME}" >> "${PLAYLIST}"
       fi
       # If servers first letter is "q" write it as an rtmp server
-      if [ "$(echo "$STREAM" | head -c1)" = "q" ]; then
-        echo "$RTMPPATH$STREAM" >> $PLAYLIST
-        verbose "Add $RTMPPATH$STREAM to playlist: $?" 3
+      if [ "$(echo "${STREAM}" | head -c1)" = "q" ]; then
+        echo "${RTMPPATH}${STREAM}" >> "${PLAYLIST}"
+        verbose "Add ${RTMPPATH}${STREAM} to playlist: $?" 3
       # Write normal server with http into playlist
       else
-        echo "$SERVERPATH$STREAM" >> $PLAYLIST
-        verbose "Add $SERVERPATH$STREAM to playlist: $?" 3
+        echo "${SERVERPATH}${STREAM}" >> "${PLAYLIST}"
+        verbose "Add ${SERVERPATH}${STREAM} to playlist: $?" 3
       fi
       # Write playlist divider
-      echo "#EXT-X-DISCONTINUITY" >> $PLAYLIST
+      echo "#EXT-X-DISCONTINUITY" >> "${PLAYLIST}"
   done
   {
     # Set a picture as last server, so mpv will not end by accident
@@ -263,12 +263,12 @@ else
     echo "voctocat.png"
     # End of playlist
     echo "#EXT-X-ENDLIST"
-  } >> $PLAYLIST
+  } >> "${PLAYLIST}"
   verbose "Playlist complete: $?"
 fi
 
 # That is really playing
-mpv $PLAYLIST \
+mpv "${PLAYLIST}" \
   --fs \
   --no-ytdl \
   --msg-level=all=error,ffmpeg=fatal \
