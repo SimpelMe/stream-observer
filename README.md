@@ -1,6 +1,12 @@
 # Stream-Observer
 
-Stream-Observer is a script to observe running voc-video-streams.  
+Stream-Observer is a script to observe running voc video streams.  
+It opens mpv with all active (currently streaming) voc streams in a playlist.  
+With further options you can
+* try all existing servers
+* try all servers that will be, are and were active until given days
+* try all servers given in a valid playlist
+
 First make `obs` executable with `chmod +x obs`. Then execute `obs`.
 
 * [Keys and shortcuts](#keys-and-shortcuts)
