@@ -111,6 +111,21 @@ server_only ()
   echo "$result"
 }
 
+# Returning servers sorted alphanumerical
+sort_alphanum ()
+{
+  # fill numbers with leading zeros, sort, split at numbers, remove leading zeros and merge
+  result="$(echo "$1" | awk '{ gsub(/([^[:digit:]]+|[[:digit:]]+)/,"&\t") ; printf("%s%05d\n", $1, $2)}')"
+  verbose "Fill numbers with leading zeros: $?" 2
+  result="$(echo "$result" | sort -n)"
+  verbose "Sort numerical: $?" 2
+  result="$(echo "$result" | awk '{ gsub(/([^[:digit:]]+|[[:digit:]]+)/,"&\t") ; print  $1, $2}')"
+  verbose "Split at beginning of number: $?" 2
+  result="$(echo "$result" | awk '{gsub ("^0*", "", $2); printf("%s%s\n", $1, $2)}')"
+  verbose "Strip leading zero and merge: $?" 2
+  echo "$result"
+}
+
 # Cleanup on exit
 cleanup ()
 {
@@ -202,12 +217,12 @@ else
   SERVER="$(server_only "$SERVER_ARRAY")"
   SERVER="$(echo "$SERVER" | tr '\t' '\n')"
   verbose "Newline separated server list: $?" 2
-  if [ -n "${SORT-}" ]; then
-    SERVER="$(echo "$SERVER" | sort -n)"
-    verbose "Sort servers: $?" 2
-  fi
   SERVER="$(echo "$SERVER" | awk '!a[$0]++')"
   verbose "Shrink to unique servers: $?" 2
+  if [ -n "${SORT-}" ]; then
+    verbose "Sorting servers"
+    SERVER="$(sort_alphanum "$SERVER")"
+  fi
   if [ "${SERVER}" = "" ]; then
     printf "%b\n" "${YELLOW}Warning: no extractable streams available${NC}" 1>&2
     exit 1
