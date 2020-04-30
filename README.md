@@ -18,13 +18,14 @@ Install mpv if not existing.
 * [Fixed mpv options](#fixed-mpv-options)
 
 ## Options
-Usage: obs [-a | -d | -D | -f _days_ | -h | -k | -n | -p _file_ | -s | -v | -x]
+Usage: obs [-a | -d | -D | -f _days_ | -h | -j | -k | -n | -p _file_ | -s | -v | -x]
 * -a all streams listed in complete-playlist.m3u8 are tried
 * -d debug mode: print commands and arguments while executed
 * -D debug mode: print script lines while read
 * -f force to open all planned, active and past streams
     * _days_ to the past are mandatory (to omit set 0)
 * -h help shown
+* -j json export to disk
 * -k keys/shortcuts shown
 * -n name server with original extension
 * -p playlist _file_ with servers in format m3u8

@@ -13,7 +13,7 @@
 set -eu
 
 # Declare variables:
-unset FORCE_DATE PLAYLIST_FILE DEBUG SORT NAME_EXT EXIT
+unset FORCE_DATE PLAYLIST_FILE DEBUG SORT NAME_EXT EXIT PRINT_JSON
 readonly SERVERPATH="http://live.ber.c3voc.de:7999/"
 readonly RTMPPATH="rtmp://ingest.c3voc.de/stream/"
 readonly RED='\033[0;31m'
@@ -54,7 +54,7 @@ verbose() {
 # Short manual
 manual()
 {
-  echo "Usage: ${PROGNAME} [-a | -d | -D | -f ${UNDERLINED}days${NC} | -h | -k | -n | -p ${UNDERLINED}file${NC} | -s | -v | -x]"
+  echo "Usage: ${PROGNAME} [-a | -d | -D | -f ${UNDERLINED}days${NC} | -h | -j | -k | -n | -p ${UNDERLINED}file${NC} | -s | -v | -x]"
   echo "       opens mpv with all active voc streams"
   echo "       -a all streams listed in complete-playlist.m3u8 are tried"
   echo "       -d debug mode: print commands and arguments while executed"
@@ -62,6 +62,7 @@ manual()
   echo "       -f force to open all planned, active and past streams"
   echo "          ${UNDERLINED}days${NC} to the past are mandatory (to omit set 0)"
   echo "       -h help shown"
+  echo "       -j json export to disk"
   echo "       -k keys/shortcuts shown"
   echo "       -n name server with original extension"
   echo "       -p playlist ${UNDERLINED}file${NC} with servers in format m3u8"
@@ -151,7 +152,7 @@ cleanup ()
 }
 
 # Check options
-while getopts 'adDf:hknp:svx' option 2>/dev/null; do
+while getopts 'adDf:hjknp:svx' option 2>/dev/null; do
   case "${option}" in
     a ) ALL=true;;
     d ) set -x
@@ -165,6 +166,7 @@ while getopts 'adDf:hknp:svx' option 2>/dev/null; do
              FORCE=true;;
         esac;;
     h ) manual;;
+    j ) PRINT_JSON=true;;
     k ) keys;;
     n ) NAME_EXT=true;;
     p ) PLAYLIST_FILE="${OPTARG}";;
@@ -227,6 +229,11 @@ else
     verbose "Curl json: $?" 2
   fi
   verbose "Stream api json:\n${JSON}" 4
+
+  # Export json to disk
+  if [ -n "${PRINT_JSON-}" ]; then
+    echo "${JSON}" > current.json
+  fi
 
   # Exit if trimmed (all white spaces) $JSON is empty
   if [ "$(echo "${JSON}" | tr -d "[:blank:]")" = "[]" ] && [ "${ALL}" = false ]; then
