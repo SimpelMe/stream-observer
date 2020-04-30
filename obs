@@ -13,7 +13,7 @@
 set -eu
 
 # Declare variables:
-unset FORCE_DATE PLAYLIST_FILE DEBUG SORT NAME_EXT
+unset FORCE_DATE PLAYLIST_FILE DEBUG SORT NAME_EXT EXIT
 readonly SERVERPATH="http://live.ber.c3voc.de:7999/"
 readonly RTMPPATH="rtmp://ingest.c3voc.de/stream/"
 readonly RED='\033[0;31m'
@@ -54,7 +54,7 @@ verbose() {
 # Short manual
 manual()
 {
-  echo "Usage: ${PROGNAME} [-a | -d | -D | -f ${UNDERLINED}days${NC} | -h | -k | -n | -p ${UNDERLINED}file${NC} | -s | -v]"
+  echo "Usage: ${PROGNAME} [-a | -d | -D | -f ${UNDERLINED}days${NC} | -h | -k | -n | -p ${UNDERLINED}file${NC} | -s | -v | -x]"
   echo "       opens mpv with all active voc streams"
   echo "       -a all streams listed in complete-playlist.m3u8 are tried"
   echo "       -d debug mode: print commands and arguments while executed"
@@ -67,6 +67,7 @@ manual()
   echo "       -p playlist ${UNDERLINED}file${NC} with servers in format m3u8"
   echo "       -s sort server list alphanumerical"
   echo "       -v verbosity increasing with ${UNDERLINED}v${NC}"
+  echo "       -x exit before mpv, keeps current-playlist.m3u8"
   exit
 }
 
@@ -142,7 +143,7 @@ cleanup ()
   # Delete the current playlist if exists
   verbose "Cleanup on exit" 3
   PLAYLIST="current-playlist.m3u8"
-  if [ -e "${PLAYLIST}" ]; then
+  if [ -e "${PLAYLIST}" ] && [ -z "${EXIT-}" ]; then
     rm "${PLAYLIST}"
     verbose "Delete 'current-playlist.m3u8': $?" 3
   fi
@@ -150,7 +151,7 @@ cleanup ()
 }
 
 # Check options
-while getopts 'adDf:hknp:sv' option 2>/dev/null; do
+while getopts 'adDf:hknp:svx' option 2>/dev/null; do
   case "${option}" in
     a ) ALL=true;;
     d ) set -x
@@ -169,6 +170,7 @@ while getopts 'adDf:hknp:sv' option 2>/dev/null; do
     p ) PLAYLIST_FILE="${OPTARG}";;
     s ) SORT=true;;
     v ) VERBOSITY=$(( ${VERBOSITY} + 1 ));;
+    x ) EXIT=true;;
     * ) if [ $1 != "-?" ]; then
           curropt=$(( ${OPTIND} - 1 ))
           eval "curropt=\$${curropt}"
@@ -284,6 +286,11 @@ else
     echo "#EXT-X-ENDLIST"
   } >> "${PLAYLIST}"
   verbose "Playlist complete: $?"
+fi
+
+# Exit if set option '-x'
+if [ -n "${EXIT-}" ]; then
+  exit
 fi
 
 # That is really playing

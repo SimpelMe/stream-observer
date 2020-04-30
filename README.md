@@ -18,7 +18,7 @@ Install mpv if not existing.
 * [Fixed mpv options](#fixed-mpv-options)
 
 ## Options
-Usage: obs [-a | -d | -D | -f _days_ | -h | -k | -n | -p _file_ | -s | -v]
+Usage: obs [-a | -d | -D | -f _days_ | -h | -k | -n | -p _file_ | -s | -v | -x]
 * -a all streams listed in complete-playlist.m3u8 are tried
 * -d debug mode: print commands and arguments while executed
 * -D debug mode: print script lines while read
@@ -30,6 +30,7 @@ Usage: obs [-a | -d | -D | -f _days_ | -h | -k | -n | -p _file_ | -s | -v]
 * -p playlist _file_ with servers in format m3u8
 * -s sort server list alphanumerical
 * -v verbosity increasing with _v_
+* -x exit before mpv, keeps current-playlist.m3u8
 
 ## Keys and shortcuts
 ### defined by lua scripts
