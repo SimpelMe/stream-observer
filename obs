@@ -183,6 +183,12 @@ verbose "Level of verbosity: ${VERBOSITY}"
 # Exit handler
 trap cleanup 0 1 2 3 6
 
+# Check if mpv is existing
+if ! [ -x "$(command -v mpv)" ]; then
+  printf "%b\n" "${RED}Error: mpv does not exist, please install${NC}" 1>&2
+  exit 1
+fi
+
 # Choose the playlist
 # Option -a; all servers should be tried
 if [ "${ALL}" = true ]; then
