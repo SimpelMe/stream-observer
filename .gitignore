@@ -2,6 +2,7 @@
 example*
 xtemp/
 *m3u8
+*json
 
 # Except
 !complete-playlist.m3u8
