@@ -226,7 +226,7 @@ else
     SERVER="$(sort_alphanum "$SERVER")"
   fi
   if [ "${SERVER}" = "" ]; then
-    printf "%b\n" "${YELLOW}Warning: no extractable streams available${NC}" 1>&2
+    printf "%b\n" "${YELLOW}Warning: no searched streams available${NC}" 1>&2
     exit 1
   fi
   verbose "Extracted servers:\n$SERVER" 3
