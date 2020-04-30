@@ -8,6 +8,7 @@ With further options you can
 * try all servers given in a valid playlist
 
 First make `obs` executable with `chmod +x obs`. Then execute `obs`.
+Install mpv if not existing.
 
 * [Keys and shortcuts](#keys-and-shortcuts)
   * [defined by lua scripts](#defined-by-lua-scripts)
