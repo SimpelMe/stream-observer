@@ -76,8 +76,8 @@ It is starting a playlist in mpv with following options:
 * --osd-duration=5000
   * set the duration of the OSD messages in ms (default: 1000)
 *   --osd-msg1="room: 1 – 0       audio: q, w, e - Native, Translated 1, Translated 2       video: y, x - HD, Slides"
-  * show this string as message on OSD with OSD level 1 (visible by default)
-  * used as minimal manual
+    * show this string as message on OSD with OSD level 1 (visible by default)
+    * used as minimal manual
 * --no-osd-bar
   * disable display of the OSD bar while seeking
 * --osd-font-size=30
