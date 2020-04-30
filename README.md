@@ -3,14 +3,44 @@
 Stream-Observer is a script to observe running voc-video-streams.  
 First make `obs` executable with `chmod +x obs`. Then execute `obs`.
 
-* [Options](#options)
-* [Keys](#keys)
+* [Keys and shortcuts](#keys-and-shortcuts)
   * [defined by lua scripts](#defined-by-lua-scripts)
   * [defined defaults by input.conf](#defined-defaults-by-inputconf)
+* [Fixed mpv options](#fixed-mpv-options)
 
-## Options
+## Keys and shortcuts
+### defined by lua scripts
+* 1 – 0 room number 1 to 10
+* q select native audio
+* w select translation 1
+* e select translation 2
+* y select video mixer output
+* x select slides
 
-It is starting stream-observer.m3u8 in mpv with following options:
+### defined defaults by input.conf
+* RIGHT seek  5
+* LEFT  seek -5
+* UP    seek  60
+* DOWN  seek -60
+* Shift+PGUP seek 600
+* Shift+PGDWN seek -600
+* SPACE cycle pause
+* \> playlist-next; skip to next room
+* < playlist-previous; skip to previous room
+* I (upper i) toggle display stats
+* ctrl++ add audio-delay 100ms; this changes audio/video sync
+* ctrl+- add audio-delay -100ms
+* m cycle mute
+* d cycle deinterlace
+* \# cycle audio
+* _ cycle video
+* f cycle fullscreen
+* s screenshot
+* F8 show rooms
+* F9 show list of audio/sub streams
+
+## Fixed mpv options
+It is starting a playlist in mpv with following options:
 * --fs
   * full screen
 * --no-ytdl
@@ -60,34 +90,3 @@ It is starting stream-observer.m3u8 in mpv with following options:
   * left and right screen margin for the OSD in scaled pixels
 * --osd-margin-y=4
   * top and bottom screen margin for the OSD in scaled pixels
-
-## Keys
-### defined by lua scripts
-* 1 – 0 room number 1 to 10
-* q select native audio
-* w select translation 1
-* e select translation 2
-* y select video mixer output
-* x select slides
-
-### defined defaults by input.conf
-* RIGHT seek  5
-* LEFT  seek -5
-* UP    seek  60
-* DOWN  seek -60
-* Shift+PGUP seek 600
-* Shift+PGDWN seek -600
-* SPACE cycle pause
-* \> playlist-next; skip to next room
-* < playlist-previous; skip to previous room
-* I (upper i) toggle display stats
-* ctrl++ add audio-delay 100ms; this changes audio/video sync
-* ctrl+- add audio-delay -100ms
-* m cycle mute
-* d cycle deinterlace
-* \# cycle audio
-* _ cycle video
-* f cycle fullscreen
-* s screenshot
-* F8 show rooms
-* F9 show list of audio/sub streams
