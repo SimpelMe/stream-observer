@@ -10,6 +10,7 @@ With further options you can
 First make `obs` executable with `chmod +x obs`. Then execute `obs`.
 Install mpv if not existing.
 
+## Table of contents
 * [Keys and shortcuts](#keys-and-shortcuts)
   * [defined by lua scripts](#defined-by-lua-scripts)
   * [defined defaults by input.conf](#defined-defaults-by-inputconf)
