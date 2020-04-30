@@ -221,15 +221,15 @@ else
   verbose "Newline separated server list: $?" 2
   SERVER="$(echo "${SERVER}" | awk '!a[$0]++')"
   verbose "Shrink to unique servers: $?" 2
-  if [ -n "${SORT-}" ]; then
-    verbose "Sorting servers"
-    SERVER="$(sort_alphanum "$SERVER")"
-  fi
   if [ "${SERVER}" = "" ]; then
     printf "%b\n" "${YELLOW}Warning: no searched streams available${NC}" 1>&2
     exit 1
   fi
-  verbose "Extracted servers:\n$SERVER" 3
+  if [ -n "${SORT-}" ]; then
+    verbose "Sorting servers"
+    SERVER="$(sort_alphanum "${SERVER}")"
+  fi
+  verbose "Extracted servers:\n${SERVER}" 3
 
   # Create playlist
   # Playlist header
