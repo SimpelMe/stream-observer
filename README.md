@@ -7,7 +7,7 @@ With further options you can
 * try all servers that will be, are and were active until given days
 * try all servers given in a valid playlist
 
-First make `obs` executable with `chmod +x obs`. Then execute `obs`.
+First make `obs` executable with `chmod +x obs`. Then execute `./obs`.
 Install mpv if not existing.
 
 ## Table of contents
