@@ -23,6 +23,7 @@ readonly YELLOW='\033[0;33m'
 readonly NC='\033[0m' # No Color
 readonly UNDERLINED='\033[4m'
 readonly PROGNAME="${0##*/}"
+readonly VERSION="1.1.15"
 unset ALL # if set use directly complete-playlist.m3u8
 unset DEBUG # if set print verbose messages red to differ from debug messages
 unset EXIT # if set don't open mpv; useful for debugging and json export
@@ -246,7 +247,7 @@ cleanup ()
 #######################################
 manual()
 {
-  echo "Usage: ${PROGNAME} [-a | -d | -D | -f ${UNDERLINED}days${NC} | -h | -j | -k | -n | -p ${UNDERLINED}file${NC} | -s | -v | -x]"
+  echo "Usage: ${PROGNAME} [-a | -d | -D | -f ${UNDERLINED}days${NC} | -h | -j | -k | -n | -p ${UNDERLINED}file${NC} | -s | -v | -V | -x]"
   echo "       opens mpv with all active voc streams"
   echo "       -a all streams listed in complete-playlist.m3u8 are tried"
   echo "       -d debug mode: print commands and arguments while executed"
@@ -260,6 +261,7 @@ manual()
   echo "       -p playlist ${UNDERLINED}file${NC} with servers in format m3u8"
   echo "       -s sort server list alphanumerical"
   echo "       -v verbosity increasing with ${UNDERLINED}v${NC}"
+  echo "       -V version print"
   echo "       -x exit before mpv, keeps current-playlist.m3u8"
   exit 0
 }
@@ -269,7 +271,7 @@ manual()
 #######################################
 
 # Check options
-while getopts 'adDf:hjknp:svx' option 2>/dev/null; do
+while getopts 'adDf:hjknp:svVx' option 2>/dev/null; do
   case "${option}" in
     a ) ALL=true;;
     d ) set -x # print commands and arguments while executed
@@ -289,6 +291,8 @@ while getopts 'adDf:hjknp:svx' option 2>/dev/null; do
     p ) PLAYLIST_FILE="${OPTARG}";;
     s ) SORT=true;;
     v ) VERBOSITY=$(( ${VERBOSITY} + 1 ));;
+    V ) echo "${PROGNAME} version ${VERSION}"
+        exit 0;;
     x ) EXIT=true;;
     * ) if [ $1 != "-?" ]; then
           curropt=$(( ${OPTIND} - 1 ))
