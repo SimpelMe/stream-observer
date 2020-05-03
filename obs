@@ -12,7 +12,10 @@
 # set e: exit if something fails; set u: exit if a variable is unset
 set -eu
 
-# Declare variables:
+#######################################
+### Globals
+#######################################
+
 unset FORCE_DATE PLAYLIST_FILE DEBUG SORT NAME_EXT EXIT PRINT_JSON
 readonly SERVERPATH="http://live.ber.c3voc.de:7999/"
 readonly RTMPPATH="rtmp://ingest.c3voc.de/stream/"
@@ -25,16 +28,45 @@ VERBOSITY=0
 ALL=false
 FORCE=false
 
-# Verbose messages
+#######################################
+# DescriptionOfTheFunction.
+# Globals:
+#   ListOfGlobalVariablesUsedOrModified
+# Arguments:
+#   ArgumentsTaken
+# Outputs:
+#   OutputToSTDOUTorSTDERR
+# Returns:
+#   ReturnedvValuesOtherThenExitStatus
+#######################################
+
+#######################################
+### Functions
+#######################################
+
+#######################################
+# Print verbose messages (in red if DEBUG).
+# Globals:
+#   VERBOSITY
+#   DEBUG
+#   RED
+#   NC
+# Arguments:
+#   level
+# Outputs:
+#   msg to STDERR
+# Returns:
+#   None
+#######################################
 verbose() {
 	msg="${1}"
 	level="${2:-1}" # default 1 if not given
 	i=0
-  # print all verbose messages up to verbosity level
+  # only level up to VERBOSITY
 	if [ ${level} -le ${VERBOSITY} ]; then
     # print '=' for every level
 		while [ ${i} -lt ${level} ]; do
-      # colorize them in debug mode
+      # colorize in debug mode
       if [ -n "${DEBUG-}" ]; then
         printf "${RED}=${NC}\n" >&2
       else
@@ -51,7 +83,19 @@ verbose() {
 	fi
 }
 
-# Short manual
+#######################################
+# Prints the usage manual.
+# Globals:
+#   PROGNAME
+#   UNDERLINED
+#   NC
+# Arguments:
+#   None
+# Outputs:
+#   usage to SDTOUT
+# Returns:
+#   None
+#######################################
 manual()
 {
   echo "Usage: ${PROGNAME} [-a | -d | -D | -f ${UNDERLINED}days${NC} | -h | -j | -k | -n | -p ${UNDERLINED}file${NC} | -s | -v | -x]"
@@ -72,31 +116,59 @@ manual()
   exit 0
 }
 
-# Show extracted shortcuts from input.conf
+#######################################
+# Show extracted shortcuts from input.conf.
+# Globals:
+#   None
+# Arguments:
+#   None
+# Outputs:
+#   shortcut to STDOUT
+# Returns:
+#   None
+#######################################
 keys()
 {
   echo "Shortcuts:"
+  # grep all lines start not with #
   grep '^[[:blank:]]*[^[:blank:]#]' input.conf
   verbose "grep shortcuts from 'input.conf': $?" 2
   exit 0
 }
 
+#######################################
+# Convert stream api json to server array.
+# Globals:
+#   FORCE
+#   FORCE_DATE
+# Arguments:
+#   api json in JSON
+# Outputs:
+#   (endsAt \t display \t stream [ \t display \t stream ]*\n?)* to STDOUT
+# Returns:
+#   result
+#######################################
 # Convert stream api json to server array - output: endsAt \t display \t stream [ \t display \t stream ]
 server_array ()
 {
   verbose "Create server array"
+  # Catch endsAt, display (name of room) and stream of ervery stream event
   result="$(echo "$1" | grep -E "\"endsAt\": \"?.+\"?,|^\s{24}\"display\": \"?.+\"?,|\"stream\": \"?.+\"?,")"
   verbose "Grep 'endsAt, display, stream including values': $?" 2
+  # Make one plain, clean line of them all
   result="$(echo "${result}" | awk '{$1=$1;print}')"
   verbose "Remove leading/trailing white spaces: $?" 2
   result="$(echo "${result}" | sed 's/,$//g')"
   verbose "Remove trailing commas: $?" 2
   result="$(echo "${result}" | tr '\n' '\t')"
   verbose "Replace all newlines with tabs: $?" 2
+  # Make every stream event a single line
   result="$(echo "${result}" | sed 's/\"endsAt/\'$'\n\"endsAt/g')"
   verbose "Insert newlines before endsAt: $?" 2
+  # Remove first empty line
   result="$(echo "${result}" | tail -n +2)"
   verbose "Remove first newline: $?" 2
+  # Remove all keys from key:value
   result="$(echo "${result}" | sed 's/\"endsAt\": //g')"
   verbose "Remove 'endsAt': $?" 2
   result="$(echo "${result}" | sed 's/\"display\": //g')"
@@ -106,6 +178,7 @@ server_array ()
   result="$(echo "${result}" | sed 's/\"//g')"
   verbose "Remove all \": $?" 2
   result="$(echo "${result}" | awk -F '\t' '{print $0}')"
+  # Return only stream events that are younger then FORCE_DATE
   if [ "${FORCE}" = true ]; then
     verbose "Forced date: ${FORCE_DATE}"
     result="$(echo "${result}" | awk -F '\t' -v force_date="${FORCE_DATE}" '$1>=force_date && $1!="null" {print $0}')"
@@ -114,7 +187,17 @@ server_array ()
   echo "${result}"
 }
 
-# Returning only servers from server array
+#######################################
+# Returning only servers from server array.
+# Globals:
+#   None
+# Arguments:
+#   server array as given by server_array()
+# Outputs:
+#   (server \t?)*
+# Returns:
+#   result
+#######################################
 server_only ()
 {
   # returns odd fields started at 3
@@ -123,25 +206,48 @@ server_only ()
   echo "${result}"
 }
 
-# Returning servers sorted alphanumerical
+
+#######################################
+# Returning servers sorted alphanumerical.
+# Globals:
+#   None
+# Arguments:
+#   servers as given by server_only()
+# Outputs:
+#   OutputToSTDOUTorSTDERR
+# Returns:
+#   ReturnedvValuesOtherThenExitStatus
+#######################################
 sort_alphanum ()
 {
-  # fill numbers with leading zeros, sort, split at numbers, remove leading zeros and merge
+  # Padding numbers with zeros to make sort with leading characters work
   result="$(echo "$1" | awk '{ gsub(/([^[:digit:]]+|[[:digit:]]+)/,"&\t") ; printf("%s%05d\n", $1, $2)}')"
   verbose "Fill numbers with leading zeros: $?" 2
   result="$(echo "${result}" | sort -n)"
   verbose "Sort numerical: $?" 2
+  # Split leading characters to remove padded zeros
   result="$(echo "${result}" | awk '{ gsub(/([^[:digit:]]+|[[:digit:]]+)/,"&\t") ; print  $1, $2}')"
   verbose "Split at beginning of number: $?" 2
   result="$(echo "${result}" | awk '{gsub ("^0*", "", $2); printf("%s%s\n", $1, $2)}')"
-  verbose "Strip leading zero and merge: $?" 2
+  verbose "Strip leading zeros and merge: $?" 2
   echo "${result}"
 }
 
-# Cleanup on exit
+#######################################
+# Cleanup on exit.
+#   Delete current-playlist (if not EXIT).
+# Globals:
+#   PLAYLIST
+#   EXIT
+# Arguments:
+#   None
+# Outputs:
+#   None
+# Returns:
+#   None
+#######################################
 cleanup ()
 {
-  # Delete the current playlist if exists
   verbose "Cleanup on exit" 3
   PLAYLIST="current-playlist.m3u8"
   if [ -e "${PLAYLIST}" ] && [ -z "${EXIT-}" ]; then
@@ -150,6 +256,10 @@ cleanup ()
   fi
   exit 0
 }
+
+#######################################
+### Main
+#######################################
 
 # Check options
 while getopts 'adDf:hjknp:svx' option 2>/dev/null; do
