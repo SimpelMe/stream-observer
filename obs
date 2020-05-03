@@ -16,7 +16,7 @@ set -eu
 ### Globals
 #######################################
 
-unset FORCE_DATE PLAYLIST_FILE DEBUG SORT NAME_EXT EXIT PRINT_JSON
+unset FORCE FORCE_DATE PLAYLIST_FILE DEBUG SORT NAME_EXT EXIT PRINT_JSON
 readonly SERVERPATH="http://live.ber.c3voc.de:7999/"
 readonly RTMPPATH="rtmp://ingest.c3voc.de/stream/"
 readonly RED='\033[0;31m'
@@ -26,7 +26,6 @@ readonly UNDERLINED='\033[4m'
 readonly PROGNAME="${0##*/}"
 VERBOSITY=0
 ALL=false
-FORCE=false
 
 #######################################
 # DescriptionOfTheFunction.
@@ -146,7 +145,7 @@ server_array ()
   verbose "Remove all \": $?" 2
   result="$(echo "${result}" | awk -F '\t' '{print $0}')"
   # Return only stream events that are younger then FORCE_DATE
-  if [ "${FORCE}" = true ]; then
+  if [ -n "${FORCE-}" ]; then
     verbose "Forced date: ${FORCE_DATE}"
     result="$(echo "${result}" | awk -F '\t' -v force_date="${FORCE_DATE}" '$1>=force_date && $1!="null" {print $0}')"
     verbose "Strip server array to forced days"
@@ -329,7 +328,7 @@ else
 
   # Read streams by api json
   verbose "Read stream api"
-  if [ "${FORCE}" = true ]; then
+  if [ -n "${FORCE-}" ]; then
     # with option forceopen=1 (shows all streams done, running and planned)
     verbose "With option forceopen=1: ${FORCE}" 2
     JSON="$(curl -sSf https://streaming.media.ccc.de/streams/v2.json?forceopen=1)"
