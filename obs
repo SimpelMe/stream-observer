@@ -69,7 +69,7 @@ manual()
   echo "       -s sort server list alphanumerical"
   echo "       -v verbosity increasing with ${UNDERLINED}v${NC}"
   echo "       -x exit before mpv, keeps current-playlist.m3u8"
-  exit
+  exit 0
 }
 
 # Show extracted shortcuts from input.conf
@@ -78,7 +78,7 @@ keys()
   echo "Shortcuts:"
   grep '^[[:blank:]]*[^[:blank:]#]' input.conf
   verbose "grep shortcuts from 'input.conf': $?" 2
-  exit
+  exit 0
 }
 
 # Convert stream api json to server array - output: endsAt \t display \t stream [ \t display \t stream ]
@@ -148,7 +148,7 @@ cleanup ()
     rm "${PLAYLIST}"
     verbose "Delete 'current-playlist.m3u8': $?" 3
   fi
-  exit
+  exit 0
 }
 
 # Check options
@@ -297,7 +297,7 @@ fi
 
 # Exit if set option '-x'
 if [ -n "${EXIT-}" ]; then
-  exit
+  exit 0
 fi
 
 # That is really playing
@@ -328,4 +328,4 @@ mpv "${PLAYLIST}" \
   --osd-margin-y=4
 
 verbose "Exit"
-exit
+exit 0
