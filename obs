@@ -84,39 +84,6 @@ verbose() {
 }
 
 #######################################
-# Prints the usage manual.
-# Globals:
-#   PROGNAME
-#   UNDERLINED
-#   NC
-# Arguments:
-#   None
-# Outputs:
-#   usage to SDTOUT
-# Returns:
-#   None
-#######################################
-manual()
-{
-  echo "Usage: ${PROGNAME} [-a | -d | -D | -f ${UNDERLINED}days${NC} | -h | -j | -k | -n | -p ${UNDERLINED}file${NC} | -s | -v | -x]"
-  echo "       opens mpv with all active voc streams"
-  echo "       -a all streams listed in complete-playlist.m3u8 are tried"
-  echo "       -d debug mode: print commands and arguments while executed"
-  echo "       -D debug mode: print script lines while read"
-  echo "       -f force to open all planned, active and past streams"
-  echo "          ${UNDERLINED}days${NC} to the past are mandatory (to omit set 0)"
-  echo "       -h help shown"
-  echo "       -j json export to disk"
-  echo "       -k keys/shortcuts shown"
-  echo "       -n name server with original extension"
-  echo "       -p playlist ${UNDERLINED}file${NC} with servers in format m3u8"
-  echo "       -s sort server list alphanumerical"
-  echo "       -v verbosity increasing with ${UNDERLINED}v${NC}"
-  echo "       -x exit before mpv, keeps current-playlist.m3u8"
-  exit 0
-}
-
-#######################################
 # Show extracted shortcuts from input.conf.
 # Globals:
 #   None
@@ -254,6 +221,39 @@ cleanup ()
     rm "${PLAYLIST}"
     verbose "Delete 'current-playlist.m3u8': $?" 3
   fi
+  exit 0
+}
+
+#######################################
+# Prints the usage manual.
+# Globals:
+#   PROGNAME
+#   UNDERLINED
+#   NC
+# Arguments:
+#   None
+# Outputs:
+#   usage to SDTOUT
+# Returns:
+#   None
+#######################################
+manual()
+{
+  echo "Usage: ${PROGNAME} [-a | -d | -D | -f ${UNDERLINED}days${NC} | -h | -j | -k | -n | -p ${UNDERLINED}file${NC} | -s | -v | -x]"
+  echo "       opens mpv with all active voc streams"
+  echo "       -a all streams listed in complete-playlist.m3u8 are tried"
+  echo "       -d debug mode: print commands and arguments while executed"
+  echo "       -D debug mode: print script lines while read"
+  echo "       -f force to open all planned, active and past streams"
+  echo "          ${UNDERLINED}days${NC} to the past are mandatory (to omit set 0)"
+  echo "       -h help shown"
+  echo "       -j json export to disk"
+  echo "       -k keys/shortcuts shown"
+  echo "       -n name server with original extension"
+  echo "       -p playlist ${UNDERLINED}file${NC} with servers in format m3u8"
+  echo "       -s sort server list alphanumerical"
+  echo "       -v verbosity increasing with ${UNDERLINED}v${NC}"
+  echo "       -x exit before mpv, keeps current-playlist.m3u8"
   exit 0
 }
 
