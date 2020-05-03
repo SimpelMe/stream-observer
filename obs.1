@@ -1,0 +1,148 @@
+.Dd May 03, 2020              \" DATE
+.Dt OBS 1      \" Program name and manual section number
+.Os
+.Sh NAME                 \" Section Header - required - don't modify
+.Nm OBS
+.Nd a script to observe running voc video streams.
+.Sh SYNOPSIS             \" Section Header - required - don't modify
+.Nm
+.Op Fl a              \" [-a]
+.Op Fl d
+.Op Fl D
+.Op Fl f Ar days         \" [-f days]
+.Op Fl h
+.Op Fl j
+.Op Fl k
+.Op Fl n
+.Op Fl p Ar file              \" [-p file]
+.Op Fl s
+.Op Fl v
+.Op Fl V
+.Op Fl x
+.Sh DESCRIPTION          \" Section Header - required - don't modify
+The
+.Nm
+script opens mpv with all active (currently streaming) streams from Chaos
+Computer Club made by VOC (video operation center) in a playlist as found at
+.Mt https://streaming.media.ccc.de
+.Me
+.Pp
+
+With further options you can:
+.Dl - try all existing servers
+.Dl - try all servers that will be, are and were active until given days
+.Dl - try all servers given in a valid playlist
+
+.Sh OPTIONS
+.Bl -tag -width "-f days" -indent  \" Begins a tagged list
+.It Fl a
+all streams listed in complete-playlist.m3u8 are tried
+.It Fl d
+debug mode: print commands and arguments while executed
+.It Fl D
+debug mode: print script lines while read
+.It Fl f Ar days
+force to open all planned, active and past streams.
+.Ar days
+count to the past are mandatory. To omit past days set 0.
+.It Fl h
+help shown
+.It Fl j
+json export to disk
+.It Fl k
+keys/shortcuts shown
+.It Fl n
+name server with technical server name extension (e.g. s23)
+.It Fl p Ar file
+playlist
+.Ar file
+with servers in format m3u8
+.It Fl s
+sort server list alphanumerical
+.It Fl v
+verbosity increasing with
+.Ar v
+.It Fl V
+version print
+.It Fl x
+exit before mpv; keeps current-playlist.m3u8
+.El
+.Sh DETAILS
+.Nm
+downloads
+.Mt https://streaming.media.ccc.de/streams/v2.json
+.Me
+and searches for active (current streaming) streams.
+It extracts end time of the streams, their server and their display names.
+With this informations it builds a playlist in m3u8 format and starts mpv
+with this playlist.
+.Sh EXAMPLES
+The command:
+.Pp
+.Dl "obs"
+.Pp
+opens current streams in mpv.
+.Pp
+The command:
+.Pp
+.Dl "obs -a"
+.Pp
+tries to open all streams that are given in the playlist
+complete-playlist.m3u8.
+.Pp
+The command:
+.Pp
+.Dl "obs -f 30 -s"
+.Pp
+reads
+.Mt https://streaming.media.ccc.de/streams/v2.json?forceopen=1
+.Me
+collects all present and future streams. And it looks
+.Ar 30
+days in to the past. The
+.Ar days
+argument is mandatory. If you don't want to look in to the past
+you have to set days to 0.
+In addition it will sort the returned server names alphanumerical.
+.Pp
+The command:
+.Pp
+.Dl "obs -p 36c3.m3u8"
+.Pp
+uses the playlist
+.Ar 36c3.m3u8
+for mpv.
+.Pp
+The command:
+.Pp
+.Dl "obs -j -x"
+.Pp
+will save the downloaded json to
+.Ar current.json
+and exit.
+.Pp
+.Sh FILES                \" File used or created by the topic of the man page
+.Bl -tag -width "./current-playlist.m3u8   "
+.It Pa complete-playlist.m3u8
+playlist with all existing servers
+.It Pa current-playlist.m3u8
+generated playlist while running
+.It Pa input.conf
+user-defined key bindings for mpv
+.It Pa select-audio.lua
+script with key bindings for audio
+.It Pa select-venue.lua
+script with key bindings for streams/venues/rooms
+.It Pa select-video.lua
+script with key bindings for video
+.It Pa voctocat.png
+image used as last playlist item, so mpv does not stop
+.El                      \" Ends the list
+.Sh HISTORY           \" Document history if command behaves in a unique manner
+.Nm
+was written by Simpel <git@simpel.cc> in April 2020.
+.Sh BUGS              \" Document known, unremedied bugs
+Please file bugs and feature requests by emailing the author
+or opening issues at
+.Mt https://github.com/SimpelMe/stream-observer
+.Me
