@@ -16,7 +16,6 @@ set -eu
 ### Globals
 #######################################
 
-unset ALL FORCE FORCE_DATE PLAYLIST_FILE DEBUG SORT NAME_EXT EXIT PRINT_JSON
 readonly SERVERPATH="http://live.ber.c3voc.de:7999/"
 readonly RTMPPATH="rtmp://ingest.c3voc.de/stream/"
 readonly RED='\033[0;31m'
@@ -24,7 +23,16 @@ readonly YELLOW='\033[0;33m'
 readonly NC='\033[0m' # No Color
 readonly UNDERLINED='\033[4m'
 readonly PROGNAME="${0##*/}"
-VERBOSITY=0
+unset ALL # if set use directly complete-playlist.m3u8
+unset DEBUG # if set print verbose messages red to differ from debug messages
+unset EXIT # if set don't open mpv; useful for debugging and json export
+unset FORCE # if set use more servers than currently streaming ones
+unset FORCE_DATE # if set defines days back from now to try past stream events
+unset NAME_EXT # if set playlist server names append technical name (e.g. s23)
+unset PLAYLIST_FILE # if set use directly this playlist
+unset PRINT_JSON # if set export json to disk
+unset SORT # if set servers sorted alphanumerical else as found
+VERBOSITY=0 # if > 0 show verbose messages in levels
 
 #######################################
 # DescriptionOfTheFunction.
