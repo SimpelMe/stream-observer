@@ -265,9 +265,9 @@ manual()
 while getopts 'adDf:hjknp:svx' option 2>/dev/null; do
   case "${option}" in
     a ) ALL=true;;
-    d ) set -x
+    d ) set -x # print commands and arguments while executed
         DEBUG=true;;
-    D ) set -v
+    D ) set -v # print script lines while read
         DEBUG=true;;
     f ) case ${OPTARG} in
           *[!0-9]* ) printf "%b\n" "${YELLOW}Warning: illegal option ${OPTARG} (no number)${NC}" 1>&2
@@ -322,11 +322,12 @@ elif [ -n "${PLAYLIST_FILE-}" ]; then
     exit 1
   fi
 else
-  # This playlist should have only servers found in https://streaming.media.ccc.de/streams/v2.json and will be created
+  # This playlist should have only servers found in
+  # https://streaming.media.ccc.de/streams/v2.json
   PLAYLIST="current-playlist.m3u8"
   verbose "Used playlist: ${PLAYLIST}"
 
-  # Read current active streams by api json
+  # Read streams by api json
   verbose "Read stream api"
   if [ "${FORCE}" = true ]; then
     # with option forceopen=1 (shows all streams done, running and planned)
@@ -351,18 +352,22 @@ else
     exit 1
   fi
 
-  # Find all streaming servers in $JSON, trim to server only
+  # Find servers in $JSON including end date and room names
   SERVER_ARRAY="$(server_array "${JSON}")"
   verbose "Server array:\n${SERVER_ARRAY}" 4
+  # Trim to servers only
   SERVER="$(server_only "${SERVER_ARRAY}")"
   SERVER="$(echo "${SERVER}" | tr '\t' '\n')"
   verbose "Newline separated server list: $?" 2
+  # Shrink servers to unique ones
   SERVER="$(echo "${SERVER}" | awk '!a[$0]++')"
   verbose "Shrink to unique servers: $?" 2
+  # Exit if no servers found
   if [ "${SERVER}" = "" ]; then
     printf "%b\n" "${YELLOW}Warning: no searched streams available${NC}" 1>&2
     exit 1
   fi
+  # Sort servers alphanumerical
   if [ -n "${SORT-}" ]; then
     verbose "Sorting servers"
     SERVER="$(sort_alphanum "${SERVER}")"
@@ -376,7 +381,7 @@ else
   # Repeat playlist names and servers and "#EXT-X-DISCONTINUITY"
   for STREAM in ${SERVER}
   do
-      # Write servers name as info into playlist; if option '-n' add ($STREAM)
+      # Write servers name as info into playlist; if option '-n' add ($STREAM) the technical server name
       NAME="$(echo "${SERVER_ARRAY}" | awk -F '\t' -v stream="${STREAM}" '{ for (x=1;x<=NF;x++) if ($x==stream) {print $(x-1); exit} }')"
       if [ -n "${NAME_EXT-}" ]; then
         echo "#EXTINF:0,${NAME} (${STREAM})" >> "${PLAYLIST}"
@@ -396,7 +401,7 @@ else
       echo "#EXT-X-DISCONTINUITY" >> "${PLAYLIST}"
   done
   {
-    # Set a picture as last server, so mpv will not end by accident
+    # Set a picture as last, so mpv will not end
     echo "#EXTINF:0,end of list"
     echo "voctocat.png"
     # End of playlist
@@ -411,6 +416,7 @@ if [ -n "${EXIT-}" ]; then
 fi
 
 # That is really playing
+# Check mpv options in README.md
 mpv "${PLAYLIST}" \
   --fs \
   --no-ytdl \
