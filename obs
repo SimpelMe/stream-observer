@@ -16,7 +16,7 @@ set -eu
 ### Globals
 #######################################
 
-unset FORCE FORCE_DATE PLAYLIST_FILE DEBUG SORT NAME_EXT EXIT PRINT_JSON
+unset ALL FORCE FORCE_DATE PLAYLIST_FILE DEBUG SORT NAME_EXT EXIT PRINT_JSON
 readonly SERVERPATH="http://live.ber.c3voc.de:7999/"
 readonly RTMPPATH="rtmp://ingest.c3voc.de/stream/"
 readonly RED='\033[0;31m'
@@ -25,7 +25,6 @@ readonly NC='\033[0m' # No Color
 readonly UNDERLINED='\033[4m'
 readonly PROGNAME="${0##*/}"
 VERBOSITY=0
-ALL=false
 
 #######################################
 # DescriptionOfTheFunction.
@@ -304,7 +303,7 @@ fi
 
 # Choose the playlist
 # Option -a; all servers should be tried
-if [ "${ALL}" = true ]; then
+if [ -n "${ALL-}" ]; then
   # This playlist has all servers
   PLAYLIST="complete-playlist.m3u8"
   verbose "Used playlist: ${PLAYLIST}"
@@ -346,7 +345,7 @@ else
   fi
 
   # Exit if trimmed (all white spaces) $JSON is empty
-  if [ "$(echo "${JSON}" | tr -d "[:blank:]")" = "[]" ] && [ "${ALL}" = false ]; then
+  if [ "$(echo "${JSON}" | tr -d "[:blank:]")" = "[]" ] && [ -z "${ALL-}" ]; then
     printf "%b\n" "${YELLOW}Warning: no active streams available${NC}" 1>&2
     exit 1
   fi
