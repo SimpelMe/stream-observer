@@ -23,7 +23,8 @@ readonly YELLOW='\033[0;33m'
 readonly NC='\033[0m' # No Color
 readonly UNDERLINED='\033[4m'
 readonly PROGNAME="${0##*/}"
-readonly VERSION="1.1.15"
+readonly PROGPATH="${0%/*}/"
+readonly VERSION="1.1.16"
 unset ALL # if set use directly complete-playlist.m3u8
 unset DEBUG # if set print verbose messages red to differ from debug messages
 unset EXIT # if set don't open mpv; useful for debugging and json export
@@ -105,7 +106,7 @@ keys()
 {
   echo "Shortcuts:"
   # grep all lines start not with #
-  grep '^[[:blank:]]*[^[:blank:]#]' input.conf
+  grep '^[[:blank:]]*[^[:blank:]#]' ${PROGPATH}input.conf
         verbose "keys (${LINENO}): grep shortcuts from 'input.conf': $?" 2
   exit 0
 }
@@ -318,7 +319,7 @@ fi
 # Option -a; all servers should be tried
 if [ -n "${ALL-}" ]; then
   # This playlist has all servers
-  PLAYLIST="complete-playlist.m3u8"
+  PLAYLIST="${PROGPATH}complete-playlist.m3u8"
         verbose "Used playlist: ${PLAYLIST}"
   if [ ! -f "${PLAYLIST}" ]; then
     printf "%b\n" "${YELLOW}Warning: playlist '${PLAYLIST}' with all servers does not exist${NC}" 1>&2
@@ -413,7 +414,7 @@ else
   {
     # Set a picture as last, so mpv will not end
     echo "#EXTINF:0,end of list"
-    echo "voctocat.png"
+    echo "${PROGPATH}voctocat.png"
     # End of playlist
     echo "#EXT-X-ENDLIST"
   } >> "${PLAYLIST}"
@@ -434,7 +435,7 @@ mpv "${PLAYLIST}" \
   --no-input-default-bindings \
   --config-dir=. \
   --load-scripts=no \
-  --scripts=select-audio.lua:select-video.lua:select-venue.lua \
+  --scripts=${PROGPATH}select-audio.lua:${PROGPATH}select-video.lua:${PROGPATH}select-venue.lua \
   --force-window=immediate \
   --keep-open=always \
   --idle=yes \
