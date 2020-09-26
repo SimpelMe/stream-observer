@@ -102,22 +102,22 @@ http://live.ber.c3voc.de:7999/s99
 #EXT-X-DISCONTINUITY
 
 #EXTINF:0,q1
-rtmp://ingest.c3voc.de/stream/q1
+http://ingest.c3voc.de:8000/q1
 
 #EXT-X-DISCONTINUITY
 
 #EXTINF:0,q2
-rtmp://ingest.c3voc.de/stream/q2
+http://ingest.c3voc.de:8000/q2
 
 #EXT-X-DISCONTINUITY
 
 #EXTINF:0,q3
-rtmp://ingest.c3voc.de/stream/q3
+http://ingest.c3voc.de:8000/q3
 
 #EXT-X-DISCONTINUITY
 
 #EXTINF:0,q4
-rtmp://ingest.c3voc.de/stream/q4
+http://ingest.c3voc.de:8000/q4
 
 #EXT-X-DISCONTINUITY
 
