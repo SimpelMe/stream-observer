@@ -24,7 +24,7 @@ readonly NC='\033[0m' # No Color
 readonly UNDERLINED='\033[4m'
 readonly PROGNAME="${0##*/}"
 readonly PROGPATH="${0%/*}/"
-readonly VERSION="1.1.16"
+readonly VERSION="1.1.17"
 unset ALL # if set use directly complete-playlist.m3u8
 unset DEBUG # if set print verbose messages red to differ from debug messages
 unset EXIT # if set don't open mpv; useful for debugging and json export
@@ -403,14 +403,14 @@ else
       else
         echo "#EXTINF:0,${NAME}" >> "${PLAYLIST}"
       fi
-      # If servers first letter is "q" write it as an rtmp server
-      if [ "$(echo "${STREAM}" | head -c1)" = "q" ]; then
-        echo "${RTMPPATH}${STREAM}" >> "${PLAYLIST}"
-              verbose "Add ${RTMPPATH}${STREAM} to playlist: $?" 3
-      # Write normal server with http into playlist
+			# Write normal server with http into playlist if start with 's' and followed by digits only
+      if [ "$(expr "${STREAM}" : ^s[[:digit:]][[:digit:]]*$)" -gt 0 ]; then
+				echo "${SERVERPATH}${STREAM}" >> "${PLAYLIST}"
+						verbose "Add ${SERVERPATH}${STREAM} to playlist: $?" 3
       else
-        echo "${SERVERPATH}${STREAM}" >> "${PLAYLIST}"
-              verbose "Add ${SERVERPATH}${STREAM} to playlist: $?" 3
+				# all other servers are ingest servers with rtmp
+				echo "${RTMPPATH}${STREAM}" >> "${PLAYLIST}"
+						verbose "Add ${RTMPPATH}${STREAM} to playlist: $?" 3
       fi
       # Write playlist divider
       echo "#EXT-X-DISCONTINUITY" >> "${PLAYLIST}"
