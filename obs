@@ -330,8 +330,12 @@ elif [ -n "${PLAYLIST_FILE-}" ]; then
   PLAYLIST="${PLAYLIST_FILE}"
         verbose "Used playlist: ${PLAYLIST}"
   if [ ! -f "${PLAYLIST}" ]; then
-    printf "%b\n" "${YELLOW}Warning: playlist '${PLAYLIST}' does not exist${NC}" 1>&2
-    exit 1
+		if wget --spider "${PLAYLIST}" 2>/dev/null; then
+				verbose "Used playlist is remote"
+		else
+	    printf "%b\n" "${YELLOW}Warning: playlist '${PLAYLIST}' does not exist${NC}" 1>&2
+	    exit 1
+		fi
   fi
 else
   # This playlist should have only servers found in
