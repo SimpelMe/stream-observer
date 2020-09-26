@@ -17,7 +17,7 @@ set -eu
 #######################################
 
 readonly SERVERPATH="http://live.ber.c3voc.de:7999/"
-readonly RTMPPATH="rtmp://ingest.c3voc.de/stream/"
+readonly RTMPPATH="http://ingest.c3voc.de:8000/"
 readonly RED='\033[0;31m'
 readonly YELLOW='\033[0;33m'
 readonly NC='\033[0m' # No Color
