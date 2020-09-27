@@ -24,7 +24,7 @@ readonly NC='\033[0m' # No Color
 readonly UNDERLINED='\033[4m'
 readonly PROGNAME="${0##*/}"
 readonly PROGPATH="${0%/*}/"
-readonly VERSION="1.1.17"
+readonly VERSION="1.1.18"
 unset ALL # if set use directly complete-playlist.m3u8
 unset DEBUG # if set print verbose messages red to differ from debug messages
 unset EXIT # if set don't open mpv; useful for debugging and json export
@@ -437,7 +437,7 @@ mpv "${PLAYLIST}" \
   --no-ytdl \
   --msg-level=all=error,ffmpeg=fatal \
   --no-input-default-bindings \
-  --config-dir=. \
+  --use-filedir-conf \
   --load-scripts=no \
   --scripts=${PROGPATH}select-audio.lua:${PROGPATH}select-video.lua:${PROGPATH}select-venue.lua \
   --force-window=immediate \

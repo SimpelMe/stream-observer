@@ -75,8 +75,8 @@ It is starting a playlist in mpv with following options:
   * all modules just error messages, but ffmpeg/video fatal (because of permanent irrelevant PoC errors)
 * --no-input-default-bindings
   * deactivate all default key bindings
-* --config-dir=.
-  * place config files where run.sh is starting (e.g. input.conf for default key bindings)
+* --use-filedir-conf
+  * look for configuration file in the same directory as the file that is being played, where obs is starting (e.g. input.conf for default key bindings)
 * --load-scripts=no
   * don't load any scripts from personal config
 * --scripts=select-audio.lua:select-video.lua:select-venue.lua
