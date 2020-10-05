@@ -1,8 +1,8 @@
 .Dd May 03, 2020              \" DATE
-.Dt OBS 1      \" Program name and manual section number
+.Dt STROBS 1      \" Program name and manual section number
 .Os
 .Sh NAME                 \" Section Header - required - don't modify
-.Nm OBS
+.Nm STROBS
 .Nd a script to observe running voc video streams.
 .Sh SYNOPSIS             \" Section Header - required - don't modify
 .Nm
@@ -85,20 +85,20 @@ with this playlist.
 .Sh EXAMPLES
 The command:
 .Pp
-.Dl "obs"
+.Dl "strobs"
 .Pp
 opens current streams in mpv.
 .Pp
 The command:
 .Pp
-.Dl "obs -a"
+.Dl "strobs -a"
 .Pp
 tries to open all streams that are given in the playlist
 complete-playlist.m3u8.
 .Pp
 The command:
 .Pp
-.Dl "obs -f 30 -s"
+.Dl "strobs -f 30 -s"
 .Pp
 reads
 .Mt https://streaming.media.ccc.de/streams/v2.json?forceopen=1
@@ -113,7 +113,7 @@ In addition it will sort the returned server names alphanumerical.
 .Pp
 The command:
 .Pp
-.Dl "obs -p 36c3.m3u8"
+.Dl "strobs -p 36c3.m3u8"
 .Pp
 uses the playlist
 .Ar 36c3.m3u8
@@ -121,7 +121,7 @@ for mpv.
 .Pp
 The command:
 .Pp
-.Dl "obs -j -x"
+.Dl "strobs -j -x"
 .Pp
 will save the downloaded json to
 .Ar current.json

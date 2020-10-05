@@ -1,13 +1,13 @@
 # Stream-Observer
 
-Stream-Observer is a script to observe running voc video streams.  
+Stream-Observer (strobs) is a script to observe running voc video streams.  
 It opens mpv with all active (currently streaming) voc streams in a playlist.  
 With further options you can
 * try all existing servers
 * try all servers that will be, are and were active until given days
 * try all servers given in a valid playlist
 
-First make `obs` executable with `chmod +x obs`. Then execute `./obs`.
+First make `strobs` executable with `chmod +x strobs`. Then execute `./strobs`.
 Install mpv if not existing.
 
 ## Table of contents
@@ -18,7 +18,7 @@ Install mpv if not existing.
 * [Fixed mpv options](#fixed-mpv-options)
 
 ## Options
-Usage: obs [-a | -d | -D | -f _days_ | -h | -j | -k | -m | -n | -p _file_ | -s | -t | -v | -V | -x]
+Usage: strobs [-a | -d | -D | -f _days_ | -h | -j | -k | -m | -n | -p _file_ | -s | -t | -v | -V | -x]
 * -a all streams listed in complete-playlist.m3u8 are tried
 * -d debug mode: print commands and arguments while executed
 * -D debug mode: print script lines while read
@@ -78,7 +78,7 @@ It is starting a playlist in mpv with following options:
 * --no-input-default-bindings
   * deactivate all default key bindings
 * --use-filedir-conf
-  * look for configuration file in the same directory as the file that is being played, where obs is starting (e.g. input.conf for default key bindings)
+  * look for configuration file in the same directory as the file that is being played, where strobs is starting (e.g. input.conf for default key bindings)
 * --load-scripts=no
   * don't load any scripts from personal config
 * --scripts=select-audio.lua:select-video.lua:select-venue.lua

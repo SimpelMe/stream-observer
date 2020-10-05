@@ -24,7 +24,7 @@ readonly NC='\033[0m' # No Color
 readonly UNDERLINED='\033[4m'
 readonly PROGNAME="${0##*/}"
 readonly PROGPATH="${0%/*}/"
-readonly VERSION="1.1.20"
+readonly VERSION="1.1.21"
 unset ALL # if set use directly complete-playlist.m3u8
 unset DEBUG # if set print verbose messages red to differ from debug messages
 unset EXIT # if set don't open mpv; useful for debugging and json export
@@ -352,7 +352,7 @@ while getopts 'adDf:hjkmnp:stvVx' option 2>/dev/null; do
     h ) manual;;
     j ) PRINT_JSON=true;;
     k ) keys;;
-		m ) man ${PROGPATH}/obs.1
+		m ) man ${PROGPATH}/strobs.1
 				exit 0;;
     n ) NAME_EXT=true;;
     p ) PLAYLIST_FILE="${OPTARG}";;
