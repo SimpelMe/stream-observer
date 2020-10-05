@@ -18,7 +18,7 @@ Install mpv if not existing.
 * [Fixed mpv options](#fixed-mpv-options)
 
 ## Options
-Usage: obs [-a | -d | -D | -f _days_ | -h | -j | -k | -n | -p _file_ | -s | -v | -V | -x]
+Usage: obs [-a | -d | -D | -f _days_ | -h | -j | -k | -n | -p _file_ | -s | -t | -v | -V | -x]
 * -a all streams listed in complete-playlist.m3u8 are tried
 * -d debug mode: print commands and arguments while executed
 * -D debug mode: print script lines while read
@@ -30,6 +30,7 @@ Usage: obs [-a | -d | -D | -f _days_ | -h | -j | -k | -n | -p _file_ | -s | -v |
 * -n name server with original extension
 * -p playlist _file_ with servers in format m3u8
 * -s sort server list alphanumerical
+* -t timetable of running and coming events shown
 * -v verbosity increasing with _v_
 * -V version print
 * -x exit before mpv, keeps current-playlist.m3u8

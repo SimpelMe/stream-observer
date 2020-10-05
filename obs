@@ -24,7 +24,7 @@ readonly NC='\033[0m' # No Color
 readonly UNDERLINED='\033[4m'
 readonly PROGNAME="${0##*/}"
 readonly PROGPATH="${0%/*}/"
-readonly VERSION="1.1.18"
+readonly VERSION="1.1.19"
 unset ALL # if set use directly complete-playlist.m3u8
 unset DEBUG # if set print verbose messages red to differ from debug messages
 unset EXIT # if set don't open mpv; useful for debugging and json export
@@ -34,6 +34,7 @@ unset NAME_EXT # if set playlist server names append technical name (e.g. s23)
 unset PLAYLIST_FILE # if set use directly this playlist
 unset PRINT_JSON # if set export json to disk
 unset SORT # if set servers sorted alphanumerical else as found
+unset TIMETABLE # if set timetable of running and coming events is printed
 VERBOSITY=0 # if > 0 show verbose messages in levels
 
 #######################################
@@ -109,6 +110,67 @@ keys()
   grep '^[[:blank:]]*[^[:blank:]#]' ${PROGPATH}input.conf
         verbose "keys (${LINENO}): grep shortcuts from 'input.conf': $?" 2
   exit 0
+}
+
+#######################################
+# Prints timetable with conferene, start and end date.
+# Globals:
+#   None
+# Arguments:
+#   api json in JSON
+# Outputs:
+#   startsAt \t endsAt \t conferene to STDOUT
+# Returns:
+#   None
+#######################################
+# Convert stream api json to server array - output: endsAt \t display \t stream [ \t display \t stream ]
+timetable_array ()
+{
+	verbose "timetable_array (${LINENO}): Create timetable array"
+	# Catch conference, startsAt, endsAt of every stream event
+	result="$(echo "$1" | grep -E "\"conference\": \"?.+\"?,|\"startsAt\": \"?.+\"?,|\"endsAt\": \"?.+\"?,")"
+				verbose "timetable_array (${LINENO}): Grep 'conference, startsAt, endsAt and values': $?" 2
+	# Make one plain, clean line of them all
+	result="$(echo "${result}" | awk '{$1=$1;print}')"
+			  verbose "timetable_array (${LINENO}): Remove leading/trailing white spaces: $?" 2
+	result="$(echo "${result}" | sed 's/,$//g')"
+        verbose "timetable_array (${LINENO}): Remove trailing commas: $?" 2
+  result="$(echo "${result}" | tr '\n' '\t')"
+        verbose "timetable_array (${LINENO}): Replace all newlines with tabs: $?" 2
+  # Make every stream event a single line
+  result="$(echo "${result}" | sed 's/\"conference/\'$'\n\"conference/g')"
+        verbose "timetable_array (${LINENO}): Insert newlines before conference: $?" 2
+  # Remove first empty line
+  result="$(echo "${result}" | tail -n +2)"
+        verbose "timetable_array (${LINENO}): Remove first newline: $?" 2
+  # Remove all keys from key:value
+	result="$(echo "${result}" | sed 's/\"conference\": //g')"
+				verbose "timetable_array (${LINENO}): Remove 'conference': $?" 2
+	result="$(echo "${result}" | sed 's/\"startsAt\": //g')"
+				verbose "timetable_array (${LINENO}): Remove 'startsAt': $?" 2
+  result="$(echo "${result}" | sed 's/\"endsAt\": //g')"
+        verbose "timetable_array (${LINENO}): Remove 'endsAt': $?" 2
+  result="$(echo "${result}" | sed 's/\"//g')"
+        verbose "timetable_array (${LINENO}): Remove all \": $?" 2
+	# Remove +0000 in timestamps
+	result="$(echo "${result}" | sed 's/+0000//g')"
+        verbose "timetable_array (${LINENO}): Remove '+0000': $?" 2
+	# Change order and set conference last
+	result="$(echo "${result}" | awk -v FS='\t' -v OFS='\t' '{print $2, $3, $1}')"
+				verbose "timetable_array (${LINENO}): Change order: $?" 2
+	# Return only events that are running or planned
+	date="$(date -u +"%Y-%m-%dT%H:%M:%S")" # now
+	result="$(echo "${result}" | awk -F '\t' -v force_date="${date}" '$2>=force_date && $2!="null" {print $0}')"
+				verbose "timetable_array (${LINENO}): Strip timetable array to now"
+	# Remove disturbing 'T' from UTC timestamps
+	result="$(echo "${result}" | sed 's/\([0-9]\{4\}-[0-9][0-9]-[0-9][0-9]\)T\([0-9][0-9]:[0-9][0-9]:[0-9][0-9]\)/\1 \2/g')"
+				verbose "timetable_array (${LINENO}): Remove 'T' from timestamps: $?" 2
+	if [ -z "${result-}" ]; then
+		printf "%b\n" "${YELLOW}Warning: no events found${NC}" 1>&2
+	else
+		printf "%b\n" "${YELLOW}starts at (UTC)\t\tends at (UTC)\t\tconference${NC}" 1>&2
+		printf "%b\n" "${result}" 1>&2
+	fi
 }
 
 #######################################
@@ -248,7 +310,7 @@ cleanup ()
 #######################################
 manual()
 {
-  echo "Usage: ${PROGNAME} [-a | -d | -D | -f ${UNDERLINED}days${NC} | -h | -j | -k | -n | -p ${UNDERLINED}file${NC} | -s | -v | -V | -x]"
+  echo "Usage: ${PROGNAME} [-a | -d | -D | -f ${UNDERLINED}days${NC} | -h | -j | -k | -n | -p ${UNDERLINED}file${NC} | -s | -t | -v | -V | -x]"
   echo "       opens mpv with all active voc streams"
   echo "       -a all streams listed in complete-playlist.m3u8 are tried"
   echo "       -d debug mode: print commands and arguments while executed"
@@ -261,6 +323,7 @@ manual()
   echo "       -n name server with original extension"
   echo "       -p playlist ${UNDERLINED}file${NC} with servers in format m3u8"
   echo "       -s sort server list alphanumerical"
+  echo "       -t timetable of running and coming events shown"
   echo "       -v verbosity increasing with ${UNDERLINED}v${NC}"
   echo "       -V version print"
   echo "       -x exit before mpv, keeps current-playlist.m3u8"
@@ -272,7 +335,7 @@ manual()
 #######################################
 
 # Check options
-while getopts 'adDf:hjknp:svVx' option 2>/dev/null; do
+while getopts 'adDf:hjknp:stvVx' option 2>/dev/null; do
   case "${option}" in
     a ) ALL=true;;
     d ) set -x # print commands and arguments while executed
@@ -291,6 +354,8 @@ while getopts 'adDf:hjknp:svVx' option 2>/dev/null; do
     n ) NAME_EXT=true;;
     p ) PLAYLIST_FILE="${OPTARG}";;
     s ) SORT=true;;
+    t ) TIMETABLE=true
+				FORCE=true;;
     v ) VERBOSITY=$(( ${VERBOSITY} + 1 ));;
     V ) echo "${PROGNAME} version ${VERSION}"
         exit 0;;
@@ -367,6 +432,13 @@ else
     printf "%b\n" "${YELLOW}Warning: no active streams available${NC}" 1>&2
     exit 1
   fi
+
+	# Option -t; print timetable of running and coming events
+	if [ -n "${TIMETABLE-}" ]; then
+		# Print start date, end date and conference from $JSON
+		timetable_array "${JSON}"
+		exit 0
+	fi
 
   # Find servers in $JSON including end date and room names
   SERVER_ARRAY="$(server_array "${JSON}")"
