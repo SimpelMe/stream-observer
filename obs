@@ -24,7 +24,7 @@ readonly NC='\033[0m' # No Color
 readonly UNDERLINED='\033[4m'
 readonly PROGNAME="${0##*/}"
 readonly PROGPATH="${0%/*}/"
-readonly VERSION="1.1.19"
+readonly VERSION="1.1.20"
 unset ALL # if set use directly complete-playlist.m3u8
 unset DEBUG # if set print verbose messages red to differ from debug messages
 unset EXIT # if set don't open mpv; useful for debugging and json export
@@ -310,7 +310,7 @@ cleanup ()
 #######################################
 manual()
 {
-  echo "Usage: ${PROGNAME} [-a | -d | -D | -f ${UNDERLINED}days${NC} | -h | -j | -k | -n | -p ${UNDERLINED}file${NC} | -s | -t | -v | -V | -x]"
+  echo "Usage: ${PROGNAME} [-a | -d | -D | -f ${UNDERLINED}days${NC} | -h | -j | -k | -m | -n | -p ${UNDERLINED}file${NC} | -s | -t | -v | -V | -x]"
   echo "       opens mpv with all active voc streams"
   echo "       -a all streams listed in complete-playlist.m3u8 are tried"
   echo "       -d debug mode: print commands and arguments while executed"
@@ -320,6 +320,7 @@ manual()
   echo "       -h help shown"
   echo "       -j json export to disk"
   echo "       -k keys/shortcuts shown"
+  echo "       -m man page shown"
   echo "       -n name server with original extension"
   echo "       -p playlist ${UNDERLINED}file${NC} with servers in format m3u8"
   echo "       -s sort server list alphanumerical"
@@ -335,7 +336,7 @@ manual()
 #######################################
 
 # Check options
-while getopts 'adDf:hjknp:stvVx' option 2>/dev/null; do
+while getopts 'adDf:hjkmnp:stvVx' option 2>/dev/null; do
   case "${option}" in
     a ) ALL=true;;
     d ) set -x # print commands and arguments while executed
@@ -351,6 +352,8 @@ while getopts 'adDf:hjknp:stvVx' option 2>/dev/null; do
     h ) manual;;
     j ) PRINT_JSON=true;;
     k ) keys;;
+		m ) man ${PROGPATH}/obs.1
+				exit 0;;
     n ) NAME_EXT=true;;
     p ) PLAYLIST_FILE="${OPTARG}";;
     s ) SORT=true;;
