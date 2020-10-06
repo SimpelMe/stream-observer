@@ -302,6 +302,29 @@ cleanup ()
 }
 
 #######################################
+# Opens man page strobs.1.
+# Globals:
+#   PROGPATH
+#		YELLOW
+#		NC
+# Arguments:
+#   None
+# Outputs:
+#   None
+# Returns:
+#   None
+#######################################
+manpage()
+{
+	if [ ! -f "${PROGPATH}strobs.1" ]; then
+		printf "%b\n" "${YELLOW}Warning: man page '${PROGPATH}strobs.1' does not exist${NC}" 1>&2
+		exit 1
+	fi
+	man ${PROGPATH}strobs.1
+	exit 0
+}
+
+#######################################
 # Prints the usage manual.
 # Globals:
 #   PROGNAME
@@ -358,8 +381,7 @@ while getopts 'adDf:hjkmnp:stvVx' option 2>/dev/null; do
     h ) manual;;
     j ) PRINT_JSON=true;;
     k ) keys;;
-		m ) man ${PROGPATH}/strobs.1
-				exit 0;;
+		m ) manpage;;
     n ) NAME_EXT=true;;
     p ) PLAYLIST_FILE="${OPTARG}";;
     s ) SORT=true;;
