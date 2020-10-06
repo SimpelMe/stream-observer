@@ -95,7 +95,9 @@ verbose() {
 #######################################
 # Show extracted shortcuts from input.conf.
 # Globals:
-#   None
+#   PROGPATH
+#		YELLOW
+#		NC
 # Arguments:
 #   None
 # Outputs:
@@ -105,7 +107,11 @@ verbose() {
 #######################################
 keys()
 {
-  echo "Shortcuts:"
+	if [ ! -f "${PROGPATH}input.conf" ]; then
+		printf "%b\n" "${YELLOW}Warning: '${PROGPATH}input.conf' with key definition does not exist${NC}" 1>&2
+		exit 1
+	fi
+	echo "Shortcuts:"
   # grep all lines start not with #
   grep '^[[:blank:]]*[^[:blank:]#]' ${PROGPATH}input.conf
         verbose "keys (${LINENO}): grep shortcuts from 'input.conf': $?" 2
