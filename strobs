@@ -129,7 +129,6 @@ keys()
 # Returns:
 #   None
 #######################################
-# Convert stream api json to server array - output: endsAt \t display \t stream [ \t display \t stream ]
 timetable_array ()
 {
 	verbose "timetable_array (${LINENO}): Create timetable array"
@@ -191,7 +190,6 @@ timetable_array ()
 # Returns:
 #   result
 #######################################
-# Convert stream api json to server array - output: endsAt \t display \t stream [ \t display \t stream ]
 server_array ()
 {
   verbose "server_array (${LINENO}): Create server array"
