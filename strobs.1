@@ -8,7 +8,7 @@
 .Nm
 .Op Fl d
 .Op Fl D
-.Op Fl f Ar days         \" [-f days]
+.Op Fl f
 .Op Fl h
 .Op Fl j
 .Op Fl k
@@ -25,25 +25,18 @@ The
 .Nm
 script opens mpv with all active (currently streaming) streams from Chaos
 Computer Club made by VOC (video operation center) in a playlist as found at
-.Mt https://streaming.media.ccc.de
+.Mt https://streaming.media.ccc.de.
 .Me
-.Pp
-
-With further options you can:
-.Dl - try all existing servers
-.Dl - try all servers that will be, are and were active until given days
-.Dl - try all servers given in a valid playlist
+Optionally it can also try to open all streams given in a valid playlist.
 
 .Sh OPTIONS
-.Bl -tag -width "-f days" -indent  \" Begins a tagged list
+.Bl -tag -width "-p file" -indent  \" Begins a tagged list
 .It Fl d
 debug mode: print commands and arguments while executed
 .It Fl D
 debug mode: print script lines while read
-.It Fl f Ar days
-force to open all planned, active and past streams.
-.Ar days
-count to the past are mandatory. To omit past days set 0.
+.It Fl f
+forces (with -p / -j) open playlist / download full json
 .It Fl h
 help shown
 .It Fl j
@@ -53,7 +46,7 @@ keys/shortcuts shown
 .It Fl m
 man page shown
 .It Fl n
-name server with technical server name extension (e.g. s23)
+name stream with technical extension (e.g. s23)
 .It Fl p Ar file
 playlist
 .Ar file
@@ -73,12 +66,13 @@ exit before mpv; keeps current-playlist.m3u8
 .Sh DETAILS
 .Nm
 downloads
+.Mt http://live.ber.c3voc.de:7999/status-json.xsl
+.Me
+and searches for active (current streaming) streams. It reads then
 .Mt https://streaming.media.ccc.de/streams/v2.json
 .Me
-and searches for active (current streaming) streams.
-It extracts end time of the streams, their server and their display names.
-With this informations it builds a playlist in m3u8 format and starts mpv
-with this playlist.
+and extracts end time of the streams and their display names. With this
+informations it builds a playlist in m3u8 format and starts mpv with this playlist.
 .Sh EXAMPLES
 The command:
 .Pp
@@ -88,34 +82,23 @@ opens current streams in mpv.
 .Pp
 The command:
 .Pp
-.Dl "strobs -f 30 -s"
-.Pp
-reads
-.Mt https://streaming.media.ccc.de/streams/v2.json?forceopen=1
-.Me
-collects all present and future streams. And it looks
-.Ar 30
-days in to the past. The
-.Ar days
-argument is mandatory. If you don't want to look in to the past
-you have to set days to 0.
-In addition it will sort the returned server names alphanumerical.
-.Pp
-The command:
-.Pp
-.Dl "strobs -p 36c3.m3u8"
+.Dl "strobs -p 36c3.m3u8 -s"
 .Pp
 uses the playlist
 .Ar 36c3.m3u8
-for mpv.
+for mpv. In addition it will sort the streams alphanumerical.
 .Pp
 The command:
 .Pp
-.Dl "strobs -j -x"
+.Dl "strobs -j -f"
 .Pp
-will save the downloaded json to
+will download and save
+.Ar status_liveber.xsl
+,
+.Ar status_ingest.xsl
+,
 .Ar current.json
-and exit.
+and exit before opening mpv. In addition it will save json including past events.
 .Pp
 .Sh FILES                \" File used or created by the topic of the man page
 .Bl -tag -width "./current-playlist.m3u8   "

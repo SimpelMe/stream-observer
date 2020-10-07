@@ -2,11 +2,7 @@
 
 Stream-Observer (strobs) is a script to observe running voc video streams.  
 The script opens mpv with all active (currently streaming) streams from [Chaos Computer Club](https://www.ccc.de/en) made by [VOC](https://c3voc.de) (video operation center) in a playlist as found at [https://streaming.media.ccc.de](https://streaming.media.ccc.de).
-
-With further options you can
-* try all existing servers
-* try all servers that will be, are and were active until given days
-* try all servers given in a valid playlist
+Optionally it can also try to open all streams given in a valid playlist.
 
 First make `strobs` executable with `chmod +x strobs`. Then execute `./strobs`.
 Install mpv if not existing.
@@ -22,16 +18,15 @@ Install mpv if not existing.
 * [Fixed mpv options](#fixed-mpv-options)
 
 ## Options
-Usage: strobs [ -d | -D | -f _days_ | -h | -j | -k | -m | -n | -p _file_ | -s | -t | -v | -V | -x]
+Usage: strobs [ -d | -D | -f | -h | -j | -k | -m | -n | -p _file_ | -s | -t | -v | -V | -x]
 * -d debug mode: print commands and arguments while executed
 * -D debug mode: print script lines while read
-* -f force to open all planned, active and past streams
-    * _days_ to the past are mandatory (to omit set 0)
+* -f forces (with -p / -j) open playlist / download full json
 * -h help shown
 * -j json export to disk
 * -k keys/shortcuts shown (`input.conf` needed)
 * -m man page shown (`strobs.1` needed)
-* -n name server with original extension
+* -n name stream with technical extension
 * -p playlist _file_ with servers in format m3u8
 * -s sort server list alphanumerical
 * -t timetable of running and coming events shown
@@ -40,26 +35,21 @@ Usage: strobs [ -d | -D | -f _days_ | -h | -j | -k | -m | -n | -p _file_ | -s | 
 * -x exit before mpv, keeps current-playlist.m3u8
 
 ## Details
-The script downloads [https://streaming.media.ccc.de/streams/v2.json](https://streaming.media.ccc.de/streams/v2.json) and searches for active (current streaming) streams.
-It extracts end time of the streams, their server and their display names.
+The script downloads [http://live.ber.c3voc.de:7999/status-json.xsl](http://live.ber.c3voc.de:7999/status-json.xsl) and searches for active (current streaming) streams.
+It reads then [https://streaming.media.ccc.de/streams/v2.json](https://streaming.media.ccc.de/streams/v2.json) and extracts end time of the streams and their display names.
 With this informations it builds a playlist in m3u8 format and starts mpv with this playlist.
 
 ## Examples
 `strobs`
 >opens current streams in mpv.
 
-`strobs -f 30 -s`
->reads [https://streaming.media.ccc.de/streams/v2.json?forceopen=1](https://streaming.media.ccc.de/streams/v2.json?forceopen=1) and collects all present as well as future streams.
-And it looks 30 days in to the past.
-The days argument is mandatory.
-If you don't want to look in to the past you have to set days to 0.
-In addition it will sort the returned server names alphanumerical.
-
-`strobs -p 36c3.m3u8`
+`strobs -p 36c3.m3u8 -s`
 >uses the playlist 36c3.m3u8 for mpv.
+In addition it will sort the returned streams alphanumerical.
 
-`strobs -j -x`
->will save the downloaded json to current.json and exit before opening mpv.
+`strobs -j -f`
+>will download and save status_liveber.xsl, status_ingest.xsl, current.json and exit before opening mpv.
+In addition it will save json including past events.
 
 ## Files
 * `current-playlist.m3u8` - generated playlist while running
