@@ -68,9 +68,7 @@ In addition it will sort the returned server names alphanumerical.
 ## Files
 * `current-playlist.m3u8` - generated playlist while running
 * `input.conf` - user-defined key bindings for mpv
-* `select-audio.lua` - script with key bindings for audio
-* `select-venue.lua` - script with key bindings for streams/venues/rooms
-* `select-video.lua` - script with key bindings for video
+* `keys.lua` - script with key bindings for audio, video and rooms
 * `strobs` - the shell script to execute
 * `strobs.1` - man page
 * `voctocat.png` - image used as last playlist item, so mpv does not stop
@@ -122,8 +120,8 @@ It is starting a playlist in mpv with following options:
   * look for configuration file in the same directory as the file that is being played, where strobs is starting (e.g. input.conf for default key bindings)
 * --load-scripts=no
   * don't load any scripts from personal config
-* --scripts=select-audio.lua:select-video.lua:select-venue.lua
-  * load these scripts: select-audio.lua, select-video.lua, select-venue.lua
+* --scripts=keys.lua
+  * load these script: keys.lua
 * --force-window=immediate
   * create the gui immediately on program start
 * --keep-open=always

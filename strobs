@@ -540,7 +540,7 @@ mpv "${PLAYLIST}" \
   --no-input-default-bindings \
   --use-filedir-conf \
   --load-scripts=no \
-  --scripts=${PROGPATH}select-audio.lua:${PROGPATH}select-video.lua:${PROGPATH}select-venue.lua \
+  --scripts=${PROGPATH}keys.lua \
   --force-window=immediate \
   --keep-open=always \
   --idle=yes \
