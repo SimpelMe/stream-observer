@@ -467,29 +467,15 @@ elif [ -n "${PLAYLIST-}" ]; then
 		fi
   fi
 else
-  # This playlist should have only servers found in
-  # https://streaming.media.ccc.de/streams/v2.json
+  # This playlist should have only servers found at icecast status
   PLAYLIST="current-playlist.m3u8"
         verbose "Used playlist: ${PLAYLIST}"
 
-  # Read streams by api json
-  verbose "main (${LINENO}): Read stream api"
-  if [ -n "${FORCE-}" ]; then
-    # with option forceopen=1 (shows all streams done, running and planned)
-          verbose "With option forceopen=1: ${FORCE}" 2
-    JSON="$(curl -sSf https://streaming.media.ccc.de/streams/v2.json?forceopen=1)"
-          verbose "main (${LINENO}): Curl json: $?" 2
-  else
-    # shows only running streams
-    JSON="$(curl -sSf https://streaming.media.ccc.de/streams/v2.json)"
-          verbose "main (${LINENO}): Curl json: $?" 2
-  fi
-  verbose "Stream api json:\n${JSON}" 4
-
-  # Export json to disk
-  if [ -n "${PRINT_JSON-}" ]; then
-    echo "${JSON}" > current.json
-  fi
+  # Read running streams by api json
+				verbose "main (${LINENO}): Read stream json"
+  JSON="$(curl -sSf https://streaming.media.ccc.de/streams/v2.json)"
+        verbose "main (${LINENO}): Curl json: $?" 2
+				verbose "Stream api json:\n${JSON}" 4
 
   # Exit if trimmed (all white spaces) $JSON is empty
   if [ "$(echo "${JSON}" | tr -d "[:blank:]")" = "[]" ] && [ -z "${ALL-}" ]; then
