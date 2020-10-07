@@ -31,8 +31,8 @@ unset EXIT # if set don't open mpv; useful for debugging and json export
 unset FORCE # if set use more servers than currently streaming ones
 unset FORCE_DATE # if set defines days back from now to try past stream events
 unset NAME_EXT # if set playlist server names append technical name (e.g. s23)
-unset PLAYLIST_FILE # if set use directly this playlist
 unset PRINT_JSON # if set export json to disk
+unset PLAYLIST # if set use directly this playlist
 unset SORT # if set servers sorted alphanumerical else as found
 unset TIMETABLE # if set timetable of running and coming events is printed
 VERBOSITY=0 # if > 0 show verbose messages in levels
@@ -410,7 +410,7 @@ while getopts 'adDf:hjkmnp:stvVx' option 2>/dev/null; do
     k ) keys;;
 		m ) manpage;;
     n ) NAME_EXT=true;;
-    p ) PLAYLIST_FILE="${OPTARG}";;
+    p ) PLAYLIST="${OPTARG}";;
     s ) SORT=true;;
     t ) TIMETABLE=true
 				FORCE=true;;
@@ -454,8 +454,7 @@ if [ -n "${ALL-}" ]; then
     exit 1
   fi
 # Playlist given with option -p
-elif [ -n "${PLAYLIST_FILE-}" ]; then
-  PLAYLIST="${PLAYLIST_FILE}"
+elif [ -n "${PLAYLIST-}" ]; then
         verbose "Used playlist: ${PLAYLIST}"
   if [ ! -f "${PLAYLIST}" ]; then
 		if wget --spider "${PLAYLIST}" 2>/dev/null; then
