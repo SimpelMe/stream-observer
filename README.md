@@ -22,8 +22,7 @@ Install mpv if not existing.
 * [Fixed mpv options](#fixed-mpv-options)
 
 ## Options
-Usage: strobs [-a | -d | -D | -f _days_ | -h | -j | -k | -m | -n | -p _file_ | -s | -t | -v | -V | -x]
-* -a all streams will be tried (listed in `complete-playlist.m3u8`)
+Usage: strobs [ -d | -D | -f _days_ | -h | -j | -k | -m | -n | -p _file_ | -s | -t | -v | -V | -x]
 * -d debug mode: print commands and arguments while executed
 * -D debug mode: print script lines while read
 * -f force to open all planned, active and past streams
@@ -48,9 +47,6 @@ With this informations it builds a playlist in m3u8 format and starts mpv with t
 ## Examples
 `strobs`
 >opens current streams in mpv.
-
-`strobs -a`
->tries to open all streams that are given in the playlist complete-playlist.m3u8.
 
 `strobs -f 30 -s`
 >reads [https://streaming.media.ccc.de/streams/v2.json?forceopen=1](https://streaming.media.ccc.de/streams/v2.json?forceopen=1) and collects all present as well as future streams.

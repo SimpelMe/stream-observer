@@ -6,7 +6,6 @@
 .Nd a script to observe running voc video streams.
 .Sh SYNOPSIS             \" Section Header - required - don't modify
 .Nm
-.Op Fl a              \" [-a]
 .Op Fl d
 .Op Fl D
 .Op Fl f Ar days         \" [-f days]
@@ -37,8 +36,6 @@ With further options you can:
 
 .Sh OPTIONS
 .Bl -tag -width "-f days" -indent  \" Begins a tagged list
-.It Fl a
-all streams listed in complete-playlist.m3u8 are tried
 .It Fl d
 debug mode: print commands and arguments while executed
 .It Fl D
@@ -88,13 +85,6 @@ The command:
 .Dl "strobs"
 .Pp
 opens current streams in mpv.
-.Pp
-The command:
-.Pp
-.Dl "strobs -a"
-.Pp
-tries to open all streams that are given in the playlist
-complete-playlist.m3u8.
 .Pp
 The command:
 .Pp
