@@ -288,6 +288,7 @@ sort_alphanum ()
 #######################################
 printjson ()
 {
+	verbose "printjson (${LINENO}): Print status_liveber.xsl, status_ingest.xsl, current.json"
 	# Export icecast status to disk
 	curl -sSf http://live.ber.c3voc.de:7999/status-json.xsl > status_liveber.xsl
 	curl -sSf http://ingest.c3voc.de:8000/status-json.xsl > status_ingest.xsl
