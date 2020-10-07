@@ -276,6 +276,35 @@ sort_alphanum ()
 }
 
 #######################################
+# Print streaming.json, icecast-status.xsl.
+# Globals:
+#   None
+# Arguments:
+#   None
+# Outputs:
+#   None
+# Returns:
+#   None
+#######################################
+printjson ()
+{
+	# Export icecast status to disk
+	curl -sSf http://live.ber.c3voc.de:7999/status-json.xsl > status_liveber.xsl
+	curl -sSf http://ingest.c3voc.de:8000/status-json.xsl > status_ingest.xsl
+	# Export streaming.json to disk
+	if [ -n "${FORCE-}" ]; then
+    # with option forceopen=1 (shows all streams done, running and planned)
+    JSON="$(curl -sSf https://streaming.media.ccc.de/streams/v2.json?forceopen=1)"
+  else
+    # shows only running streams
+    JSON="$(curl -sSf https://streaming.media.ccc.de/streams/v2.json)"
+  fi
+	echo "${JSON}" > current.json
+	# Don't start mpv and avoid deleting current-playlist.m3u8
+	EXIT=true
+}
+
+#######################################
 # Cleanup on exit.
 #   Delete current-playlist (if not EXIT).
 # Globals:
@@ -402,6 +431,11 @@ verbose "Level of verbosity: ${VERBOSITY}"
 
 # Exit handler
 trap cleanup 0 1 2 3 6
+
+# check for option -j
+if [ -n "${PRINT_JSON-}" ]; then
+	printjson
+fi
 
 # Check if mpv is existing
 if ! [ -x "$(command -v mpv)" ]; then
