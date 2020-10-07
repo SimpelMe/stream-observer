@@ -436,6 +436,16 @@ if [ -n "${PRINT_JSON-}" ]; then
 	printjson
 fi
 
+# Check for option -t; print timetable of running and coming events
+if [ -n "${TIMETABLE-}" ]; then
+	# with option forceopen=1 (shows all streams done, running and planned)
+	JSON="$(curl -sSf https://streaming.media.ccc.de/streams/v2.json?forceopen=1)"
+				verbose "main (${LINENO}): Curl json: $?" 2
+	# Print start date, end date and conference from $JSON
+	timetable_array "${JSON}"
+	exit 0
+fi
+
 # Check if mpv is existing
 if ! [ -x "$(command -v mpv)" ]; then
   printf "%b\n" "${RED}Error: mpv does not exist, please install${NC}" 1>&2
@@ -487,13 +497,6 @@ else
     printf "%b\n" "${YELLOW}Warning: no active streams available${NC}" 1>&2
     exit 1
   fi
-
-	# Option -t; print timetable of running and coming events
-	if [ -n "${TIMETABLE-}" ]; then
-		# Print start date, end date and conference from $JSON
-		timetable_array "${JSON}"
-		exit 0
-	fi
 
   # Find servers in $JSON including end date and room names
   SERVER_ARRAY="$(server_array "${JSON}")"
