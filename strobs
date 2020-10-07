@@ -179,85 +179,40 @@ timetable_array ()
 }
 
 #######################################
-# Convert stream api json to server array.
-# Globals:
-#   FORCE
-#   FORCE_DATE
-# Arguments:
-#   api json in JSON
-# Outputs:
-#   (endsAt \t display \t stream [ \t display \t stream ]*\n?)* to STDOUT
-# Returns:
-#   result
-#######################################
-server_array ()
-{
-  verbose "server_array (${LINENO}): Create server array"
-  # Catch endsAt, display (name of room) and stream of ervery stream event
-  result="$(echo "$1" | grep -E "\"endsAt\": \"?.+\"?,|^\s{24}\"display\": \"?.+\"?,|\"stream\": \"?.+\"?,")"
-        verbose "server_array (${LINENO}): Grep 'endsAt, display, stream including values': $?" 2
-  # Make one plain, clean line of them all
-  result="$(echo "${result}" | awk '{$1=$1;print}')"
-        verbose "server_array (${LINENO}): Remove leading/trailing white spaces: $?" 2
-  result="$(echo "${result}" | sed 's/,$//g')"
-        verbose "server_array (${LINENO}): Remove trailing commas: $?" 2
-  result="$(echo "${result}" | tr '\n' '\t')"
-        verbose "server_array (${LINENO}): Replace all newlines with tabs: $?" 2
-  # Make every stream event a single line
-  result="$(echo "${result}" | sed 's/\"endsAt/\'$'\n\"endsAt/g')"
-        verbose "server_array (${LINENO}): Insert newlines before endsAt: $?" 2
-  # Remove first empty line
-  result="$(echo "${result}" | tail -n +2)"
-        verbose "server_array (${LINENO}): Remove first newline: $?" 2
-  # Remove all keys from key:value
-  result="$(echo "${result}" | sed 's/\"endsAt\": //g')"
-        verbose "server_array (${LINENO}): Remove 'endsAt': $?" 2
-  result="$(echo "${result}" | sed 's/\"display\": //g')"
-        verbose "server_array (${LINENO}): Remove 'display': $?" 2
-  result="$(echo "${result}" | sed 's/\"stream\": //g')"
-        verbose "server_array (${LINENO}): Remove 'stream': $?" 2
-  result="$(echo "${result}" | sed 's/\"//g')"
-        verbose "server_array (${LINENO}): Remove all \": $?" 2
-  result="$(echo "${result}" | awk -F '\t' '{print $0}')"
-  # Return only stream events that are younger then FORCE_DATE
-  if [ -n "${FORCE-}" ]; then
-    verbose "Forced date: ${FORCE_DATE}"
-    result="$(echo "${result}" | awk -F '\t' -v force_date="${FORCE_DATE}" '$1>=force_date && $1!="null" {print $0}')"
-          verbose "server_array (${LINENO}): Strip server array to forced days"
-  fi
-  echo "${result}"
-}
-
-#######################################
-# Returning only servers from server array.
+# Convert icecast status json to server array.
 # Globals:
 #   None
 # Arguments:
-#   server array as given by server_array()
+#   ICECAST
 # Outputs:
-#   (server \t?)*
+#   (stream \t url \n)* to STDOUT
 # Returns:
 #   result
 #######################################
-server_only ()
+server ()
 {
-  # returns odd fields started at 3
-  result="$(echo "$1" | awk -F '\t' '{s="";for (i=3;i<=NF;i+=2) {s=s?s FS $i:$i} print s}')"
-        verbose "server_only (${LINENO}): Shrink server array to servers only: $?" 2
+  verbose "server (${LINENO}): Create server array"
+  # Catch http://live.ber.c3voc.de:7999/xxxx_xxxx of every stream event
+  result="$(echo "$1" | grep -E -o 'http[^,]*'$SERVERSUFFIX)"
+        verbose "server (${LINENO}): Grep 'urls with $SERVERSUFFIX including values': $?" 2
+  # Remove serverpath and serversuffix
+  result="$(echo "${result}" | sed 's/http:\/\/live.ber.c3voc.de:7999\///g')"
+        verbose "server (${LINENO}): Remove '$SERVERPATH': $?" 2
+  result="$(echo "${result}" | sed 's/'$SERVERSUFFIX'//g')"
+        verbose "server (${LINENO}): Remove '$SERVERSUFFIX': $?" 2
   echo "${result}"
 }
-
 
 #######################################
 # Returning servers sorted alphanumerical.
 # Globals:
 #   None
 # Arguments:
-#   servers as given by server_only()
+#   STREAMS
 # Outputs:
-#   OutputToSTDOUTorSTDERR
+#   sorted streams to STDOUT
 # Returns:
-#   ReturnedvValuesOtherThenExitStatus
+#   None
 #######################################
 sort_alphanum ()
 {
@@ -487,44 +442,37 @@ else
         verbose "Used playlist: ${PLAYLIST}"
 
   # Read running streams by api json
-				verbose "main (${LINENO}): Read stream json"
-  JSON="$(curl -sSf https://streaming.media.ccc.de/streams/v2.json)"
-        verbose "main (${LINENO}): Curl json: $?" 2
-				verbose "Stream api json:\n${JSON}" 4
+	# 			verbose "main (${LINENO}): Read stream json"
+  # JSON="$(curl -sSf https://streaming.media.ccc.de/streams/v2.json)"
+  #       verbose "main (${LINENO}): Curl json: $?" 2
+	# 			verbose "Stream api json:\n${JSON}" 4
 
   # Exit if trimmed (all white spaces) $JSON is empty
-  if [ "$(echo "${JSON}" | tr -d "[:blank:]")" = "[]" ]; then
-    printf "%b\n" "${YELLOW}Warning: no active streams available${NC}" 1>&2
-    exit 1
-  fi
+  # if [ "$(echo "${JSON}" | tr -d "[:blank:]")" = "[]" ]; then
+  #   printf "%b\n" "${YELLOW}Warning: no active streams available${NC}" 1>&2
+  #   exit 1
+  # fi
 
-  # Find servers in $JSON including end date and room names
-  SERVER_ARRAY="$(server_array "${JSON}")"
-        verbose "Server array:\n${SERVER_ARRAY}" 4
-  # Trim to servers only
-  SERVER="$(server_only "${SERVER_ARRAY}")"
-  SERVER="$(echo "${SERVER}" | tr '\t' '\n')"
-        verbose "main (${LINENO}): Newline separated server list: $?" 2
-  # Shrink servers to unique ones
-  SERVER="$(echo "${SERVER}" | awk '!a[$0]++')"
-        verbose "main (${LINENO}): Shrink to unique servers: $?" 2
+  # Find streams in $ICECAST
+  STREAMS="$(server "${ICECAST}")"
+        verbose "Server array:\n${STREAMS}" 4
   # Exit if no servers found
-  if [ "${SERVER}" = "" ]; then
+  if [ "${STREAMS}" = "" ]; then
     printf "%b\n" "${YELLOW}Warning: no searched streams available${NC}" 1>&2
     exit 1
   fi
   # Sort servers alphanumerical
   if [ -n "${SORT-}" ]; then
-    SERVER="$(sort_alphanum "${SERVER}")"
+    STREAMS="$(sort_alphanum "${STREAMS}")"
   fi
-  verbose "Extracted servers:\n${SERVER}" 3
+  verbose "Extracted servers:\n${STREAMS}" 3
 
   # Create playlist
   # Playlist header
   echo "#EXTM3U" > "${PLAYLIST}"
   echo "#EXT-X-VERSION:3" >> "${PLAYLIST}"
   # Repeat playlist names and servers and "#EXT-X-DISCONTINUITY"
-  for STREAM in ${SERVER}
+  for STREAM in ${STREAMS}
   do
       # Write servers name as info into playlist; if option '-n' add ($STREAM) the technical server name
       NAME="$(echo "${SERVER_ARRAY}" | awk -F '\t' -v stream="${STREAM}" '{ for (x=1;x<=NF;x++) if ($x==stream) {print $(x-1); exit} }')"
