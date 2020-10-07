@@ -27,8 +27,7 @@ readonly PROGPATH="${0%/*}/"
 readonly VERSION="1.1.21"
 unset DEBUG # if set print verbose messages red to differ from debug messages
 unset EXIT # if set don't open mpv; useful for debugging and json export
-unset FORCE # if set use more servers than currently streaming ones
-unset FORCE_DATE # if set defines days back from now to try past stream events
+unset FORCE # if set and used with option -p / -j forces open playlist / load full json
 unset ICECAST # if set contains icecast status json
 unset NAMES # if set containes display names of the cuurent running streams
 unset NAME_EXT # if set playlist server names append technical name (e.g. s23)
@@ -323,17 +322,16 @@ manpage()
 #######################################
 manual()
 {
-  echo "Usage: ${PROGNAME} [ -d | -D | -f ${UNDERLINED}days${NC} | -h | -j | -k | -m | -n | -p ${UNDERLINED}file${NC} | -s | -t | -v | -V | -x]"
+  echo "Usage: ${PROGNAME} [ -d | -D | -f | -h | -j | -k | -m | -n | -p ${UNDERLINED}file${NC} | -s | -t | -v | -V | -x]"
   echo "       opens mpv with all active voc streams"
   echo "       -d debug mode: print commands and arguments while executed"
   echo "       -D debug mode: print script lines while read"
-  echo "       -f force to open all planned, active and past streams"
-  echo "          ${UNDERLINED}days${NC} to the past are mandatory (to omit set 0)"
+  echo "       -f forces (with -p / -j) open playlist / download full json"
   echo "       -h help shown"
   echo "       -j json export to disk"
   echo "       -k keys/shortcuts shown"
   echo "       -m man page shown"
-  echo "       -n name server with original extension"
+  echo "       -n name stream with technical extension"
   echo "       -p playlist ${UNDERLINED}file${NC} with servers in format m3u8"
   echo "       -s sort server list alphanumerical"
   echo "       -t timetable of running and coming events shown"
@@ -348,18 +346,13 @@ manual()
 #######################################
 
 # Check options
-while getopts 'dDf:hjkmnp:stvVx' option 2>/dev/null; do
+while getopts 'dDfhjkmnp:stvVx' option 2>/dev/null; do
   case "${option}" in
     d ) set -x # print commands and arguments while executed
         DEBUG=true;;
     D ) set -v # print script lines while read
         DEBUG=true;;
-    f ) case ${OPTARG} in
-          *[!0-9]* ) printf "%b\n" "${YELLOW}Warning: illegal option ${OPTARG} (no number)${NC}" 1>&2
-                    exit 1;;
-          * ) FORCE_DATE="$(date -v-${OPTARG}d -u +"%Y-%m-%dT%H:%M:%S+0000")"
-             FORCE=true;;
-        esac;;
+    f ) FORCE=true;;
     h ) manual;;
     j ) PRINT_JSON=true;;
     k ) keys;;
