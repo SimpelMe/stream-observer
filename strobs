@@ -17,7 +17,7 @@ set -eu
 #######################################
 
 readonly SERVERPATH="http://live.ber.c3voc.de:7999/"
-readonly RTMPPATH="http://ingest.c3voc.de:8000/"
+readonly SERVERSUFFIX="_vpx"
 readonly RED='\033[0;31m'
 readonly YELLOW='\033[0;33m'
 readonly NC='\033[0m' # No Color
@@ -533,15 +533,9 @@ else
       else
         echo "#EXTINF:0,${NAME}" >> "${PLAYLIST}"
       fi
-			# Write normal server with http into playlist if start with 's' and followed by digits only
-      if [ "$(expr "${STREAM}" : ^s[[:digit:]][[:digit:]]*$)" -gt 0 ]; then
-				echo "${SERVERPATH}${STREAM}" >> "${PLAYLIST}"
-						verbose "Add ${SERVERPATH}${STREAM} to playlist: $?" 3
-      else
-				# all other servers are ingest servers with rtmp
-				echo "${RTMPPATH}${STREAM}" >> "${PLAYLIST}"
-						verbose "Add ${RTMPPATH}${STREAM} to playlist: $?" 3
-      fi
+			# Write server into playlist
+			echo "${SERVERPATH}${STREAM}${SERVERSUFFIX}" >> "${PLAYLIST}"
+					verbose "Add ${SERVERPATH}${STREAM} to playlist: $?" 3
       # Write playlist divider
       echo "#EXT-X-DISCONTINUITY" >> "${PLAYLIST}"
   done
