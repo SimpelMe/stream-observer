@@ -66,7 +66,6 @@ In addition it will sort the returned server names alphanumerical.
 >will save the downloaded json to current.json and exit before opening mpv.
 
 ## Files
-* `complete-playlist.m3u8` - playlist with all existing servers
 * `current-playlist.m3u8` - generated playlist while running
 * `input.conf` - user-defined key bindings for mpv
 * `select-audio.lua` - script with key bindings for audio
