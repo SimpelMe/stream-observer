@@ -30,6 +30,7 @@ unset EXIT # if set don't open mpv; useful for debugging and json export
 unset FORCE # if set use more servers than currently streaming ones
 unset FORCE_DATE # if set defines days back from now to try past stream events
 unset ICECAST # if set contains icecast status json
+unset NAMES # if set containes display names of the cuurent running streams
 unset NAME_EXT # if set playlist server names append technical name (e.g. s23)
 unset PRINT_JSON # if set export json to disk
 unset PLAYLIST # if set use directly this playlist
@@ -455,17 +456,13 @@ else
 	fi
 	verbose "Extracted servers:\n${STREAMS}" 3
 
-  # Read running streams by api json
-	# 			verbose "main (${LINENO}): Read stream json"
-  # JSON="$(curl -sSf https://streaming.media.ccc.de/streams/v2.json)"
-  #       verbose "main (${LINENO}): Curl json: $?" 2
-	# 			verbose "Stream api json:\n${JSON}" 4
-
-  # Exit if trimmed (all white spaces) $JSON is empty
-  # if [ "$(echo "${JSON}" | tr -d "[:blank:]")" = "[]" ]; then
-  #   printf "%b\n" "${YELLOW}Warning: no active streams available${NC}" 1>&2
-  #   exit 1
-  # fi
+  # Read running streams by api json - look for matches for displayed stream name
+				verbose "main (${LINENO}): Read stream json"
+  NAMES="$(curl -sSf https://streaming.media.ccc.de/streams/v2.json)"
+				verbose "Stream api json:\n${NAMES}" 4
+  if [ "$(echo "${NAMES}" | tr -d "[:blank:]")" = "[]" ]; then
+    verbose "${YELLOW}No display names for active streams available${NC}"
+	fi
 
   # Create playlist
   # Playlist header
