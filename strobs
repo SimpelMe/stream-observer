@@ -474,13 +474,8 @@ else
   # Repeat playlist names and servers and "#EXT-X-DISCONTINUITY"
   for STREAM in ${STREAMS}
   do
-      # Write servers name as info into playlist; if option '-n' add ($STREAM) the technical server name
-      NAME="$(echo "${SERVER_ARRAY}" | awk -F '\t' -v stream="${STREAM}" '{ for (x=1;x<=NF;x++) if ($x==stream) {print $(x-1); exit} }')"
-      if [ -n "${NAME_EXT-}" ]; then
-        echo "#EXTINF:0,${NAME} (${STREAM})" >> "${PLAYLIST}"
-      else
-        echo "#EXTINF:0,${NAME}" >> "${PLAYLIST}"
-      fi
+      # Write stream as info into playlist
+      echo "#EXTINF:0,${STREAM}" >> "${PLAYLIST}"
 			# Write server into playlist
 			echo "${SERVERPATH}${STREAM}${SERVERSUFFIX}" >> "${PLAYLIST}"
 					verbose "Add ${SERVERPATH}${STREAM} to playlist: $?" 3
