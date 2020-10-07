@@ -386,7 +386,7 @@ verbose "Level of verbosity: ${VERBOSITY}"
 # Exit handler
 trap cleanup 0 1 2 3 6
 
-# check for option -j
+# Check for option -j
 if [ -n "${PRINT_JSON-}" ]; then
 	printjson
 fi
@@ -422,6 +422,10 @@ if [ -n "${PLAYLIST-}" ]; then
 		fi
   fi
 else
+	# Playlist should have only streams found at icecast status
+	PLAYLIST="current-playlist.m3u8"
+	verbose "Used playlist: ${PLAYLIST}"
+
 	# Catch icecast status live.ber
 	ICECAST="$(curl -sSf http://live.ber.c3voc.de:7999/status-json.xsl)"
 	# Check if streaming - then "listenurl" is inside
@@ -437,9 +441,19 @@ else
 		fi
 	fi
 
-  # This playlist should have only servers found at icecast status
-  PLAYLIST="current-playlist.m3u8"
-        verbose "Used playlist: ${PLAYLIST}"
+	# Find streams in $ICECAST
+	STREAMS="$(server "${ICECAST}")"
+	verbose "Server array:\n${STREAMS}" 4
+	# Exit if no servers found
+	if [ "${STREAMS}" = "" ]; then
+		printf "%b\n" "${YELLOW}Warning: no searched streams available${NC}" 1>&2
+		exit 1
+	fi
+	# Sort servers alphanumerical
+	if [ -n "${SORT-}" ]; then
+		STREAMS="$(sort_alphanum "${STREAMS}")"
+	fi
+	verbose "Extracted servers:\n${STREAMS}" 3
 
   # Read running streams by api json
 	# 			verbose "main (${LINENO}): Read stream json"
@@ -452,20 +466,6 @@ else
   #   printf "%b\n" "${YELLOW}Warning: no active streams available${NC}" 1>&2
   #   exit 1
   # fi
-
-  # Find streams in $ICECAST
-  STREAMS="$(server "${ICECAST}")"
-        verbose "Server array:\n${STREAMS}" 4
-  # Exit if no servers found
-  if [ "${STREAMS}" = "" ]; then
-    printf "%b\n" "${YELLOW}Warning: no searched streams available${NC}" 1>&2
-    exit 1
-  fi
-  # Sort servers alphanumerical
-  if [ -n "${SORT-}" ]; then
-    STREAMS="$(sort_alphanum "${STREAMS}")"
-  fi
-  verbose "Extracted servers:\n${STREAMS}" 3
 
   # Create playlist
   # Playlist header
