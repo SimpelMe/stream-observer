@@ -29,6 +29,7 @@ unset DEBUG # if set print verbose messages red to differ from debug messages
 unset EXIT # if set don't open mpv; useful for debugging and json export
 unset FORCE # if set use more servers than currently streaming ones
 unset FORCE_DATE # if set defines days back from now to try past stream events
+unset ICECAST # if set contains icecast status json
 unset NAME_EXT # if set playlist server names append technical name (e.g. s23)
 unset PRINT_JSON # if set export json to disk
 unset PLAYLIST # if set use directly this playlist
@@ -438,6 +439,21 @@ fi
 if ! [ -x "$(command -v mpv)" ]; then
   printf "%b\n" "${RED}Error: mpv does not exist, please install${NC}" 1>&2
   exit 1
+fi
+
+# Catch icecast status live.ber
+ICECAST="$(curl -sSf http://live.ber.c3voc.de:7999/status-json.xsl)"
+# Check if streaming - then "listenurl" is inside
+if [ "$(echo "${ICECAST}" | grep listenurl -c)" = 0 ]; then
+	# Check if ingest server is receiving
+	ICECAST="$(curl -sSf http://ingest.c3voc.de:8000/status-json.xsl)"
+	if [ "$(echo "${ICECAST}" | grep listenurl -c)" = 0 ]; then
+		printf "%b\n" "${YELLOW}Warning: no active streams available${NC}" 1>&2
+    exit 1
+	else
+		printf "%b\n" "${YELLOW}Warning: no active streams available but ingest is active - try a bit later${NC}" 1>&2
+    exit 1
+	fi
 fi
 
 # Choose the playlist
