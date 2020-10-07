@@ -427,8 +427,10 @@ elif [ -n "${PLAYLIST_FILE-}" ]; then
 		if wget --spider "${PLAYLIST}" 2>/dev/null; then
 				verbose "Used playlist is remote"
 		else
-	    printf "%b\n" "${YELLOW}Warning: playlist '${PLAYLIST}' does not exist${NC}" 1>&2
-	    exit 1
+			if [ ! -n "${FORCE-}" ]; then
+		    printf "%b\n" "${YELLOW}Warning: playlist '${PLAYLIST}' does not exist, but you can enforce with option -f${NC}" 1>&2
+		    exit 1
+			fi
 		fi
   fi
 else
