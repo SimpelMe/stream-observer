@@ -29,10 +29,12 @@ unset DEBUG # if set print verbose messages red to differ from debug messages
 unset EXIT # if set don't open mpv; useful for debugging and json export
 unset FORCE # if set and used with option -p / -j forces open playlist / load full json
 unset ICECAST # if set contains icecast status json
-unset NAMES # if set containes display names of the cuurent running streams
+unset NAME_ARRAY # if set contains conferences, streams and display names
 unset NAME_EXT # if set playlist server names append technical name (e.g. s23)
+unset NAME_JSON # if set containes display names of the cuurent running streams
 unset PRINT_JSON # if set export json to disk
 unset PLAYLIST # if set use directly this playlist
+unset PLAYLIST_INFO # if set contains Info line in mvp what stream it is
 unset SORT # if set servers sorted alphanumerical else as found
 unset TIMETABLE # if set timetable of running and coming events is printed
 VERBOSITY=0 # if > 0 show verbose messages in levels
@@ -201,6 +203,94 @@ server ()
   result="$(echo "${result}" | sed 's/'$SERVERSUFFIX'//g')"
         verbose "server (${LINENO}): Remove '$SERVERSUFFIX': $?" 2
   echo "${result}"
+}
+
+#######################################
+# Convert api json to names array.
+# Globals:
+#   None
+# Arguments:
+#   NAME_JSON
+# Outputs:
+#   ((stream \n display \n)* conference)* to STDOUT
+# Returns:
+#   result
+#######################################
+name_array ()
+{
+	verbose "name_array (${LINENO}): Create name array"
+	# Catch all "conferences", "display" with 24spaces ahead (there are many more "display"), "stream"
+	result="$(echo "$1" | grep -E '\"conference\":|^\s{24}\"display\":|\"stream\":')"
+				verbose "name_array (${LINENO}): Grep 'conferences, display, streams incl. values': $?" 2
+	result="$(echo "${result}" | awk '{$1=$1;print}')"
+				verbose "name_array (${LINENO}): Remove leading and trailing spaces: $?" 2
+	result="$(echo "${result}" | awk '{a[i++]=$0} END {for (j=i-1; j>=0;) print a[j--] }')"
+				verbose "name_array (${LINENO}): Reorder list upside down: $?" 2
+	echo "${result}"
+}
+
+#######################################
+# Returns line number where stream is found in name_array.
+# Globals:
+#   NAME_ARRAY
+# Arguments:
+#   STREAM
+# Outputs:
+#   Integer to STDOUT
+# Returns:
+#   result
+#######################################
+stream_pos ()
+{
+	result="$(echo "${NAME_ARRAY}" | sed -n '/'$1'/=')"
+				verbose "stream_pos (${LINENO}): Get position of '$1': $?" 2
+	echo "${result}"
+}
+
+#######################################
+# Returns display name found in name_array.
+# Globals:
+#   NAME_ARRAY
+# Arguments:
+#   STREAM_POS
+# Outputs:
+#   display to STDOUT
+# Returns:
+#   result
+#######################################
+display ()
+{
+	result="$(echo "${NAME_ARRAY}" | awk 'NR=='$1'')"
+				verbose "display (${LINENO}): Print line $1: $?" 2
+	result="$(echo "${result}" | sed 's/"display": "//g')"
+				verbose "display (${LINENO}): Remove '\"display\":': $?" 2
+	result="$(echo "${result}" | sed 's/",//g')"
+				verbose "display (${LINENO}): Remove '\",': $?" 2
+	echo "${result}"
+}
+
+#######################################
+# Returns conference found in name_array.
+# Globals:
+#   NAME_ARRAY
+# Arguments:
+#   STREAM_POS
+# Outputs:
+#   conference to STDOUT
+# Returns:
+#   result
+#######################################
+conference ()
+{
+	result="$(echo "${NAME_ARRAY}" | awk 'NR>='$1'')"
+				verbose "conference (${LINENO}): Print lines from $1: $?" 2
+	result="$(echo "${result}" | grep -m 1 "conference")"
+				verbose "conference (${LINENO}): Grep first occurence of 'conference including value': $?" 2
+	result="$(echo "${result}" | sed 's/"conference": "//g')"
+				verbose "conference (${LINENO}): Remove '\"conference\":': $?" 2
+	result="$(echo "${result}" | sed 's/",//g')"
+				verbose "conference (${LINENO}): Remove '\",': $?" 2
+	echo "${result}"
 }
 
 #######################################
@@ -451,12 +541,18 @@ else
 
   # Read running streams by api json - look for matches for displayed stream name
 				verbose "main (${LINENO}): Read stream json"
-  NAMES="$(curl -sSf https://streaming.media.ccc.de/streams/v2.json)"
-				verbose "Stream api json:\n${NAMES}" 4
-  if [ "$(echo "${NAMES}" | tr -d "[:blank:]")" = "[]" ]; then
-    verbose "${YELLOW}No display names for active streams available${NC}"
-	fi
+  NAME_JSON="$(curl -sSf https://streaming.media.ccc.de/streams/v2.json)"
+				verbose "Stream api json:\n${NAME_JSON}" 4
+  if [ "$(echo "${NAME_JSON}" | tr -d "[:blank:]")" = "[]" ]; then
+    verbose "${YELLOW}No json for display names available${NC}"
+	else
+		# json not empty
+		NAME_ARRAY="$(name_array "${NAME_JSON}")"
+		if [ -z "${NAME_ARRAY-}" ]; then
+			verbose "${YELLOW}No display names for active streams available${NC}"
+		fi
 
+	fi
   # Create playlist
   # Playlist header
   echo "#EXTM3U" > "${PLAYLIST}"
@@ -464,11 +560,42 @@ else
   # Repeat playlist names and servers and "#EXT-X-DISCONTINUITY"
   for STREAM in ${STREAMS}
   do
-      # Write stream as info into playlist
-      echo "#EXTINF:0,${STREAM}" >> "${PLAYLIST}"
+		unset CONFERENCE
+		unset DISPLAY
+		unset PLAYLIST_INFO
+		if [ -n "${NAME_ARRAY-}" ]; then
+			STREAM_POS="$(stream_pos "${STREAM}")"
+			if [ "$(echo "${STREAM_POS}")" -gt 0 ]; then
+				STREAM_POS=$((STREAM_POS + 1))
+				DISPLAY="$(display "${STREAM_POS}")"
+				CONFERENCE="$(conference "${STREAM_POS}")"
+			fi
+			if [ -n "${CONFERENCE-}" ]; then
+						verbose "main (${LINENO}): Conference found: ${CONFERENCE}" 3
+				PLAYLIST_INFO=${CONFERENCE}" - "
+			fi
+			if [ -n "${DISPLAY-}" ]; then
+						verbose "main (${LINENO}): Display found: ${DISPLAY}" 3
+				PLAYLIST_INFO=${PLAYLIST_INFO}${DISPLAY}
+			fi
+			if [ -z "${PLAYLIST_INFO-}" ]; then
+						verbose "main (${LINENO}): Playlist empty" 3
+				PLAYLIST_INFO=${STREAM}
+			else
+				if [ -n "${NAME_EXT-}" ]; then
+						verbose "main (${LINENO}): Option -n - add stream: ${STREAM}" 3
+					PLAYLIST_INFO=${PLAYLIST_INFO}" - "${STREAM}
+				fi
+			fi
+		else
+			PLAYLIST_INFO=${STREAM}
+		fi
+			# Write stream as info into playlist
+      echo "#EXTINF:0,${PLAYLIST_INFO}" >> "${PLAYLIST}"
+					verbose "main (${LINENO}): Add ${PLAYLIST_INFO} to playlist: $?" 3
 			# Write server into playlist
 			echo "${SERVERPATH}${STREAM}${SERVERSUFFIX}" >> "${PLAYLIST}"
-					verbose "Add ${SERVERPATH}${STREAM} to playlist: $?" 3
+					verbose "main (${LINENO}): Add ${SERVERPATH}${STREAM} to playlist: $?" 3
       # Write playlist divider
       echo "#EXT-X-DISCONTINUITY" >> "${PLAYLIST}"
   done
