@@ -107,7 +107,7 @@ It is starting a playlist in mpv with following options:
 * --load-scripts=no
   * don't load any scripts from personal config
 * --scripts=keys.lua
-  * load these script: keys.lua
+  * load these script:${progpath}keys.lua
 * --force-window=immediate
   * create the gui immediately on program start
 * --keep-open=always
