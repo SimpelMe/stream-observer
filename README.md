@@ -102,8 +102,8 @@ It is starting a playlist in mpv with following options:
   * all modules just error messages, but ffmpeg/video fatal (because of permanent irrelevant PoC errors)
 * --no-input-default-bindings
   * deactivate all default key bindings
-* --use-filedir-conf
-  * look for configuration file in the same directory as the file that is being played, where strobs is starting (e.g. input.conf for default key bindings)
+* --input-conf=${progpath}input.conf
+  * look for configuration file in the same directory where strobs is starting
 * --load-scripts=no
   * don't load any scripts from personal config
 * --scripts=keys.lua

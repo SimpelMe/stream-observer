@@ -611,7 +611,7 @@ mpv "${playlist}" \
   --no-ytdl \
   --msg-level=all=error,ffmpeg=fatal \
   --no-input-default-bindings \
-  --use-filedir-conf \
+  --input-conf=${progpath}input.conf \
   --load-scripts=no \
   --scripts=${progpath}keys.lua \
   --force-window=immediate \
