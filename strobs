@@ -1,13 +1,14 @@
 #! /bin/sh
 #
-# Opens mpv with all active (currently streaming) voc streams in a playlist.
+# Stream-Observer (strobs) is a script to observe running voc video streams.
 #
-# With options you can try all existing servers,
-# try all servers that will be, are and were active until given days or
-# try all servers given in a valid playlist.
+# The script opens mpv with all active (currently streaming) streams from
+# Chaos Computer Club made by VOC (video operation center) in a playlist
+# as found at https://streaming.media.ccc.de.
+# Optionally it can also try to open all streams given in a valid playlist.
 #
 # MIT License
-# Copyright (c) 2020 Conrad Zelck
+# Copyright (c) 2020 Simpel
 
 # set e: exit if something fails; set u: exit if a variable is unset
 set -eu
@@ -39,18 +40,6 @@ unset playlist_info # if set contains Info line in mvp what stream it is
 unset sort # if set servers sorted alphanumerical else as found
 unset timetable # if set timetable of running and coming events is printed
 verbosity=0 # if > 0 show verbose messages in levels
-
-#######################################
-# DescriptionOfTheFunction.
-# Globals:
-#   ListOfGlobalVariablesUsedOrModified
-# Arguments:
-#   ArgumentsTaken
-# Outputs:
-#   OutputToSTDOUTorSTDERR
-# Returns:
-#   ReturnedvValuesOtherThenExitStatus
-#######################################
 
 #######################################
 ### Functions
