@@ -16,28 +16,29 @@ set -eu
 ### Globals
 #######################################
 
-readonly SERVERPATH="http://live.ber.c3voc.de:7999/"
-readonly SERVERSUFFIX="_vpx"
-readonly RED='\033[0;31m'
-readonly YELLOW='\033[0;33m'
-readonly NC='\033[0m' # No Color
-readonly UNDERLINED='\033[4m'
-readonly PROGNAME="${0##*/}"
-readonly PROGPATH="${0%/*}/"
-readonly VERSION="1.1.21"
-unset DEBUG # if set print verbose messages red to differ from debug messages
-unset EXIT # if set don't open mpv; useful for debugging and json export
-unset FORCE # if set and used with option -p / -j forces open playlist / load full json
-unset ICECAST # if set contains icecast status json
-unset NAME_ARRAY # if set contains conferences, streams and display names
-unset NAME_EXT # if set playlist server names append technical name (e.g. s23)
-unset NAME_JSON # if set containes display names of the cuurent running streams
-unset PRINT_JSON # if set export json to disk
-unset PLAYLIST # if set use directly this playlist
-unset PLAYLIST_INFO # if set contains Info line in mvp what stream it is
-unset SORT # if set servers sorted alphanumerical else as found
-unset TIMETABLE # if set timetable of running and coming events is printed
-VERBOSITY=0 # if > 0 show verbose messages in levels
+readonly serverpath="http://live.ber.c3voc.de:7999/"
+readonly serversuffix="_vpx"
+readonly red='\033[0;31m'
+readonly yellow='\033[0;33m'
+readonly nc='\033[0m' # No Color
+readonly underlined='\033[4m'
+readonly progname="${0##*/}"
+readonly progpath="${0%/*}/"
+readonly version="1.1.21"
+unset conference # if set contains the name of the conference
+unset debug # if set print verbose messages red to differ from debug messages
+unset exitscript # if set don't open mpv; useful for debugging and json export
+unset force # if set and used with option -p / -j forces open playlist / load full json
+unset icecast # if set contains icecast status json
+unset name_array # if set contains conferences, streams and display names
+unset name_ext # if set playlist server names append technical name (e.g. s23)
+unset name_json # if set containes display names of the cuurent running streams
+unset print_json # if set export json to disk
+unset playlist # if set use directly this playlist
+unset playlist_info # if set contains Info line in mvp what stream it is
+unset sort # if set servers sorted alphanumerical else as found
+unset timetable # if set timetable of running and coming events is printed
+verbosity=0 # if > 0 show verbose messages in levels
 
 #######################################
 # DescriptionOfTheFunction.
@@ -56,12 +57,12 @@ VERBOSITY=0 # if > 0 show verbose messages in levels
 #######################################
 
 #######################################
-# Print verbose messages (in red if DEBUG).
+# Print verbose messages (in red if debug).
 # Globals:
-#   VERBOSITY
-#   DEBUG
-#   RED
-#   NC
+#   verbosity
+#   debug
+#   red
+#   nc
 # Arguments:
 #   level
 # Outputs:
@@ -73,21 +74,21 @@ verbose() {
 	msg="${1}"
 	level="${2:-1}" # default 1 if not given
 	i=0
-  # only level up to VERBOSITY
-	if [ ${level} -le ${VERBOSITY} ]; then
+  # only level up to verbosity
+	if [ ${level} -le ${verbosity} ]; then
     # print '=' for every level
 		while [ ${i} -lt ${level} ]; do
       # colorize in debug mode
-      if [ -n "${DEBUG-}" ]; then
-        printf "${RED}=${NC}\n" >&2
+      if [ -n "${debug-}" ]; then
+        printf "${red}=${nc}\n" >&2
       else
         printf "=" >&2
       fi
 			i=$(( ${i} + 1 ))
 		done
     # print verbose message (colorize in debug mode)
-    if [ -n "${DEBUG-}" ]; then
-  		echo "${RED}> ${msg}${NC}" >&2
+    if [ -n "${debug-}" ]; then
+  		echo "${red}> ${msg}${nc}" >&2
     else
   		echo "> ${msg}" >&2
     fi
@@ -97,9 +98,9 @@ verbose() {
 #######################################
 # Show extracted shortcuts from input.conf.
 # Globals:
-#   PROGPATH
-#		YELLOW
-#		NC
+#   progpath
+#		yellow
+#		nc
 # Arguments:
 #   None
 # Outputs:
@@ -109,13 +110,13 @@ verbose() {
 #######################################
 keys()
 {
-	if [ ! -f "${PROGPATH}input.conf" ]; then
-		printf "%b\n" "${YELLOW}Warning: '${PROGPATH}input.conf' with key definition does not exist${NC}" 1>&2
+	if [ ! -f "${progpath}input.conf" ]; then
+		printf "%b\n" "${yellow}Warning: '${progpath}input.conf' with key definition does not exist${nc}" 1>&2
 		exit 1
 	fi
 	echo "Shortcuts:"
   # grep all lines start not with #
-  grep '^[[:blank:]]*[^[:blank:]#]' ${PROGPATH}input.conf
+  grep '^[[:blank:]]*[^[:blank:]#]' ${progpath}input.conf
         verbose "keys (${LINENO}): grep shortcuts from 'input.conf': $?" 2
   exit 0
 }
@@ -173,9 +174,9 @@ timetable_array ()
 	result="$(echo "${result}" | sed 's/\([0-9]\{4\}-[0-9][0-9]-[0-9][0-9]\)T\([0-9][0-9]:[0-9][0-9]:[0-9][0-9]\)/\1 \2/g')"
 				verbose "timetable_array (${LINENO}): Remove 'T' from timestamps: $?" 2
 	if [ -z "${result-}" ]; then
-		printf "%b\n" "${YELLOW}Warning: no events found${NC}" 1>&2
+		printf "%b\n" "${yellow}Warning: no events found${nc}" 1>&2
 	else
-		printf "%b\n" "${YELLOW}starts at (UTC)\t\tends at (UTC)\t\tconference${NC}" 1>&2
+		printf "%b\n" "${yellow}starts at (UTC)\t\tends at (UTC)\t\tconference${nc}" 1>&2
 		printf "%b\n" "${result}" 1>&2
 	fi
 }
@@ -185,7 +186,7 @@ timetable_array ()
 # Globals:
 #   None
 # Arguments:
-#   ICECAST
+#   icecast
 # Outputs:
 #   (stream \t url \n)* to STDOUT
 # Returns:
@@ -195,13 +196,13 @@ server ()
 {
   verbose "server (${LINENO}): Create server array"
   # Catch http://live.ber.c3voc.de:7999/xxxx_xxxx of every stream event
-  result="$(echo "$1" | grep -E -o 'http[^,]*'$SERVERSUFFIX)"
-        verbose "server (${LINENO}): Grep 'urls with $SERVERSUFFIX including values': $?" 2
+  result="$(echo "$1" | grep -E -o 'http[^,]*'$serversuffix)"
+        verbose "server (${LINENO}): Grep 'urls with $serversuffix including values': $?" 2
   # Remove serverpath and serversuffix
   result="$(echo "${result}" | sed 's/http:\/\/live.ber.c3voc.de:7999\///g')"
-        verbose "server (${LINENO}): Remove '$SERVERPATH': $?" 2
-  result="$(echo "${result}" | sed 's/'$SERVERSUFFIX'//g')"
-        verbose "server (${LINENO}): Remove '$SERVERSUFFIX': $?" 2
+        verbose "server (${LINENO}): Remove '$serverpath': $?" 2
+  result="$(echo "${result}" | sed 's/'$serversuffix'//g')"
+        verbose "server (${LINENO}): Remove '$serversuffix': $?" 2
   echo "${result}"
 }
 
@@ -210,7 +211,7 @@ server ()
 # Globals:
 #   None
 # Arguments:
-#   NAME_JSON
+#   name_json
 # Outputs:
 #   ((stream \n display \n)* conference)* to STDOUT
 # Returns:
@@ -232,7 +233,7 @@ name_array ()
 #######################################
 # Returns line number where stream is found in name_array.
 # Globals:
-#   NAME_ARRAY
+#   name_array
 # Arguments:
 #   STREAM
 # Outputs:
@@ -242,7 +243,7 @@ name_array ()
 #######################################
 stream_pos ()
 {
-	result="$(echo "${NAME_ARRAY}" | sed -n '/'$1'/=')"
+	result="$(echo "${name_array}" | sed -n '/'$1'/=')"
 				verbose "stream_pos (${LINENO}): Get position of '$1': $?" 2
 	echo "${result}"
 }
@@ -250,7 +251,7 @@ stream_pos ()
 #######################################
 # Returns display name found in name_array.
 # Globals:
-#   NAME_ARRAY
+#   name_array
 # Arguments:
 #   STREAM_POS
 # Outputs:
@@ -260,7 +261,7 @@ stream_pos ()
 #######################################
 display ()
 {
-	result="$(echo "${NAME_ARRAY}" | awk 'NR=='$1'')"
+	result="$(echo "${name_array}" | awk 'NR=='$1'')"
 				verbose "display (${LINENO}): Print line $1: $?" 2
 	result="$(echo "${result}" | sed 's/"display": "//g')"
 				verbose "display (${LINENO}): Remove '\"display\":': $?" 2
@@ -272,7 +273,7 @@ display ()
 #######################################
 # Returns conference found in name_array.
 # Globals:
-#   NAME_ARRAY
+#   name_array
 # Arguments:
 #   STREAM_POS
 # Outputs:
@@ -282,7 +283,7 @@ display ()
 #######################################
 conference ()
 {
-	result="$(echo "${NAME_ARRAY}" | awk 'NR>='$1'')"
+	result="$(echo "${name_array}" | awk 'NR>='$1'')"
 				verbose "conference (${LINENO}): Print lines from $1: $?" 2
 	result="$(echo "${result}" | grep -m 1 "conference")"
 				verbose "conference (${LINENO}): Grep first occurence of 'conference including value': $?" 2
@@ -338,7 +339,7 @@ printjson ()
 	curl -sSf http://live.ber.c3voc.de:7999/status-json.xsl > status_liveber.xsl
 	curl -sSf http://ingest.c3voc.de:8000/status-json.xsl > status_ingest.xsl
 	# Export streaming.json to disk
-	if [ -n "${FORCE-}" ]; then
+	if [ -n "${force-}" ]; then
     # with option forceopen=1 (shows all streams done, running and planned)
     JSON="$(curl -sSf https://streaming.media.ccc.de/streams/v2.json?forceopen=1)"
   else
@@ -347,15 +348,15 @@ printjson ()
   fi
 	echo "${JSON}" > current.json
 	# Don't start mpv and avoid deleting current-playlist.m3u8
-	EXIT=true
+	exitscript=true
 }
 
 #######################################
 # Cleanup on exit.
-#   Delete current-playlist (if not EXIT).
+#   Delete current-playlist (if not exitscript).
 # Globals:
-#   PLAYLIST
-#   EXIT
+#   playlist
+#   exitscript
 # Arguments:
 #   None
 # Outputs:
@@ -366,9 +367,9 @@ printjson ()
 cleanup ()
 {
   verbose "cleanup (${LINENO}): Cleanup on exit" 3
-  PLAYLIST="current-playlist.m3u8"
-  if [ -e "${PLAYLIST}" ] && [ -z "${EXIT-}" ]; then
-    rm "${PLAYLIST}"
+  playlist="current-playlist.m3u8"
+  if [ -e "${playlist}" ] && [ -z "${exitscript-}" ]; then
+    rm "${playlist}"
           verbose "cleanup (${LINENO}): Delete 'current-playlist.m3u8': $?" 3
   fi
   exit 0
@@ -377,9 +378,9 @@ cleanup ()
 #######################################
 # Opens man page strobs.1.
 # Globals:
-#   PROGPATH
-#		YELLOW
-#		NC
+#   progpath
+#		yellow
+#		nc
 # Arguments:
 #   None
 # Outputs:
@@ -389,20 +390,20 @@ cleanup ()
 #######################################
 manpage()
 {
-	if [ ! -f "${PROGPATH}strobs.1" ]; then
-		printf "%b\n" "${YELLOW}Warning: man page '${PROGPATH}strobs.1' does not exist${NC}" 1>&2
+	if [ ! -f "${progpath}strobs.1" ]; then
+		printf "%b\n" "${yellow}Warning: man page '${progpath}strobs.1' does not exist${nc}" 1>&2
 		exit 1
 	fi
-	man ${PROGPATH}strobs.1
+	man ${progpath}strobs.1
 	exit 0
 }
 
 #######################################
 # Prints the usage manual.
 # Globals:
-#   PROGNAME
-#   UNDERLINED
-#   NC
+#   progname
+#   underlined
+#   nc
 # Arguments:
 #   None
 # Outputs:
@@ -412,7 +413,7 @@ manpage()
 #######################################
 manual()
 {
-  echo "Usage: ${PROGNAME} [ -d | -D | -f | -h | -j | -k | -m | -n | -p ${UNDERLINED}file${NC} | -s | -t | -v | -V | -x]"
+  echo "Usage: ${progname} [ -d | -D | -f | -h | -j | -k | -m | -n | -p ${underlined}file${nc} | -s | -t | -v | -V | -x]"
   echo "       opens mpv with all active voc streams"
   echo "       -d debug mode: print commands and arguments while executed"
   echo "       -D debug mode: print script lines while read"
@@ -422,10 +423,10 @@ manual()
   echo "       -k keys/shortcuts shown"
   echo "       -m man page shown"
   echo "       -n name stream with technical extension"
-  echo "       -p playlist ${UNDERLINED}file${NC} with servers in format m3u8"
+  echo "       -p playlist ${underlined}file${nc} with servers in format m3u8"
   echo "       -s sort server list alphanumerical"
   echo "       -t timetable of running and coming events shown"
-  echo "       -v verbosity increasing with ${UNDERLINED}v${NC}"
+  echo "       -v verbosity increasing with ${underlined}v${nc}"
   echo "       -V version print"
   echo "       -x exit before mpv, keeps current-playlist.m3u8"
   exit 0
@@ -439,44 +440,44 @@ manual()
 while getopts 'dDfhjkmnp:stvVx' option 2>/dev/null; do
   case "${option}" in
     d ) set -x # print commands and arguments while executed
-        DEBUG=true;;
+        debug=true;;
     D ) set -v # print script lines while read
-        DEBUG=true;;
-    f ) FORCE=true;;
+        debug=true;;
+    f ) force=true;;
     h ) manual;;
-    j ) PRINT_JSON=true;;
+    j ) print_json=true;;
     k ) keys;;
 		m ) manpage;;
-    n ) NAME_EXT=true;;
-    p ) PLAYLIST="${OPTARG}";;
-    s ) SORT=true;;
-    t ) TIMETABLE=true
-				FORCE=true;;
-    v ) VERBOSITY=$(( ${VERBOSITY} + 1 ));;
-    V ) echo "${PROGNAME} version ${VERSION}"
+    n ) name_ext=true;;
+    p ) playlist="${OPTARG}";;
+    s ) sort=true;;
+    t ) timetable=true
+				force=true;;
+    v ) verbosity=$(( ${verbosity} + 1 ));;
+    V ) echo "${progname} version ${version}"
         exit 0;;
-    x ) EXIT=true;;
+    x ) exitscript=true;;
     * ) if [ $1 != "-?" ]; then
           curropt=$(( ${OPTIND} - 1 ))
           eval "curropt=\$${curropt}"
-          printf "%b\n" "${YELLOW}Warning: illegal option ${curropt}${NC}" 1>&2
+          printf "%b\n" "${yellow}Warning: illegal option ${curropt}${nc}" 1>&2
         fi
         manual;;
   esac
 done
-verbose "${YELLOW}Note: number after colon usually represents commands exit code${NC}"
-verbose "Level of verbosity: ${VERBOSITY}"
+verbose "${yellow}Note: number after colon usually represents commands exit code${nc}"
+verbose "Level of verbosity: ${verbosity}"
 
 # Exit handler
 trap cleanup 0 1 2 3 6
 
 # Check for option -j
-if [ -n "${PRINT_JSON-}" ]; then
+if [ -n "${print_json-}" ]; then
 	printjson
 fi
 
 # Check for option -t; print timetable of running and coming events
-if [ -n "${TIMETABLE-}" ]; then
+if [ -n "${timetable-}" ]; then
 	# with option forceopen=1 (shows all streams done, running and planned)
 	JSON="$(curl -sSf https://streaming.media.ccc.de/streams/v2.json?forceopen=1)"
 				verbose "main (${LINENO}): Curl json: $?" 2
@@ -487,143 +488,143 @@ fi
 
 # Check if mpv is existing
 if ! [ -x "$(command -v mpv)" ]; then
-  printf "%b\n" "${RED}Error: mpv does not exist, please install${NC}" 1>&2
+  printf "%b\n" "${red}Error: mpv does not exist, please install${nc}" 1>&2
   exit 1
 fi
 
 # Choose the playlist
 # Playlist given with option -p
-if [ -n "${PLAYLIST-}" ]; then
-        verbose "Used playlist: ${PLAYLIST}"
-  if [ ! -f "${PLAYLIST}" ]; then
-		if wget --spider "${PLAYLIST}" 2>/dev/null; then
+if [ -n "${playlist-}" ]; then
+        verbose "Used playlist: ${playlist}"
+  if [ ! -f "${playlist}" ]; then
+		if wget --spider "${playlist}" 2>/dev/null; then
 				verbose "Used playlist is remote"
 		else
-			if [ ! -n "${FORCE-}" ]; then
-		    printf "%b\n" "${YELLOW}Warning: playlist '${PLAYLIST}' does not exist, but you can enforce with option -f${NC}" 1>&2
+			if [ ! -n "${force-}" ]; then
+		    printf "%b\n" "${yellow}Warning: playlist '${playlist}' does not exist, but you can enforce with option -f${nc}" 1>&2
 		    exit 1
 			fi
 		fi
   fi
 else
 	# Playlist should have only streams found at icecast status
-	PLAYLIST="current-playlist.m3u8"
-	verbose "Used playlist: ${PLAYLIST}"
+	playlist="current-playlist.m3u8"
+	verbose "Used playlist: ${playlist}"
 
 	# Catch icecast status live.ber
-	ICECAST="$(curl -sSf http://live.ber.c3voc.de:7999/status-json.xsl)"
+	icecast="$(curl -sSf http://live.ber.c3voc.de:7999/status-json.xsl)"
 	# Check if streaming - then "listenurl" is inside
-	if [ "$(echo "${ICECAST}" | grep listenurl -c)" = 0 ]; then
+	if [ "$(echo "${icecast}" | grep listenurl -c)" = 0 ]; then
 		# Check if ingest server is receiving
-		ICECAST="$(curl -sSf http://ingest.c3voc.de:8000/status-json.xsl)"
-		if [ "$(echo "${ICECAST}" | grep listenurl -c)" = 0 ]; then
-			printf "%b\n" "${YELLOW}Warning: no active streams available${NC}" 1>&2
+		icecast="$(curl -sSf http://ingest.c3voc.de:8000/status-json.xsl)"
+		if [ "$(echo "${icecast}" | grep listenurl -c)" = 0 ]; then
+			printf "%b\n" "${yellow}Warning: no active streams available${nc}" 1>&2
 			exit 1
 		else
-			printf "%b\n" "${YELLOW}Warning: no active streams available but ingest is active - try a bit later${NC}" 1>&2
+			printf "%b\n" "${yellow}Warning: no active streams available but ingest is active - try a bit later${nc}" 1>&2
 			exit 1
 		fi
 	fi
 
-	# Find streams in $ICECAST
-	STREAMS="$(server "${ICECAST}")"
+	# Find streams in $icecast
+	STREAMS="$(server "${icecast}")"
 	verbose "Server array:\n${STREAMS}" 4
 	# Exit if no servers found
 	if [ "${STREAMS}" = "" ]; then
-		printf "%b\n" "${YELLOW}Warning: no searched streams available${NC}" 1>&2
+		printf "%b\n" "${yellow}Warning: no searched streams available${nc}" 1>&2
 		exit 1
 	fi
 	# Sort servers alphanumerical
-	if [ -n "${SORT-}" ]; then
+	if [ -n "${sort-}" ]; then
 		STREAMS="$(sort_alphanum "${STREAMS}")"
 	fi
 	verbose "Extracted servers:\n${STREAMS}" 3
 
   # Read running streams by api json - look for matches for displayed stream name
 				verbose "main (${LINENO}): Read stream json"
-  NAME_JSON="$(curl -sSf https://streaming.media.ccc.de/streams/v2.json)"
-				verbose "Stream api json:\n${NAME_JSON}" 4
-  if [ "$(echo "${NAME_JSON}" | tr -d "[:blank:]")" = "[]" ]; then
-    verbose "${YELLOW}No json for display names available${NC}"
+  name_json="$(curl -sSf https://streaming.media.ccc.de/streams/v2.json)"
+				verbose "Stream api json:\n${name_json}" 4
+  if [ "$(echo "${name_json}" | tr -d "[:blank:]")" = "[]" ]; then
+    verbose "${yellow}No json for display names available${nc}"
 	else
 		# json not empty
-		NAME_ARRAY="$(name_array "${NAME_JSON}")"
-		if [ -z "${NAME_ARRAY-}" ]; then
-			verbose "${YELLOW}No display names for active streams available${NC}"
+		name_array="$(name_array "${name_json}")"
+		if [ -z "${name_array-}" ]; then
+			verbose "${yellow}No display names for active streams available${nc}"
 		fi
 
 	fi
   # Create playlist
   # Playlist header
-  echo "#EXTM3U" > "${PLAYLIST}"
-  echo "#EXT-X-VERSION:3" >> "${PLAYLIST}"
+  echo "#EXTM3U" > "${playlist}"
+  echo "#EXT-X-VERSION:3" >> "${playlist}"
   # Repeat playlist names and servers and "#EXT-X-DISCONTINUITY"
   for STREAM in ${STREAMS}
   do
-		unset CONFERENCE
+		unset conference
 		unset DISPLAY
-		unset PLAYLIST_INFO
-		if [ -n "${NAME_ARRAY-}" ]; then
+		unset playlist_info
+		if [ -n "${name_array-}" ]; then
 			STREAM_POS="$(stream_pos "${STREAM}")"
 			if [ "$(echo "${STREAM_POS}")" -gt 0 ]; then
 				STREAM_POS=$((STREAM_POS + 1))
 				DISPLAY="$(display "${STREAM_POS}")"
-				CONFERENCE="$(conference "${STREAM_POS}")"
+				conference="$(conference "${STREAM_POS}")"
 			fi
-			if [ -n "${CONFERENCE-}" ]; then
-						verbose "main (${LINENO}): Conference found: ${CONFERENCE}" 3
-				PLAYLIST_INFO=${CONFERENCE}" - "
+			if [ -n "${conference-}" ]; then
+						verbose "main (${LINENO}): Conference found: ${conference}" 3
+				playlist_info=${conference}" - "
 			fi
 			if [ -n "${DISPLAY-}" ]; then
 						verbose "main (${LINENO}): Display found: ${DISPLAY}" 3
-				PLAYLIST_INFO=${PLAYLIST_INFO}${DISPLAY}
+				playlist_info=${playlist_info}${DISPLAY}
 			fi
-			if [ -z "${PLAYLIST_INFO-}" ]; then
+			if [ -z "${playlist_info-}" ]; then
 						verbose "main (${LINENO}): Playlist empty" 3
-				PLAYLIST_INFO=${STREAM}
+				playlist_info=${STREAM}
 			else
-				if [ -n "${NAME_EXT-}" ]; then
+				if [ -n "${name_ext-}" ]; then
 						verbose "main (${LINENO}): Option -n - add stream: ${STREAM}" 3
-					PLAYLIST_INFO=${PLAYLIST_INFO}" - "${STREAM}
+					playlist_info=${playlist_info}" - "${STREAM}
 				fi
 			fi
 		else
-			PLAYLIST_INFO=${STREAM}
+			playlist_info=${STREAM}
 		fi
 			# Write stream as info into playlist
-      echo "#EXTINF:0,${PLAYLIST_INFO}" >> "${PLAYLIST}"
-					verbose "main (${LINENO}): Add ${PLAYLIST_INFO} to playlist: $?" 3
+      echo "#EXTINF:0,${playlist_info}" >> "${playlist}"
+					verbose "main (${LINENO}): Add ${playlist_info} to playlist: $?" 3
 			# Write server into playlist
-			echo "${SERVERPATH}${STREAM}${SERVERSUFFIX}" >> "${PLAYLIST}"
-					verbose "main (${LINENO}): Add ${SERVERPATH}${STREAM} to playlist: $?" 3
+			echo "${serverpath}${STREAM}${serversuffix}" >> "${playlist}"
+					verbose "main (${LINENO}): Add ${serverpath}${STREAM} to playlist: $?" 3
       # Write playlist divider
-      echo "#EXT-X-DISCONTINUITY" >> "${PLAYLIST}"
+      echo "#EXT-X-DISCONTINUITY" >> "${playlist}"
   done
   {
     # Set a picture as last, so mpv will not end
     echo "#EXTINF:0,end of list"
-    echo "${PROGPATH}voctocat.png"
+    echo "${progpath}voctocat.png"
     # End of playlist
     echo "#EXT-X-ENDLIST"
-  } >> "${PLAYLIST}"
+  } >> "${playlist}"
   verbose "main (${LINENO}): Playlist complete: $?"
 fi
 
 # Exit if set option '-x'
-if [ -n "${EXIT-}" ]; then
+if [ -n "${exitscript-}" ]; then
   exit 0
 fi
 
 # That is really playing
 # Check mpv options in README.md
-mpv "${PLAYLIST}" \
+mpv "${playlist}" \
   --fs \
   --no-ytdl \
   --msg-level=all=error,ffmpeg=fatal \
   --no-input-default-bindings \
   --use-filedir-conf \
   --load-scripts=no \
-  --scripts=${PROGPATH}keys.lua \
+  --scripts=${progpath}keys.lua \
   --force-window=immediate \
   --keep-open=always \
   --idle=yes \
