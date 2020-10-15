@@ -25,7 +25,7 @@ readonly nc='\033[0m' # No Color
 readonly underlined='\033[4m'
 readonly progname="${0##*/}"
 readonly progpath="${0%/*}/"
-readonly version="1.1.21"
+readonly version="2.0.22"
 unset conference # if set contains the name of the conference
 unset debug # if set print verbose messages red to differ from debug messages
 unset exitscript # if set don't open mpv; useful for debugging and json export
@@ -232,6 +232,7 @@ name_array ()
 #######################################
 stream_pos ()
 {
+	verbose "stream_pos (${LINENO}): Return line number where stream is found"
 	result="$(echo "${name_array}" | sed -n '/'$1'/=')"
 				verbose "stream_pos (${LINENO}): Get position of '$1': $?" 2
 	echo "${result}"
@@ -250,6 +251,7 @@ stream_pos ()
 #######################################
 display ()
 {
+	verbose "display (${LINENO}): Return display name from name_array"
 	result="$(echo "${name_array}" | awk 'NR=='$1'')"
 				verbose "display (${LINENO}): Print line $1: $?" 2
 	result="$(echo "${result}" | sed 's/"display": "//g')"
@@ -272,6 +274,7 @@ display ()
 #######################################
 conference ()
 {
+	verbose "conference (${LINENO}): Return conferences from name_array"
 	result="$(echo "${name_array}" | awk 'NR>='$1'')"
 				verbose "conference (${LINENO}): Print lines from $1: $?" 2
 	result="$(echo "${result}" | grep -m 1 "conference")"
@@ -469,7 +472,7 @@ fi
 if [ -n "${timetable-}" ]; then
 	# with option forceopen=1 (shows all streams done, running and planned)
 	JSON="$(curl -sSf https://streaming.media.ccc.de/streams/v2.json?forceopen=1)"
-				verbose "main (${LINENO}): Curl json: $?" 2
+				verbose "main (${LINENO}): Curl json for option -t: $?" 2
 	# Print start date, end date and conference from $JSON
 	timetable_array "${JSON}"
 	exit 0
@@ -501,6 +504,7 @@ else
 	verbose "Used playlist: ${playlist}"
 
 	# Catch icecast status live.ber
+				verbose "main (${LINENO}): Read icecast status json"
 	icecast="$(curl -sSf http://live.ber.c3voc.de:7999/status-json.xsl)"
 	# Check if streaming - then "listenurl" is inside
 	if [ "$(echo "${icecast}" | grep listenurl -c)" = 0 ]; then
@@ -548,6 +552,7 @@ else
   echo "#EXTM3U" > "${playlist}"
   echo "#EXT-X-VERSION:3" >> "${playlist}"
   # Repeat playlist names and servers and "#EXT-X-DISCONTINUITY"
+	verbose "main (${LINENO}): Create playlist"
   for STREAM in ${STREAMS}
   do
 		unset conference
