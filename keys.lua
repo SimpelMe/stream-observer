@@ -28,6 +28,20 @@ local opts = {
 
 options.read_options(opts)
 
+-- info
+CLEAR_OSD_TIMEOUT = .01 -- Hack for clearing OSD message upon OSC toggle
+osc_always_on = true -- defined in strobs
+
+function toggle_osc_auto_always()
+  osc_always_on = not osc_always_on
+  mp.commandv('script-message', 'osc-visibility',
+    osc_always_on and 'always' or 'auto'
+  )
+  mp.add_timeout(CLEAR_OSD_TIMEOUT, function ()
+    mp.osd_message('')
+  end)
+end
+
 -- audio
 function select_audio_native()
   mp.command('show-text "Audio: (1) Native"')
@@ -96,6 +110,8 @@ function select_venue_0()
   mp.set_property_number('playlist-pos', 9)
 end
 
+-- info
+mp.add_key_binding(nil, 'toggle-osc-auto-always', toggle_osc_auto_always)
 -- audio
 mp.add_forced_key_binding(opts.a_one, "Select_Audio_1", select_audio_native)
 mp.add_forced_key_binding(opts.a_two, "Select_Audio_2", select_audio_trans1)

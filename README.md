@@ -80,6 +80,7 @@ Only `strobs` is absolutely necessary observe running voc video streams.
 * SPACE cycle pause
 * \> playlist-next; skip to next room
 * < playlist-previous; skip to previous room
+* i toggle transport osd
 * I (upper i) toggle display stats
 * ctrl++ add audio-delay 100ms; this changes audio/video sync
 * ctrl+- add audio-delay -100ms
