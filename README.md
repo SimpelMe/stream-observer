@@ -126,6 +126,8 @@ It is starting a playlist in mpv with following options:
   * when pausing playback or stop and restart audio on seeks, audio is not stopped and silence is played
 * --demuxer-cache-wait=no
   * don't read data until the demuxer cache has reached maximum capacity
+* --force-seekable=no
+  * don't try to seek stream earlier than cache
 * --screenshot-format=png
   * set the screenshot image file type to png (default: jpg)
 * --script-opts=osc-visibility=always
