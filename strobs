@@ -628,6 +628,7 @@ mpv "${playlist}" \
   --audio-stream-silence=yes \
   --demuxer-cache-wait=no \
 	--force-seekable=no \
+	--image-display-duration=inf \
   --screenshot-format=png \
   --script-opts=osc-visibility=always,osc-seekbarstyle=knob \
   --osd-duration=5000 \

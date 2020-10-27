@@ -128,6 +128,8 @@ It is starting a playlist in mpv with following options:
   * don't read data until the demuxer cache has reached maximum capacity
 * --force-seekable=no
   * don't try to seek stream earlier than cache
+* --image-display-duration=inf
+  * the image is kept open forever, the player will not pause
 * --screenshot-format=png
   * set the screenshot image file type to png (default: jpg)
 * --script-opts=osc-visibility=always,osc-seekbarstyle=knob
