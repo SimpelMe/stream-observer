@@ -359,7 +359,8 @@ printjson ()
 cleanup ()
 {
   verbose "cleanup (${LINENO}): Cleanup on exit" 3
-  playlist="current-playlist.m3u8"
+	# delete current playlist
+  playlist="${progpath}current-playlist.m3u8"
   if [ -e "${playlist}" ] && [ -z "${exitscript-}" ]; then
     rm "${playlist}"
           verbose "cleanup (${LINENO}): Delete 'current-playlist.m3u8': $?" 3
@@ -501,7 +502,7 @@ if [ -n "${playlist-}" ]; then
   fi
 else
 	# Playlist should have only streams found at icecast status
-	playlist="current-playlist.m3u8"
+	playlist="${progpath}current-playlist.m3u8"
 	verbose "Used playlist: ${playlist}"
 
 	# Catch icecast status live.ber
