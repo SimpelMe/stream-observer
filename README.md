@@ -7,6 +7,7 @@ Optionally it can also try to open all streams given in a valid playlist.
 Execute `./strobs`.\
 If you face error '_Permission denied_' make `strobs` executable with `chmod +x strobs`.
 
+### Requirements
 Install [mpv](https://mpv.io/installation) if not existing.
 
 ## Table of contents
