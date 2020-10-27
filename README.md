@@ -4,7 +4,9 @@ Stream-Observer (strobs) is a script to observe running voc video streams.
 The script opens mpv with all active (currently streaming) streams from [Chaos Computer Club](https://www.ccc.de/en) made by [VOC](https://c3voc.de) (video operation center) in a playlist as found at [https://streaming.media.ccc.de](https://streaming.media.ccc.de).
 Optionally it can also try to open all streams given in a valid playlist.
 
-First make `strobs` executable with `chmod +x strobs`. Then execute `./strobs`.
+Execute `./strobs`.\
+If you face error '_Permission denied_' make `strobs` executable with `chmod +x strobs`.
+
 Install [mpv](https://mpv.io/installation) if not existing.
 
 ## Table of contents
