@@ -5,7 +5,7 @@ The script opens mpv with all active (currently streaming) streams from [Chaos C
 Optionally it can also try to open all streams given in a valid playlist.
 
 Execute `./strobs`.\
-If you face error '_Permission denied_' make strobs executable with `chmod +x strobs`.
+If you face error '_Permission denied_' and `test -x strobs && echo true || echo false` returns '_false_' make strobs executable with `chmod +x strobs`.
 
 ### Requirements
 Install [mpv](https://mpv.io/installation) if not existing.
