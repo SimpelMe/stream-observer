@@ -5,7 +5,7 @@ The script opens mpv with all active (currently streaming) streams from [Chaos C
 Optionally it can also try to open all streams given in a valid playlist.
 
 First make `strobs` executable with `chmod +x strobs`. Then execute `./strobs`.
-Install mpv if not existing.
+Install [mpv](https://mpv.io/installation) if not existing.
 
 ## Table of contents
 * [Options](#options)

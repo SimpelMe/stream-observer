@@ -481,6 +481,7 @@ fi
 # Check if mpv is existing
 if ! [ -x "$(command -v mpv)" ]; then
   printf "%b\n" "${red}Error: mpv does not exist, please install${nc}" 1>&2
+  printf "%b\n" "Look: https://mpv.io/installation" 1>&2
   exit 1
 fi
 
