@@ -130,8 +130,9 @@ It is starting a playlist in mpv with following options:
   * don't try to seek stream earlier than cache
 * --screenshot-format=png
   * set the screenshot image file type to png (default: jpg)
-* --script-opts=osc-visibility=always
+* --script-opts=osc-visibility=always,osc-seekbarstyle=knob
   * visibility mode of on screen controller
+  * style of the playback position marker as round knob
 * --osd-duration=5000
   * set the duration of the OSD messages in ms (default: 1000)
 *   --osd-msg1="room: 1 – 0       audio: q, w, e - Native, Translated 1, Translated 2       video: y, x - HD, Slides"
