@@ -62,7 +62,7 @@ In addition it will save json including past events.
 * `strobs.1` - man page
 * `voctocat.gif` - temporary image used as last playlist item
 
-Only `strobs` is absolutely necessary observe running voc video streams.
+Only `strobs` is absolutely necessary to observe running voc video streams.
 
 ## Keys and shortcuts
 ### defined by lua scripts
