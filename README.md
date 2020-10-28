@@ -60,7 +60,7 @@ In addition it will save json including past events.
 * `keys.lua` - script with key bindings for audio, video and rooms
 * `strobs` - the shell script to execute
 * `strobs.1` - man page
-* `voctocat.png` - image used as last playlist item, so mpv does not stop
+* `voctocat.gif` - temporary image used as last playlist item
 
 Only `strobs` is absolutely necessary observe running voc video streams.
 
