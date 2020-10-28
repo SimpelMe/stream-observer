@@ -25,7 +25,7 @@ readonly nc='\033[0m' # No Color
 readonly underlined='\033[4m'
 readonly progname="${0##*/}"
 readonly progpath="${0%/*}/"
-readonly version="2.0.24"
+readonly version="2.0.25"
 unset conference # if set contains the name of the conference
 unset debug # if set print verbose messages red to differ from debug messages
 unset exitscript # if set don't open mpv; useful for debugging and json export
