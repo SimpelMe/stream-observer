@@ -563,20 +563,30 @@ else
 	fi
 	verbose "Extracted servers:\n${STREAMS}" 3
 
-  # Read running streams by api json - look for matches for displayed stream name
+	# Read running streams by api json - look for matches for displayed stream name
+	# First disable exit on error as this is not important to run
+	set +e
 				verbose "main (${LINENO}): Read stream json"
-  name_json="$(curl -sSf https://streaming.media.ccc.de/streams/v2.json)"
-				verbose "Stream api json:\n${name_json}" 4
-  if [ "$(echo "${name_json}" | tr -d "[:blank:]")" = "[]" ]; then
-    verbose "${yellow}No json for display names available${nc}"
+	name_json="$(curl -sSf https://streaming.media.ccc.de/streams/v2.json)"
+	# Enable exit on error again
+	set -e
+	# Check for curl error: if so json is empty
+	if [ "$(echo "${name_json}")" = "" ]; then
+		printf "%b\n" "${yellow}Warning: no json for display names available (503)${nc}" 1>&2
 	else
-		# json not empty
-		name_array="$(name_array "${name_json}")"
-		if [ -z "${name_array-}" ]; then
-			verbose "${yellow}No display names for active streams available${nc}"
+		verbose "Stream api json:\n${name_json}" 4
+		# Empty json is '[]'
+	  if [ "$(echo "${name_json}" | tr -d "[:blank:]")" = "[]" ]; then
+	    verbose "${yellow}No json for display names available${nc}"
+		else
+			# json not empty
+			name_array="$(name_array "${name_json}")"
+			if [ -z "${name_array-}" ]; then
+				verbose "${yellow}No display names for active streams available${nc}"
+			fi
 		fi
-
 	fi
+
   # Create playlist
   # Playlist header
   echo "#EXTM3U" > "${playlist}"
