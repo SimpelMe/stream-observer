@@ -25,7 +25,7 @@ readonly nc='\033[0m' # No Color
 readonly underlined='\033[4m'
 readonly progname="${0##*/}"
 readonly progpath="${0%/*}/"
-readonly version="2.0.26"
+readonly version="2.0.27"
 unset conference # if set contains the name of the conference
 unset debug # if set print verbose messages red to differ from debug messages
 unset exitscript # if set don't open mpv; useful for debugging and json export
@@ -496,11 +496,20 @@ fi
 
 # Check for option -t; print timetable of running and coming events
 if [ -n "${timetable-}" ]; then
+	# First disable exit on error as this is not important to run
+	set +e
 	# with option forceopen=1 (shows all streams done, running and planned)
 	JSON="$(curl -sSf https://streaming.media.ccc.de/streams/v2.json?forceopen=1)"
 				verbose "main (${LINENO}): Curl json for option -t: $?" 2
-	# Print start date, end date and conference from $JSON
-	timetable_array "${JSON}"
+	# Enable exit on error again
+	set -e
+	# Check for curl error: if so json is empty
+	if [ "$(echo "${JSON}")" = "" ]; then
+		printf "%b\n" "${yellow}Warning: no json for timetable available${nc}" 1>&2
+	else
+		# Print start date, end date and conference from $JSON
+		timetable_array "${JSON}"
+	fi
 	exit 0
 fi
 
