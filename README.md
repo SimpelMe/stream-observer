@@ -14,7 +14,7 @@ Install [mpv](https://mpv.io/installation) if not existing.
 * [Options](#options)
 * [Details](#details)
 * [Examples](#examples)
-* [Files](#files)
+* [Files](#filez)
 * [Keys and shortcuts](#keys-and-shortcuts)
   * [defined by lua scripts](#defined-by-lua-scripts)
   * [defined defaults by input.conf](#defined-defaults-by-inputconf)
@@ -54,7 +54,7 @@ In addition it will sort the returned streams alphanumerical.
 >will download and save status_liveber.xsl, status_ingest.xsl, current.json and exit before opening mpv.
 In addition it will save json including past events.
 
-## Files
+## Files<a id="filez"></a>
 * `current-playlist.m3u8` - generated playlist while running
 * `input.conf` - user-defined key bindings for mpv
 * `keys.lua` - script with key bindings for audio, video and rooms
