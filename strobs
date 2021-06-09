@@ -605,10 +605,12 @@ else
     unset playlist_info
     if [ -n "${name_array-}" ]; then
       STREAM_POS="$(stream_pos "${STREAM}")"
-      if [ "$(echo "${STREAM_POS}")" -gt 0 ]; then
-        STREAM_POS=$((STREAM_POS + 1))
-        DISPLAY="$(display "${STREAM_POS}")"
-        conference="$(findconference "${STREAM_POS}")"
+      if [ -n "${STREAM_POS-}" ]; then
+        if [ "$(echo "${STREAM_POS}")" -gt 0 ]; then
+          STREAM_POS=$((STREAM_POS + 1))
+          DISPLAY="$(display "${STREAM_POS}")"
+          conference="$(findconference "${STREAM_POS}")"
+        fi
       fi
       if [ -n "${conference-}" ]; then
         verbose "main (${LINENO}): Conference found: ${conference}" 3
