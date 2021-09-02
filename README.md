@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2020 Simpel <stream-observer@simpel.cc>
+
+SPDX-License-Identifier: MIT
+-->
+
 # Stream-Observer
 
 Stream-Observer (strobs) is a script to observe running voc video streams.  

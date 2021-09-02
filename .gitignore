@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2020 Simpel <stream-observer@simpel.cc>
+#
+# SPDX-License-Identifier: CC0-1.0
+
 # Ignore
 example*
 xtemp/

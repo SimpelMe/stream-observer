@@ -9,6 +9,9 @@
 #
 # MIT License
 # Copyright (c) 2020 Simpel
+# SPDX-FileCopyrightText: 2020 Simpel <stream-observer@simpel.cc>
+#
+# SPDX-License-Identifier: MIT
 
 # set e: exit if something fails; set u: exit if a variable is unset
 set -eu

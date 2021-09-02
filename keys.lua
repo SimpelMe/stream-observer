@@ -1,3 +1,7 @@
+-- SPDX-FileCopyrightText: 2020 Simpel <stream-observer@simpel.cc>
+--
+-- SPDX-License-Identifier: MIT
+
 -- Sets q, w and e to audio native, translate 1 and translate 2
 -- Sets y and x to video stream and slides
 -- Sets 1 - 0 to the rooms/streams/venues to look at
