@@ -20,15 +20,16 @@ set -eu
 ### Globals
 #######################################
 
-readonly serverpath="http://live.ber.c3voc.de:7999/"
-readonly serversuffix="_vpx"
+readonly liveserver="http://live.ber.c3voc.de:7999/"
+readonly ingestserver="http://ingest.c3voc.de:8000/"
+readonly serversuffix="_vpx"  # on live server only
 readonly red='\033[0;31m'
 readonly yellow='\033[0;33m'
 readonly nc='\033[0m' # No Color
 readonly underlined='\033[4m'
 readonly progname="${0##*/}"
 readonly progpath="${0%/*}/"
-readonly version="2.0.28"
+readonly version="2.0.29"
 unset conference    # if set contains the name of the conference
 unset debug         # if set print verbose messages red to differ from debug messages
 unset exitscript    # if set don't open mpv; useful for debugging and json export
@@ -39,8 +40,10 @@ unset name_ext      # if set playlist server names append technical name (e.g. s
 unset name_json     # if set containes display names of the cuurent running streams
 unset print_json    # if set export json to disk
 unset playlist      # if set use directly this playlist
+unset play_ingest   # if set ingest streams are used instead live server
 unset playlist_info # if set contains Info line in mvp what stream it is
 unset sort          # if set servers sorted alphanumerical else as found
+unset serverpath    # is either set to liveserver oder ingestserver
 unset timetable     # if set timetable of running and coming events is printed
 verbosity=0         # if > 0 show verbose messages in levels
 
@@ -184,14 +187,28 @@ timetable_array() {
 #######################################
 server() {
   verbose "server (${LINENO}): Create server array"
-  # Catch http://live.ber.c3voc.de:7999/xxxx_xxxx of every stream event
-  result="$(echo "$1" | grep -E -o 'http[^,]*'$serversuffix)"
-  verbose "server (${LINENO}): Grep 'urls with $serversuffix including values': $?" 2
-  # Remove serverpath and serversuffix
-  result="$(echo "${result}" | sed 's/http:\/\/live.ber.c3voc.de:7999\///g')"
-  verbose "server (${LINENO}): Remove '$serverpath': $?" 2
-  result="$(echo "${result}" | sed 's/'$serversuffix'//g')"
-  verbose "server (${LINENO}): Remove '$serversuffix': $?" 2
+  # Catch http://server:port/xxxx_xxxx of every stream event - only live has serversuffix
+  if [ -z "${play_ingest-}" ]; then
+    result="$(echo "$1" | grep -E -o 'http[^,]*'$serversuffix)"
+    verbose "server (${LINENO}): Grep 'urls with $serversuffix including values': $?" 2
+  else
+    result="$(echo "$1" | grep -E -o 'http[^"]*')"
+    verbose "server (${LINENO}): Grep 'urls including values': $?" 2
+  fi
+  # Remove serverpath
+  if [ -z "${play_ingest-}" ]; then
+    result="$(echo "${result}" | sed 's/http:\/\/live.ber.c3voc.de:7999\///g')"
+    echo "LIVE"
+  else
+    result="$(echo "${result}" | sed 's/http:\/\/ingest.c3voc.de:8000\///g')"
+    echo "INGEST"
+  fi
+  verbose "server (${LINENO}): Remove '$': $?" 2
+  # Remove serversuffix on live server only
+  if [ -z "${play_ingest-}" ]; then
+    result="$(echo "${result}" | sed 's/'$serversuffix'//g')"
+    verbose "server (${LINENO}): Remove '$serversuffix': $?" 2
+  fi
   echo "${result}"
 }
 
@@ -402,12 +419,13 @@ manpage() {
 #   None
 #######################################
 manual() {
-  echo "Usage: ${progname} [ -d | -D | -f | -h | -j | -k | -m | -n | -p ${underlined}file${nc} | -s | -t | -v | -V | -x]"
+  echo "Usage: ${progname} [ -d | -D | -f | -h | -i | -j | -k | -m | -n | -p ${underlined}file${nc} | -s | -t | -v | -V | -x]"
   echo "       opens mpv with all active voc streams"
   echo "       -d debug mode: print commands and arguments while executed"
   echo "       -D debug mode: print script lines while read"
   echo "       -f forces (with -p / -j) open playlist / download full json"
   echo "       -h help shown"
+  echo "       -i ingest streams using"
   echo "       -j json export to disk"
   echo "       -k keys/shortcuts shown"
   echo "       -m man page shown"
@@ -445,7 +463,7 @@ voctocat_file() {
 #######################################
 
 # Check options
-while getopts 'dDfhjkmnp:stvVx' option 2>/dev/null; do
+while getopts 'dDfhijkmnp:stvVx' option 2>/dev/null; do
   case "${option}" in
   d)
     set -x # print commands and arguments while executed
@@ -457,6 +475,7 @@ while getopts 'dDfhjkmnp:stvVx' option 2>/dev/null; do
     ;;
   f) force=true ;;
   h) manual ;;
+  i) play_ingest=true;;
   j) print_json=true ;;
   k) keys ;;
   m) manpage ;;
@@ -542,18 +561,25 @@ else
   playlist="${progpath}current-playlist.m3u8"
   verbose "Used playlist: ${playlist}"
 
-  # Catch icecast status live.ber
+  # Set live or ingest servers
+  if [ -z "${play_ingest-}" ]; then
+    serverpath=${liveserver}
+  else
+    serverpath=${ingestserver}
+  fi
+
+  # Catch icecast status
   verbose "main (${LINENO}): Read icecast status json"
-  icecast="$(curl -sSf http://live.ber.c3voc.de:7999/status-json.xsl)"
+  icecast="$(curl -sSf ${serverpath}status-json.xsl)"
   # Check if streaming - then "listenurl" is inside
   if [ "$(echo "${icecast}" | grep listenurl -c)" = 0 ]; then
-    # Check if ingest server is receiving
-    icecast="$(curl -sSf http://ingest.c3voc.de:8000/status-json.xsl)"
+    # Check if ingest server is receiving if live is used but not streaming
+    icecast="$(curl -sSf ${ingestserver}status-json.xsl)"
     if [ "$(echo "${icecast}" | grep listenurl -c)" = 0 ]; then
       printf "%b\n" "${yellow}Warning: no active streams available${nc}" 1>&2
       exit 1
-    else
-      printf "%b\n" "${yellow}Warning: no active streams available but ingest is active - try a bit later${nc}" 1>&2
+    elif [ -z "${play_ingest-}" ]; then
+      printf "%b\n" "${yellow}Warning: no active streams but ingest is active - try later or use option -i${nc}" 1>&2
       exit 1
     fi
   fi
@@ -638,8 +664,12 @@ else
     # Write stream as info into playlist
     echo "#EXTINF:0,${playlist_info}" >>"${playlist}"
     verbose "main (${LINENO}): Add ${playlist_info} to playlist: $?" 3
-    # Write server into playlist
-    echo "${serverpath}${STREAM}${serversuffix}" >>"${playlist}"
+    # Write server into playlist - only live has serversuffix
+    if [ -z "${play_ingest-}" ]; then
+      echo "${serverpath}${STREAM}${serversuffix}" >>"${playlist}"
+    else
+      echo "${serverpath}${STREAM}" >>"${playlist}"
+    fi
     verbose "main (${LINENO}): Add ${serverpath}${STREAM} to playlist: $?" 3
     # Write playlist divider
     echo "#EXT-X-DISCONTINUITY" >>"${playlist}"
