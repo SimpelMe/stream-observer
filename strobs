@@ -20,27 +20,25 @@ set -eu
 ### Globals
 #######################################
 
-readonly liveserver="http://live.ber.c3voc.de:7999/"
-readonly ingestserver="http://ingest.c3voc.de:8000/"
-readonly serversuffix="_vpx"  # on live server only
+readonly cdnserver="https://cdn.c3voc.de/hls/"
+readonly cdnstreamsuffix="/native_hd.m3u8"
+readonly streamjsonurl="https://streaming.media.ccc.de/streams/v2.json"
 readonly red='\033[0;31m'
 readonly yellow='\033[0;33m'
 readonly nc='\033[0m' # No Color
 readonly underlined='\033[4m'
 readonly progname="${0##*/}"
 readonly progpath="${0%/*}/"
-readonly version="2.0.30"
+readonly version="3.0.31"
 unset conference    # if set contains the name of the conference
 unset debug         # if set print verbose messages red to differ from debug messages
 unset exitscript    # if set don't open mpv; useful for debugging and json export
 unset force         # if set and used with option -p / -j forces open playlist / load full json
-unset icecast       # if set contains icecast status json
+unset JSON          # if set contains the whole streaming json content
 unset name_array    # if set contains conferences, streams and display names
 unset name_ext      # if set playlist server names append technical name (e.g. s23)
-unset name_json     # if set containes display names of the cuurent running streams
 unset print_json    # if set export json to disk
 unset playlist      # if set use directly this playlist
-unset play_ingest   # if set ingest streams are used instead live server
 unset playlist_info # if set contains Info line in mvp what stream it is
 unset sort          # if set servers sorted alphanumerical else as found
 unset serverpath    # is either set to liveserver oder ingestserver
@@ -175,40 +173,20 @@ timetable_array() {
 }
 
 #######################################
-# Convert icecast status json to server array.
+# Extrace slug array from json.
 # Globals:
 #   None
 # Arguments:
-#   icecast
+#   JSON
 # Outputs:
-#   (stream \t url \n)* to STDOUT
+#   (slug \n slug \n ...)* to STDOUT
 # Returns:
 #   result
 #######################################
-server() {
-  verbose "server (${LINENO}): Create server array"
-  # Catch http://server:port/xxxx_xxxx of every stream event - only live has serversuffix
-  if [ -z "${play_ingest-}" ]; then
-    result="$(echo "$1" | grep -E -o 'http[^,]*'$serversuffix)"
-    verbose "server (${LINENO}): Grep 'urls with $serversuffix including values': $?" 2
-  else
-    result="$(echo "$1" | grep -E -o 'http[^"]*')"
-    verbose "server (${LINENO}): Grep 'urls including values': $?" 2
-  fi
-  # Remove serverpath
-  if [ -z "${play_ingest-}" ]; then
-    result="$(echo "${result}" | sed 's/http:\/\/live.ber.c3voc.de:7999\///g')"
-    echo "LIVE"
-  else
-    result="$(echo "${result}" | sed 's/http:\/\/ingest.c3voc.de:8000\///g')"
-    echo "INGEST"
-  fi
-  verbose "server (${LINENO}): Remove '$': $?" 2
-  # Remove serversuffix on live server only
-  if [ -z "${play_ingest-}" ]; then
-    result="$(echo "${result}" | sed 's/'$serversuffix'//g')"
-    verbose "server (${LINENO}): Remove '$serversuffix': $?" 2
-  fi
+slugs() {
+  verbose "server (${LINENO}): Create slugs array"
+  result="$(echo "$1" | jq -r '.[].groups[].rooms[].slug')"
+  verbose "server (${LINENO}): Output 'slugs' with jq: $?" 2
   echo "${result}"
 }
 
@@ -217,7 +195,7 @@ server() {
 # Globals:
 #   None
 # Arguments:
-#   name_json
+#   JSON
 # Outputs:
 #   ((stream \n display \n)* conference)* to STDOUT
 # Returns:
@@ -304,7 +282,7 @@ findconference() {
 # Globals:
 #   None
 # Arguments:
-#   STREAMS
+#   SLUGS
 # Outputs:
 #   sorted streams to STDOUT
 # Returns:
@@ -539,6 +517,13 @@ if ! [ -x "$(command -v mpv)" ]; then
   exit 1
 fi
 
+# Check if jq is existing
+if ! [ -x "$(command -v jq)" ]; then
+  printf "%b\n" "${red}Error: jq does not exist, please install${nc}" 1>&2
+  printf "%b\n" "Look: https://stedolan.github.io/jq" 1>&2
+  exit 1
+fi
+
 # Create voctocat.gif
 voctocat_file
 
@@ -557,69 +542,42 @@ if [ -n "${playlist-}" ]; then
     fi
   fi
 else
-  # Playlist should have only streams found at icecast status
+  # Playlist should have only streams found at streaming json
   playlist="${progpath}current-playlist.m3u8"
   verbose "Used playlist: ${playlist}"
 
-  # Set live or ingest servers
-  if [ -z "${play_ingest-}" ]; then
-    serverpath=${liveserver}
-  else
-    serverpath=${ingestserver}
+  # Catch streams status
+  # curl  -s (silent mode - no progress or error messages)
+  #       -S (show-error - used with -s it shows an error message if it fails)
+  #       -f (fail silently)
+  # not exiting if curl is failing
+  set +e
+  JSON="$(curl -sf https://streaming.media.ccc.de/streams/v2.json)"
+  set -e
+  verbose "${JSON}" 4
+  verbose "main (${LINENO}): Read stream json"
+  if [ -z "${JSON-}" ]; then
+    printf "%b\n" "${yellow}Warning: no active streams available${nc}" 1>&2
+    exit 1
   fi
 
-  # Catch icecast status
-  verbose "main (${LINENO}): Read icecast status json"
-  icecast="$(curl -sSf ${serverpath}status-json.xsl)"
-  # Check if streaming - then "listenurl" is inside
-  if [ "$(echo "${icecast}" | grep listenurl -c)" = 0 ]; then
-    # Check if ingest server is receiving if live is used but not streaming
-    icecast="$(curl -sSf ${ingestserver}status-json.xsl)"
-    if [ "$(echo "${icecast}" | grep listenurl -c)" = 0 ]; then
-      printf "%b\n" "${yellow}Warning: no active streams available${nc}" 1>&2
-      exit 1
-    elif [ -z "${play_ingest-}" ]; then
-      printf "%b\n" "${yellow}Warning: no active streams but ingest is active - try later or use option -i${nc}" 1>&2
-      exit 1
-    fi
-  fi
-
-  # Find streams in $icecast
-  STREAMS="$(server "${icecast}")"
-  verbose "Server array:\n${STREAMS}" 4
+  # Find streams in $JSON
+  SLUGS="$(slugs "${JSON}")"
   # Exit if no servers found
-  if [ "${STREAMS}" = "" ]; then
-    printf "%b\n" "${yellow}Warning: no searched streams available${nc}" 1>&2
+  if [ "${SLUGS}" = "" ]; then
+    printf "%b\n" "${yellow}Warning: no live streams available${nc}" 1>&2
     exit 1
   fi
   # Sort servers alphanumerical
   if [ -n "${sort-}" ]; then
-    STREAMS="$(sort_alphanum "${STREAMS}")"
+    SLUGS="$(sort_alphanum "${SLUGS}")"
   fi
-  verbose "Extracted servers:\n${STREAMS}" 3
+  verbose "Extracted slugs:\n${SLUGS}" 3
 
   # Read running streams by api json - look for matches for displayed stream name
-  # First disable exit on error as this is not important to run
-  set +e
-  verbose "main (${LINENO}): Read stream json"
-  name_json="$(curl -sSf https://streaming.media.ccc.de/streams/v2.json)"
-  # Enable exit on error again
-  set -e
-  # Check for curl error: if so json is empty
-  if [ "$(echo "${name_json}")" = "" ]; then
-    printf "%b\n" "${yellow}Warning: no json for display names available (503)${nc}" 1>&2
-  else
-    verbose "Stream api json:\n${name_json}" 4
-    # Empty json is '[]'
-    if [ "$(echo "${name_json}" | tr -d "[:blank:]")" = "[]" ]; then
-      verbose "${yellow}No json for display names available${nc}"
-    else
-      # json not empty
-      name_array="$(name_array "${name_json}")"
-      if [ -z "${name_array-}" ]; then
-        verbose "${yellow}No display names for active streams available${nc}"
-      fi
-    fi
+  name_array="$(name_array "${JSON}")"
+  if [ -z "${name_array-}" ]; then
+    verbose "${yellow}No display names for active streams available${nc}"
   fi
 
   # Create playlist
@@ -628,7 +586,7 @@ else
   echo "#EXT-X-VERSION:3" >>"${playlist}"
   # Repeat playlist names and servers and "#EXT-X-DISCONTINUITY"
   verbose "main (${LINENO}): Create playlist"
-  for STREAM in ${STREAMS}; do
+  for STREAM in ${SLUGS}; do
     unset conference
     unset DISPLAY
     unset playlist_info
@@ -664,13 +622,9 @@ else
     # Write stream as info into playlist
     echo "#EXTINF:0,${playlist_info}" >>"${playlist}"
     verbose "main (${LINENO}): Add ${playlist_info} to playlist: $?" 3
-    # Write server into playlist - only live has serversuffix
-    if [ -z "${play_ingest-}" ]; then
-      echo "${serverpath}${STREAM}${serversuffix}" >>"${playlist}"
-    else
-      echo "${serverpath}${STREAM}" >>"${playlist}"
-    fi
-    verbose "main (${LINENO}): Add ${serverpath}${STREAM} to playlist: $?" 3
+    # Write server into playlist
+    echo "${cdnserver}${STREAM}${cdnstreamsuffix}" >>"${playlist}"
+    verbose "main (${LINENO}): Add ${cdnserver}${STREAM}${cdnstreamsuffix} to playlist: $?" 3
     # Write playlist divider
     echo "#EXT-X-DISCONTINUITY" >>"${playlist}"
   done
