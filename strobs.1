@@ -69,13 +69,11 @@ exit before mpv; keeps current-playlist.m3u8
 .Sh DETAILS
 .Nm
 downloads
-.Mt http://live.ber.c3voc.de:7999/status-json.xsl
-.Me
-and searches for active (current streaming) streams. It reads then
 .Mt https://streaming.media.ccc.de/streams/v2.json
 .Me
-and extracts end time of the streams and their display names. With this
-informations it builds a playlist in m3u8 format and starts mpv with this playlist.
+and searches for active (current streaming) streams. It reads their display
+names too. With this informations it builds a playlist in m3u8 format and starts
+mpv with this playlist.
 .Sh EXAMPLES
 The command:
 .Pp
@@ -85,23 +83,25 @@ opens current streams in mpv.
 .Pp
 The command:
 .Pp
-.Dl "strobs -p 36c3.m3u8 -s"
+.Dl "strobs -p 36c3.m3u8"
 .Pp
 uses the playlist
 .Ar 36c3.m3u8
-for mpv. In addition it will sort the streams alphanumerical.
+for mpv.
 .Pp
 The command:
 .Pp
 .Dl "strobs -j -f"
 .Pp
 will download and save
-.Ar status_liveber.xsl
-,
-.Ar status_ingest.xsl
-,
 .Ar current.json
-and exit before opening mpv. In addition it will save json including past events.
+,
+.Ar current-playlist.m3u8
+,
+.Ar status_liveber.xsl
+(deprecated),
+.Ar status_ingest.xsl
+(deprecated) and exit before opening mpv. In addition json includes past events.
 .Pp
 .Sh FILES                \" File used or created by the topic of the man page
 .Bl -tag -width "./current-playlist.m3u8   "

@@ -15,6 +15,7 @@ If you face error '_Permission denied_' and `test -x strobs && echo true || echo
 
 ### Requirements
 Install [mpv](https://mpv.io/installation) if not existing.
+Install [jq](https://stedolan.github.io/jq) if not existing.
 
 ## Table of contents
 * [Options](#options)
@@ -44,21 +45,20 @@ Usage: strobs [ -d | -D | -f | -h | -j | -k | -m | -n | -p _file_ | -s | -t | -v
 * -x exit before mpv, keeps current-playlist.m3u8
 
 ## Details
-The script downloads [http://live.ber.c3voc.de:7999/status-json.xsl](http://live.ber.c3voc.de:7999/status-json.xsl) and searches for active (current streaming) streams.
-It reads then [https://streaming.media.ccc.de/streams/v2.json](https://streaming.media.ccc.de/streams/v2.json) and extracts end time of the streams and their display names.
+The script downloads [https://streaming.media.ccc.de/streams/v2.json](https://streaming.media.ccc.de/streams/v2.json) and searches for active (current streaming) streams.
+It reads their display names too.
 With this informations it builds a playlist in m3u8 format and starts mpv with this playlist.
 
 ## Examples
 `strobs`
 >opens current streams in mpv.
 
-`strobs -p 36c3.m3u8 -s`
+`strobs -p 36c3.m3u8`
 >uses the playlist 36c3.m3u8 for mpv.
-In addition it will sort the returned streams alphanumerical.
 
 `strobs -j -f`
->will download and save status_liveber.xsl, status_ingest.xsl, current.json and exit before opening mpv.
-In addition it will save json including past events.
+>will download and save current.json, current-playlist.m3u8, status_liveber.xsl (deprecated), status_ingest.xsl (deprecated) and exit before opening mpv.
+In addition json includes past events.
 
 ## Files<a id="filez"></a>
 * `current-playlist.m3u8` - generated playlist while running
