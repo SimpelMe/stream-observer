@@ -28,7 +28,7 @@ Install [jq](https://stedolan.github.io/jq) if not existing.
 * [Fixed mpv options](#fixed-mpv-options)
 
 ## Options
-Usage: strobs [ -d | -D | -f | -h | -j | -k | -m | -M <u>media</u> | -n | -p <u>file</u> | -s | -S <u>server</u> | -t | -v | -V | -x]
+Usage: strobs [ -d | -D | -f | -h | -j | -k | -m | -M _media_ | -n | -p _file_ | -s | -S _server_ | -t | -v | -V | -x]
 * -d debug mode: print commands and arguments while executed
 * -D debug mode: print script lines while read
 * -f forces (with -p / -j) open playlist / download full json
@@ -36,11 +36,11 @@ Usage: strobs [ -d | -D | -f | -h | -j | -k | -m | -M <u>media</u> | -n | -p <u>
 * -j json export to disk
 * -k keys/shortcuts shown (`input.conf` needed)
 * -m man page shown (`strobs.1` needed)
-* -M <u>media</u> / suffix after slug; '' allowed
+* -M _media_ / suffix after slug; '' allowed
 * -n name stream with technical extension
-* -p playlist <u>file</u> with servers in format m3u8
+* -p playlist _file_ with servers in format m3u8
 * -s sort server slug list alphanumerical
-* -S <u>server</u> including protocol and port
+* -S _server_ including protocol and port
 * -t timetable of running and coming events shown
 * -v verbosity increasing with _v_
 * -V version print
