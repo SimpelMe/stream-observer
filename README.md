@@ -27,12 +27,11 @@ Install [mpv](https://mpv.io/installation) if not existing.
 * [Fixed mpv options](#fixed-mpv-options)
 
 ## Options
-Usage: strobs [ -d | -D | -f | -h | -i | -j | -k | -m | -n | -p _file_ | -s | -t | -v | -V | -x]
+Usage: strobs [ -d | -D | -f | -h | -j | -k | -m | -n | -p _file_ | -s | -t | -v | -V | -x]
 * -d debug mode: print commands and arguments while executed
 * -D debug mode: print script lines while read
 * -f forces (with -p / -j) open playlist / download full json
 * -h help shown
-* -i ingest streams using
 * -j json export to disk
 * -k keys/shortcuts shown (`input.conf` needed)
 * -m man page shown (`strobs.1` needed)
