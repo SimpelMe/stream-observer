@@ -16,9 +16,11 @@
 .Op Fl j
 .Op Fl k
 .Op Fl m
+.Op Fl M Ar media             \" [-M media]
 .Op Fl n
 .Op Fl p Ar file              \" [-p file]
 .Op Fl s
+.Op Fl S Ar server            \" [-S server]
 .Op Fl t
 .Op Fl v
 .Op Fl V
@@ -33,7 +35,7 @@ Computer Club made by VOC (video operation center) in a playlist as found at
 Optionally it can also try to open all streams given in a valid playlist.
 
 .Sh OPTIONS
-.Bl -tag -width "-p file" -indent  \" Begins a tagged list
+.Bl -tag -width "-S server" -indent  \" Begins a tagged list
 .It Fl d
 debug mode: print commands and arguments while executed
 .It Fl D
@@ -48,6 +50,9 @@ json export to disk
 keys/shortcuts shown
 .It Fl m
 man page shown
+.It Fl M Ar media
+.Ar media
+/ suffix after slug; '' allowed
 .It Fl n
 name stream with technical extension (e.g. s23)
 .It Fl p Ar file
@@ -55,7 +60,10 @@ playlist
 .Ar file
 with servers in format m3u8
 .It Fl s
-sort server list alphanumerical
+sort server slug list alphanumerical
+.It Fl S Ar server
+.Ar server
+including protocol and port
 .It Fl t
 timetable of running and coming events shown
 .It Fl v
@@ -88,6 +96,14 @@ The command:
 uses the playlist
 .Ar 36c3.m3u8
 for mpv.
+.Pp
+The command:
+.Pp
+.Dl "strobs -S http://ingest.c3voc.de:8000 -M '' -s"
+.Pp
+tries to open the streams from
+.Ar http://ingest.c3voc.de:8000
+with no suffix after the slugs. In addition it will sort the slugs alphanumerical.
 .Pp
 The command:
 .Pp

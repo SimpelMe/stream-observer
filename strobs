@@ -30,6 +30,7 @@ readonly underlined='\033[4m'
 readonly progname="${0##*/}"
 readonly progpath="${0%/*}/"
 readonly version="3.0.31"
+
 unset conference    # if set contains the name of the conference
 unset debug         # if set print verbose messages red to differ from debug messages
 unset exitscript    # if set don't open mpv; useful for debugging and json export
@@ -41,9 +42,11 @@ unset print_json    # if set export json to disk
 unset playlist      # if set use directly this playlist
 unset playlist_info # if set contains Info line in mvp what stream it is
 unset sort          # if set servers sorted alphanumerical else as found
-unset serverpath    # is either set to liveserver oder ingestserver
 unset timetable     # if set timetable of running and coming events is printed
-verbosity=0         # if > 0 show verbose messages in levels
+
+usedmedia="${cdnstreamsuffix}"  # is either set to cdnstreamsuffix or set with option -M
+usedserver="${cdnserver}"       # is either set to cdnserver or set with option -S
+verbosity=0                     # if > 0 show verbose messages in levels
 
 #######################################
 ### Functions
@@ -397,7 +400,8 @@ manpage() {
 #   None
 #######################################
 manual() {
-  echo "Usage: ${progname} [ -d | -D | -f | -h | -i | -j | -k | -m | -n | -p ${underlined}file${nc} | -s | -t | -v | -V | -x]"
+  echo "Usage: ${progname} [ -d | -D | -f | -h | -i | -j | -k | -m | -M ${underlined}media${nc} | -n | -p ${underlined}file${nc} |"
+  echo "                -s | -S ${underlined}server${nc} | -t | -v | -V | -x]"
   echo "       opens mpv with all active voc streams"
   echo "       -d debug mode: print commands and arguments while executed"
   echo "       -D debug mode: print script lines while read"
@@ -407,9 +411,11 @@ manual() {
   echo "       -j json export to disk"
   echo "       -k keys/shortcuts shown"
   echo "       -m man page shown"
+  echo "       -M ${underlined}media${nc} / suffix after slug; '' allowed"
   echo "       -n name stream with technical extension"
   echo "       -p playlist ${underlined}file${nc} with servers in format m3u8"
   echo "       -s sort server list alphanumerical"
+  echo "       -S ${underlined}server${nc} including protocol and port"
   echo "       -t timetable of running and coming events shown"
   echo "       -v verbosity increasing with ${underlined}v${nc}"
   echo "       -V version print"
@@ -441,7 +447,7 @@ voctocat_file() {
 #######################################
 
 # Check options
-while getopts 'dDfhijkmnp:stvVx' option 2>/dev/null; do
+while getopts 'dDfhijkmM:np:sS:tvVx' option 2>/dev/null; do
   case "${option}" in
   d)
     set -x # print commands and arguments while executed
@@ -457,9 +463,11 @@ while getopts 'dDfhijkmnp:stvVx' option 2>/dev/null; do
   j) print_json=true ;;
   k) keys ;;
   m) manpage ;;
+  M) usedmedia="${OPTARG}" ;;
   n) name_ext=true ;;
   p) playlist="${OPTARG}" ;;
   s) sort=true ;;
+  S) usedserver="${OPTARG}" ;;
   t)
     timetable=true
     force=true
@@ -568,7 +576,7 @@ else
     printf "%b\n" "${yellow}Warning: no live streams available${nc}" 1>&2
     exit 1
   fi
-  # Sort servers alphanumerical
+  # Sort slugs alphanumerical
   if [ -n "${sort-}" ]; then
     SLUGS="$(sort_alphanum "${SLUGS}")"
   fi
@@ -578,6 +586,12 @@ else
   name_array="$(name_array "${JSON}")"
   if [ -z "${name_array-}" ]; then
     verbose "${yellow}No display names for active streams available${nc}"
+  fi
+
+  # Be sure for correct slashes on usedserver/ and /usedmedia
+  usedserver="$(echo "${usedserver}" | sed 's/\/*$/\//g')"
+  if [ -n "${usedmedia}" ]; then
+    usedmedia="$(echo "${usedmedia}" | sed 's/^\/*/\//g')"
   fi
 
   # Create playlist
@@ -626,8 +640,8 @@ else
     echo "#EXTINF:0,${playlist_info}" >>"${playlist}"
     verbose "main (${LINENO}): Add ${playlist_info} to playlist: $?" 3
     # Write server into playlist
-    echo "${cdnserver}${STREAM}${cdnstreamsuffix}" >>"${playlist}"
-    verbose "main (${LINENO}): Add ${cdnserver}${STREAM}${cdnstreamsuffix} to playlist: $?" 3
+    echo "${usedserver}${STREAM}${usedmedia}" >>"${playlist}"
+    verbose "main (${LINENO}): Add ${usedserver}${STREAM}${usedmedia} to playlist: $?" 3
     # Write playlist divider
     echo "#EXT-X-DISCONTINUITY" >>"${playlist}"
     counter=$((counter + 1))
