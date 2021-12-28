@@ -586,6 +586,7 @@ else
   echo "#EXT-X-VERSION:3" >>"${playlist}"
   # Repeat playlist names and servers and "#EXT-X-DISCONTINUITY"
   verbose "main (${LINENO}): Create playlist"
+  counter="1"
   for STREAM in ${SLUGS}; do
     unset conference
     unset DISPLAY
@@ -619,6 +620,8 @@ else
     else
       playlist_info=${STREAM}
     fi
+    # add numbers for direct call in mpv
+    playlist_info=${playlist_info}" - #"${counter}
     # Write stream as info into playlist
     echo "#EXTINF:0,${playlist_info}" >>"${playlist}"
     verbose "main (${LINENO}): Add ${playlist_info} to playlist: $?" 3
@@ -627,6 +630,7 @@ else
     verbose "main (${LINENO}): Add ${cdnserver}${STREAM}${cdnstreamsuffix} to playlist: $?" 3
     # Write playlist divider
     echo "#EXT-X-DISCONTINUITY" >>"${playlist}"
+    counter=$((counter + 1))
   done
   {
     # Set a picture as last, so mpv will not end
