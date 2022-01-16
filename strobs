@@ -13,8 +13,14 @@
 #
 # SPDX-License-Identifier: MIT
 
-# set e: exit if something fails; set u: exit if a variable is unset
-set -eu
+# Shell Strict Mode: http://redsymbol.net/articles/unofficial-bash-strict-mode
+# set -e: exit if something fails; set -u: exit if a variable is unset
+# set -o pipefail: prevents errors in a pipeline from being masked
+# If a command in pipeline fails, return code will be return code of whole pipeline
+set -euo pipefail
+# word splitting shall happen only on newlines and tab characters
+# By default it is set to $' \n\t' - space, newline, tab - which is too eager
+IFS=$'\n\t'
 
 #######################################
 ### Globals
