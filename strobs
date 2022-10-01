@@ -35,7 +35,7 @@ readonly nc='\033[0m' # No Color
 readonly underlined='\033[4m'
 readonly progname="${0##*/}"
 readonly progpath="${0%/*}/"
-readonly version="3.0.31"
+readonly version="3.0.33"
 
 unset conference    # if set contains the name of the conference
 unset debug         # if set print verbose messages red to differ from debug messages
@@ -260,6 +260,28 @@ display() {
   verbose "display (${LINENO}): Remove '\"display\":': $?" 2
   result="$(echo "${result}" | sed 's/",//g')"
   verbose "display (${LINENO}): Remove '\",': $?" 2
+  echo "${result}"
+}
+
+#######################################
+# Returns stream_slug name found in name_array.
+# Globals:
+#   name_array
+# Arguments:
+#   STREAM_POS
+# Outputs:
+#   stream_slug to STDOUT
+# Returns:
+#   result
+#######################################
+stream_slug() {
+  verbose "stream_slug (${LINENO}): Return stream_slug name from name_array"
+  result="$(echo "${name_array}" | awk 'NR=='$1'')"
+  verbose "stream_slug (${LINENO}): Print line $1: $?" 2
+  result="$(echo "${result}" | sed 's/"stream": "//g')"
+  verbose "stream_slug (${LINENO}): Remove '\"stream\":': $?" 2
+  result="$(echo "${result}" | sed 's/",//g')"
+  verbose "stream_slug (${LINENO}): Remove '\",': $?" 2
   echo "${result}"
 }
 
@@ -611,13 +633,15 @@ else
   for STREAM in ${SLUGS}; do
     unset conference
     unset DISPLAY
+    unset STREAM_SLUG
     unset playlist_info
     if [ -n "${name_array-}" ]; then
       STREAM_POS="$(stream_pos "${STREAM}")"
       if [ -n "${STREAM_POS-}" ]; then
         if [ "$(echo "${STREAM_POS}")" -gt 0 ]; then
-          STREAM_POS=$((STREAM_POS + 1))
           DISPLAY="$(display "${STREAM_POS}")"
+          STREAM_POS=$((STREAM_POS - 1))
+          STREAM_SLUG="$(stream_slug "${STREAM_POS}")"
           conference="$(findconference "${STREAM_POS}")"
         fi
       fi
@@ -647,8 +671,8 @@ else
     echo "#EXTINF:0,${playlist_info}" >>"${playlist}"
     verbose "main (${LINENO}): Add ${playlist_info} to playlist: $?" 3
     # Write server into playlist
-    echo "${usedserver}${STREAM}${usedmedia}" >>"${playlist}"
-    verbose "main (${LINENO}): Add ${usedserver}${STREAM}${usedmedia} to playlist: $?" 3
+    echo "${usedserver}${STREAM_SLUG}${usedmedia}" >>"${playlist}"
+    verbose "main (${LINENO}): Add ${usedserver}${STREAM_SLUG}${usedmedia} to playlist: $?" 3
     # Write playlist divider
     echo "#EXT-X-DISCONTINUITY" >>"${playlist}"
     counter=$((counter + 1))
