@@ -182,7 +182,7 @@ timetable_array() {
 }
 
 #######################################
-# Extrace slug array from json.
+# Extract slug array from json.
 # Globals:
 #   None
 # Arguments:
@@ -193,9 +193,10 @@ timetable_array() {
 #   result
 #######################################
 slugs() {
-  verbose "server (${LINENO}): Create slugs array"
-  result="$(echo "$1" | jq -r '.[].groups[].rooms[].slug')"
-  verbose "server (${LINENO}): Output 'slugs' with jq: $?" 2
+  verbose "slugs (${LINENO}): Create slugs array"
+  result="$(echo "$1" | jq -r '.[].groups[].rooms[].display')"
+  verbose "slugs (${LINENO}): Output 'slugs' with jq: $?" 2
+  verbose "slugs:\n$result" 3
   echo "${result}"
 }
 
