@@ -28,7 +28,7 @@ Install [jq](https://stedolan.github.io/jq) if not existing.
 * [Fixed mpv options](#fixed-mpv-options)
 
 ## Options
-Usage: strobs [ -d | -D | -f | -h | -j | -k | -m | -M _media_ | -n | -p _file_ | -s | -S _server_ | -t | -v | -V | -x]
+Usage: strobs [ -d | -D | -f | -h | -j | -k | -m | -p _file_ | -s | -t | -v | -V | -x]
 * -d debug mode: print commands and arguments while executed
 * -D debug mode: print script lines while read
 * -f forces (with -p / -j) open playlist / download full json
@@ -36,11 +36,8 @@ Usage: strobs [ -d | -D | -f | -h | -j | -k | -m | -M _media_ | -n | -p _file_ |
 * -j json export to disk
 * -k keys/shortcuts shown (`input.conf` needed)
 * -m man page shown (`strobs.1` needed)
-* -M _media_ / suffix after slug; '' allowed
-* -n name stream with technical extension
 * -p playlist _file_ with servers in format m3u8
-* -s sort server slug list alphanumerical
-* -S _server_ including protocol and port
+* -s sort room names alphanumerical
 * -t timetable of running and coming events shown
 * -v verbosity increasing with _v_
 * -V version print
@@ -57,10 +54,6 @@ With this informations it builds a playlist in m3u8 format and starts mpv with t
 
 `strobs -p 36c3.m3u8`
 >uses the playlist 36c3.m3u8 for mpv.
-
-`strobs -S http://ingest.c3voc.de:8000 -M '' -s`
->tries to open the streams from http://ingest.c3voc.de:8000 with no suffix after the slugs.
-In addition it will sort the slugs alphanumerical.
 
 `strobs -j -f`
 >will download and save current.json, current-playlist.m3u8, status_liveber.xsl (deprecated), status_ingest.xsl (deprecated) and exit before opening mpv.

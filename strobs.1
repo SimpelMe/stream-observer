@@ -1,13 +1,13 @@
 .\" SPDX-FileCopyrightText: 2020 Simpel <stream-observer@simpel.cc>
 .\"
 .\" SPDX-License-Identifier: MIT
-.Dd May 03, 2020              \" DATE
-.Dt STROBS 1      \" Program name and manual section number
+.Dd May 03, 2020          \" DATE
+.Dt STROBS 1              \" Program name and manual section number
 .Os
-.Sh NAME                 \" Section Header - required - don't modify
+.Sh NAME                  \" Section Header - required - don't modify
 .Nm STROBS
 .Nd a script to observe running voc video streams.
-.Sh SYNOPSIS             \" Section Header - required - don't modify
+.Sh SYNOPSIS              \" Section Header - required - don't modify
 .Nm
 .Op Fl d
 .Op Fl D
@@ -16,16 +16,13 @@
 .Op Fl j
 .Op Fl k
 .Op Fl m
-.Op Fl M Ar media             \" [-M media]
-.Op Fl n
-.Op Fl p Ar file              \" [-p file]
+.Op Fl p Ar file          \" [-p file]
 .Op Fl s
-.Op Fl S Ar server            \" [-S server]
 .Op Fl t
 .Op Fl v
 .Op Fl V
 .Op Fl x
-.Sh DESCRIPTION          \" Section Header - required - don't modify
+.Sh DESCRIPTION           \" Section Header - required - don't modify
 The
 .Nm
 script opens mpv with all active (currently streaming) streams from Chaos
@@ -35,7 +32,7 @@ Computer Club made by VOC (video operation center) in a playlist as found at
 Optionally it can also try to open all streams given in a valid playlist.
 
 .Sh OPTIONS
-.Bl -tag -width "-S server" -indent  \" Begins a tagged list
+.Bl -tag -width "-p file" -indent  \" Begins a tagged list
 .It Fl d
 debug mode: print commands and arguments while executed
 .It Fl D
@@ -50,20 +47,12 @@ json export to disk
 keys/shortcuts shown
 .It Fl m
 man page shown
-.It Fl M Ar media
-.Ar media
-/ suffix after slug; '' allowed
-.It Fl n
-name stream with technical extension (e.g. s23)
 .It Fl p Ar file
 playlist
 .Ar file
 with servers in format m3u8
 .It Fl s
-sort server slug list alphanumerical
-.It Fl S Ar server
-.Ar server
-including protocol and port
+sort room names alphanumerical
 .It Fl t
 timetable of running and coming events shown
 .It Fl v
@@ -99,14 +88,6 @@ for mpv.
 .Pp
 The command:
 .Pp
-.Dl "strobs -S http://ingest.c3voc.de:8000 -M '' -s"
-.Pp
-tries to open the streams from
-.Ar http://ingest.c3voc.de:8000
-with no suffix after the slugs. In addition it will sort the slugs alphanumerical.
-.Pp
-The command:
-.Pp
 .Dl "strobs -j -f"
 .Pp
 will download and save
@@ -119,7 +100,7 @@ will download and save
 .Ar status_ingest.xsl
 (deprecated) and exit before opening mpv. In addition json includes past events.
 .Pp
-.Sh FILES                \" File used or created by the topic of the man page
+.Sh FILES                 \" File used or created by the topic of the man page
 .Bl -tag -width "./current-playlist.m3u8   "
 .It Pa current-playlist.m3u8
 generated playlist while running
@@ -133,11 +114,11 @@ shell script to execute
 this man page
 .It Pa voctocat.gif
 temp playlist item so mpv does not stop
-.El                      \" Ends the list
-.Sh HISTORY           \" Document history if command behaves in a unique manner
+.El                       \" Ends the list
+.Sh HISTORY               \" Document history if command behaves in a new manner
 .Nm
 was written by Simpel <git@simpel.cc> in April 2020.
-.Sh BUGS              \" Document known, unremedied bugs
+.Sh BUGS                  \" Document known, unremedied bugs
 Please file bugs and feature requests by emailing the author
 or opening issues at
 .Mt https://github.com/SimpelMe/stream-observer

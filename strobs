@@ -26,8 +26,6 @@ IFS=$'\n\t'
 ### Globals
 #######################################
 
-readonly cdnserver="https://cdn.c3voc.de/hls/"
-readonly cdnstreamsuffix="/native_hd.m3u8"
 readonly streamjsonurl="https://streaming.media.ccc.de/streams/v2.json"
 readonly red='\033[0;31m'
 readonly yellow='\033[0;33m'
@@ -35,23 +33,18 @@ readonly nc='\033[0m' # No Color
 readonly underlined='\033[4m'
 readonly progname="${0##*/}"
 readonly progpath="${0%/*}/"
-readonly version="3.0.33"
+readonly version="4.0.34"
 
-unset conference    # if set contains the name of the conference
 unset debug         # if set print verbose messages red to differ from debug messages
 unset exitscript    # if set don't open mpv; useful for debugging and json export
 unset force         # if set and used with option -p / -j forces open playlist / load full json
 unset JSON          # if set contains the whole streaming json content
-unset name_array    # if set contains conferences, streams and display names
-unset name_ext      # if set playlist server names append technical name (e.g. s23)
 unset print_json    # if set export json to disk
 unset playlist      # if set use directly this playlist
 unset playlist_info # if set contains Info line in mvp what stream it is
 unset sort          # if set servers sorted alphanumerical else as found
 unset timetable     # if set timetable of running and coming events is printed
 
-usedmedia="${cdnstreamsuffix}"  # is either set to cdnstreamsuffix or set with option -M
-usedserver="${cdnserver}"       # is either set to cdnserver or set with option -S
 verbosity=0                     # if > 0 show verbose messages in levels
 
 #######################################
@@ -182,146 +175,78 @@ timetable_array() {
 }
 
 #######################################
-# Extract slug array from json.
+# Extract conferences from json.
 # Globals:
 #   None
 # Arguments:
 #   JSON
 # Outputs:
-#   (slug \n slug \n ...)* to STDOUT
+#   (conference \n conference \n ...)* to STDOUT
 # Returns:
 #   result
 #######################################
-slugs() {
-  verbose "slugs (${LINENO}): Create slugs array"
-  result="$(echo "$1" | jq -r '.[].groups[].rooms[].display')"
-  verbose "slugs (${LINENO}): Output 'slugs' with jq: $?" 2
-  verbose "slugs:\n$result" 3
+get_conferences() {
+  verbose "get_conferences (${LINENO}): Create conferences array"
+  result="$(echo "$1" | jq -r '.[].conference')"
+  verbose "get_conferences (${LINENO}): Output 'conferences' with jq: $?" 2
+  verbose "get_conferences:\n$result" 3
   echo "${result}"
 }
 
 #######################################
-# Convert api json to names array.
+# Extract stream names array from json.
 # Globals:
 #   None
 # Arguments:
 #   JSON
+#   CONFERENCE
 # Outputs:
-#   ((stream \n display \n)* conference)* to STDOUT
+#   (stream name \n stream name \n ...)* to STDOUT
 # Returns:
 #   result
 #######################################
-name_array() {
-  verbose "name_array (${LINENO}): Create name array"
-  # Catch all "conferences", "display" with 24spaces ahead (there are many more "display"), "stream"
-  result="$(echo "$1" | grep -E '\"conference\":|^\s{24}\"display\":|\"stream\":')"
-  verbose "name_array (${LINENO}): Grep 'conferences, display, streams incl. values': $?" 2
-  result="$(echo "${result}" | awk '{$1=$1;print}')"
-  verbose "name_array (${LINENO}): Remove leading and trailing spaces: $?" 2
-  result="$(echo "${result}" | awk '{a[i++]=$0} END {for (j=i-1; j>=0;) print a[j--] }')"
-  verbose "name_array (${LINENO}): Reorder list upside down: $?" 2
+get_stream_display_names() {
+  verbose "get_stream_display_names (${LINENO}): Create stream_display_names array"
+  result="$(echo "$1" | jq -r '.[]|select(.conference == "'"$2"'").groups[].rooms[].display')"
+  verbose "get_stream_display_names (${LINENO}): Output 'stream_display_names' with jq: $?" 2
+  verbose "get_stream_display_names:\n$result" 3
   echo "${result}"
 }
 
 #######################################
-# Returns line number where stream is found in name_array.
-# Globals:
-#   name_array
-# Arguments:
-#   STREAM
-# Outputs:
-#   Integer to STDOUT
-# Returns:
-#   result
-#######################################
-stream_pos() {
-  verbose "stream_pos (${LINENO}): Return line number where stream is found"
-  result="$(echo "${name_array}" | sed -n '/'$1'/=')"
-  verbose "stream_pos (${LINENO}): Get position of '$1': $?" 2
-  echo "${result}"
-}
-
-#######################################
-# Returns display name found in name_array.
-# Globals:
-#   name_array
-# Arguments:
-#   STREAM_POS
-# Outputs:
-#   display to STDOUT
-# Returns:
-#   result
-#######################################
-display() {
-  verbose "display (${LINENO}): Return display name from name_array"
-  result="$(echo "${name_array}" | awk 'NR=='$1'')"
-  verbose "display (${LINENO}): Print line $1: $?" 2
-  result="$(echo "${result}" | sed 's/"display": "//g')"
-  verbose "display (${LINENO}): Remove '\"display\":': $?" 2
-  result="$(echo "${result}" | sed 's/",//g')"
-  verbose "display (${LINENO}): Remove '\",': $?" 2
-  echo "${result}"
-}
-
-#######################################
-# Returns stream_slug name found in name_array.
-# Globals:
-#   name_array
-# Arguments:
-#   STREAM_POS
-# Outputs:
-#   stream_slug to STDOUT
-# Returns:
-#   result
-#######################################
-stream_slug() {
-  verbose "stream_slug (${LINENO}): Return stream_slug name from name_array"
-  result="$(echo "${name_array}" | awk 'NR=='$1'')"
-  verbose "stream_slug (${LINENO}): Print line $1: $?" 2
-  result="$(echo "${result}" | sed 's/"stream": "//g')"
-  verbose "stream_slug (${LINENO}): Remove '\"stream\":': $?" 2
-  result="$(echo "${result}" | sed 's/",//g')"
-  verbose "stream_slug (${LINENO}): Remove '\",': $?" 2
-  echo "${result}"
-}
-
-#######################################
-# Returns conference found in name_array.
-# Globals:
-#   name_array
-# Arguments:
-#   STREAM_POS
-# Outputs:
-#   conference to STDOUT
-# Returns:
-#   result
-#######################################
-findconference() {
-  verbose "findconference (${LINENO}): Return conferences from name_array"
-  result="$(echo "${name_array}" | awk 'NR>='$1'')"
-  verbose "findconference (${LINENO}): Print lines from $1: $?" 2
-  result="$(echo "${result}" | grep -m 1 "conference")"
-  verbose "findconference (${LINENO}): Grep first occurence of 'conference including value': $?" 2
-  result="$(echo "${result}" | sed 's/"conference": "//g')"
-  verbose "findconference (${LINENO}): Remove '\"conference\":': $?" 2
-  result="$(echo "${result}" | sed 's/",//g')"
-  verbose "findconference (${LINENO}): Remove '\",': $?" 2
-  echo "${result}"
-}
-
-#######################################
-# Returning servers sorted alphanumerical.
+# Extract stream url from json.
 # Globals:
 #   None
 # Arguments:
-#   SLUGS
+#   JSON
+#   CONFERENCE
+#   STREAM_NAME
+# Outputs:
+#   url to STDOUT
+# Returns:
+#   result
+#######################################
+get_stream_url() {
+  verbose "get_stream_url (${LINENO}): Search in json"
+  result="$(echo "$1" | jq -r '.[]|select(.conference == "'"$2"'").groups[].rooms[]|select(.display == "'"$3"'").streams[]|select(.slug == "hd-native").urls.hls.url')"
+  verbose "get_stream_url (${LINENO}): Output 'stream_url' with jq: $?" 2
+  verbose "get_stream_url:\n$result" 3
+  echo "${result}"
+}
+
+#######################################
+# Returning room names sorted alphanumerical.
+# Globals:
+#   None
+# Arguments:
+#   STREAM_NAMES
 # Outputs:
 #   sorted streams to STDOUT
 # Returns:
 #   None
 #######################################
 sort_alphanum() {
-  verbose "sort_alphanum (${LINENO}): Sorting servers"
+  verbose "sort_alphanum (${LINENO}): Sorting room names"
   # Padding numbers with zeros to make sort with leading characters work
   result="$(echo "$1" | awk '{ gsub(/([^[:digit:]]+|[[:digit:]]+)/,"&\t") ; printf("%s%05d\n", $1, $2)}')"
   verbose "sort_alphanum (${LINENO}): Fill numbers with leading zeros: $?" 2
@@ -354,10 +279,10 @@ printjson() {
   # Export streaming.json to disk
   if [ -n "${force-}" ]; then
     # with option forceopen=1 (shows all streams done, running and planned)
-    JSON="$(curl -sSf https://streaming.media.ccc.de/streams/v2.json?forceopen=1)"
+    JSON="$(curl -sSf ${streamjsonurl}?forceopen=1)"
   else
     # shows only running streams
-    JSON="$(curl -sSf https://streaming.media.ccc.de/streams/v2.json)"
+    JSON="$(curl -sSf ${streamjsonurl})"
   fi
   echo "${JSON}" >current.json
   # Don't start mpv and avoid deleting current-playlist.m3u8
@@ -429,8 +354,7 @@ manpage() {
 #   None
 #######################################
 manual() {
-  echo "Usage: ${progname} [ -d | -D | -f | -h | -i | -j | -k | -m | -M ${underlined}media${nc} | -n | -p ${underlined}file${nc} |"
-  echo "                -s | -S ${underlined}server${nc} | -t | -v | -V | -x]"
+  echo "Usage: ${progname} [ -d | -D | -f | -h | -i | -j | -k | -m | -p ${underlined}file${nc} | -s | -t | -v | -V | -x]"
   echo "       opens mpv with all active voc streams"
   echo "       -d debug mode: print commands and arguments while executed"
   echo "       -D debug mode: print script lines while read"
@@ -440,11 +364,8 @@ manual() {
   echo "       -j json export to disk"
   echo "       -k keys/shortcuts shown"
   echo "       -m man page shown"
-  echo "       -M ${underlined}media${nc} / suffix after slug; '' allowed"
-  echo "       -n name stream with technical extension"
   echo "       -p playlist ${underlined}file${nc} with servers in format m3u8"
-  echo "       -s sort server list alphanumerical"
-  echo "       -S ${underlined}server${nc} including protocol and port"
+  echo "       -s sort room names alphanumerical"
   echo "       -t timetable of running and coming events shown"
   echo "       -v verbosity increasing with ${underlined}v${nc}"
   echo "       -V version print"
@@ -476,7 +397,7 @@ voctocat_file() {
 #######################################
 
 # Check options
-while getopts 'dDfhijkmM:np:sS:tvVx' option 2>/dev/null; do
+while getopts 'dDfhijkmp:stvVx' option 2>/dev/null; do
   case "${option}" in
   d)
     set -x # print commands and arguments while executed
@@ -492,11 +413,8 @@ while getopts 'dDfhijkmM:np:sS:tvVx' option 2>/dev/null; do
   j) print_json=true ;;
   k) keys ;;
   m) manpage ;;
-  M) usedmedia="${OPTARG}" ;;
-  n) name_ext=true ;;
   p) playlist="${OPTARG}" ;;
   s) sort=true ;;
-  S) usedserver="${OPTARG}" ;;
   t)
     timetable=true
     force=true
@@ -533,7 +451,7 @@ if [ -n "${timetable-}" ]; then
   # First disable exit on error as this is not important to run
   set +e
   # with option forceopen=1 (shows all streams done, running and planned)
-  JSON="$(curl -sSf https://streaming.media.ccc.de/streams/v2.json?forceopen=1)"
+  JSON="$(curl -sSf ${streamjsonurl}?forceopen=1)"
   verbose "main (${LINENO}): Curl json for option -t: $?" 2
   # Enable exit on error again
   set -e
@@ -589,7 +507,7 @@ else
   #       -f (fail silently)
   # not exiting if curl is failing
   set +e
-  JSON="$(curl -sf https://streaming.media.ccc.de/streams/v2.json)"
+  JSON="$(curl -sf ${streamjsonurl})"
   set -e
   verbose "${JSON}" 4
   verbose "main (${LINENO}): Read stream json"
@@ -598,29 +516,12 @@ else
     exit 1
   fi
 
-  # Find streams in $JSON
-  SLUGS="$(slugs "${JSON}")"
-  # Exit if no servers found
-  if [ "${SLUGS}" = "" ]; then
-    printf "%b\n" "${yellow}Warning: no live streams available${nc}" 1>&2
+  # Find all running conferences
+  CONFERENCES="$(get_conferences "${JSON}")"
+  # Exit if no conference found
+  if [ "${CONFERENCES}" = "" ]; then
+    printf "%b\n" "${yellow}Warning: no live conference available${nc}" 1>&2
     exit 1
-  fi
-  # Sort slugs alphanumerical
-  if [ -n "${sort-}" ]; then
-    SLUGS="$(sort_alphanum "${SLUGS}")"
-  fi
-  verbose "Extracted slugs:\n${SLUGS}" 3
-
-  # Read running streams by api json - look for matches for displayed stream name
-  name_array="$(name_array "${JSON}")"
-  if [ -z "${name_array-}" ]; then
-    verbose "${yellow}No display names for active streams available${nc}"
-  fi
-
-  # Be sure for correct slashes on usedserver/ and /usedmedia
-  usedserver="$(echo "${usedserver}" | sed 's/\/*$/\//g')"
-  if [ -n "${usedmedia}" ]; then
-    usedmedia="$(echo "${usedmedia}" | sed 's/^\/*/\//g')"
   fi
 
   # Create playlist
@@ -630,61 +531,55 @@ else
   # Repeat playlist names and servers and "#EXT-X-DISCONTINUITY"
   verbose "main (${LINENO}): Create playlist"
   counter="1"
-  for STREAM in ${SLUGS}; do
-    unset conference
-    unset DISPLAY
-    unset STREAM_SLUG
-    unset playlist_info
-    if [ -n "${name_array-}" ]; then
-      STREAM_POS="$(stream_pos "${STREAM}")"
-      if [ -n "${STREAM_POS-}" ]; then
-        if [ "$(echo "${STREAM_POS}")" -gt 0 ]; then
-          DISPLAY="$(display "${STREAM_POS}")"
-          STREAM_POS=$((STREAM_POS - 1))
-          STREAM_SLUG="$(stream_slug "${STREAM_POS}")"
-          conference="$(findconference "${STREAM_POS}")"
-        fi
-      fi
-      if [ -n "${conference-}" ]; then
-        verbose "main (${LINENO}): Conference found: ${conference}" 3
-        playlist_info=${conference}" - "
-      fi
-      if [ -n "${DISPLAY-}" ]; then
-        verbose "main (${LINENO}): Display found: ${DISPLAY}" 3
-        playlist_info=${playlist_info}${DISPLAY}
-      fi
-      if [ -z "${playlist_info-}" ]; then
-        verbose "main (${LINENO}): Playlist empty" 3
-        playlist_info=${STREAM}
-      else
-        if [ -n "${name_ext-}" ]; then
-          verbose "main (${LINENO}): Option -n - add stream: ${STREAM}" 3
-          playlist_info=${playlist_info}" - "${STREAM}
-        fi
-      fi
-    else
-      playlist_info=${STREAM}
+
+  for CONFERENCE in ${CONFERENCES}; do
+
+    # Find streams in $JSON
+    STREAM_NAMES="$(get_stream_display_names "${JSON}" "${CONFERENCE}")"
+    # Exit if no servers found
+    if [ "${STREAM_NAMES}" = "" ]; then
+      printf "%b\n" "${yellow}Warning: no live streams available${nc}" 1>&2
+      exit 1
     fi
-    # add numbers for direct call in mpv
-    playlist_info=${playlist_info}" - #"${counter}
-    # Write stream as info into playlist
-    echo "#EXTINF:0,${playlist_info}" >>"${playlist}"
-    verbose "main (${LINENO}): Add ${playlist_info} to playlist: $?" 3
-    # Write server into playlist
-    echo "${usedserver}${STREAM_SLUG}${usedmedia}" >>"${playlist}"
-    verbose "main (${LINENO}): Add ${usedserver}${STREAM_SLUG}${usedmedia} to playlist: $?" 3
-    # Write playlist divider
-    echo "#EXT-X-DISCONTINUITY" >>"${playlist}"
-    counter=$((counter + 1))
+
+    # Sort stream_display_names alphanumerical
+    if [ -n "${sort-}" ]; then
+      STREAM_NAMES="$(sort_alphanum "${STREAM_NAMES}")"
+    fi
+    verbose "Extracted stream_display_names:\n${STREAM_NAMES}" 3
+
+    for STREAM_NAME in ${STREAM_NAMES}; do
+      STREAM_URL="$(get_stream_url "${JSON}" "${CONFERENCE}" "${STREAM_NAME}")"
+      playlist_info=${CONFERENCE}" - "${STREAM_NAME}
+
+      # add numbers for direct call in mpv
+      playlist_info=${playlist_info}" - #"${counter}
+
+      # Write stream as info into playlist
+      echo "#EXTINF:0,${playlist_info}" >>"${playlist}"
+      verbose "main (${LINENO}): Add ${playlist_info} to playlist: $?" 3
+
+      # Write url into playlist
+      echo "${STREAM_URL}" >>"${playlist}"
+      verbose "main (${LINENO}): Add ${STREAM_URL} to playlist: $?" 3
+
+      # Write playlist divider
+      echo "#EXT-X-DISCONTINUITY" >>"${playlist}"
+      counter=$((counter + 1))
+    done
+
   done
+
   {
     # Set a picture as last, so mpv will not end
     echo "#EXTINF:0,end of list"
     echo "${progpath}voctocat.gif"
+
     # End of playlist
     echo "#EXT-X-ENDLIST"
   } >>"${playlist}"
   verbose "main (${LINENO}): Playlist complete: $?"
+
 fi
 
 # Exit if set option '-x'
