@@ -35,7 +35,7 @@ readonly nc='\033[0m' # No Color
 readonly underlined='\033[4m'
 readonly progname="${0##*/}"
 readonly progpath="${0%/*}/"
-readonly version="3.0.31"
+readonly version="3.0.33"
 
 unset conference    # if set contains the name of the conference
 unset debug         # if set print verbose messages red to differ from debug messages
