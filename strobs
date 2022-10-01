@@ -33,7 +33,7 @@ readonly nc='\033[0m' # No Color
 readonly underlined='\033[4m'
 readonly progname="${0##*/}"
 readonly progpath="${0%/*}/"
-readonly version="4.0.34"
+readonly version="4.0.35"
 
 unset debug         # if set print verbose messages red to differ from debug messages
 unset exitscript    # if set don't open mpv; useful for debugging and json export
@@ -128,44 +128,29 @@ keys() {
 #######################################
 timetable_array() {
   verbose "timetable_array (${LINENO}): Create timetable array"
+  # Clean json from invalid new lines
+  result="$(echo "$1" | tr -d '\r\n')"
+
   # Catch conference, startsAt, endsAt of every stream event
-  result="$(echo "$1" | grep -E "\"conference\": \"?.+\"?,|\"startsAt\": \"?.+\"?,|\"endsAt\": \"?.+\"?,")"
-  verbose "timetable_array (${LINENO}): Grep 'conference, startsAt, endsAt and values': $?" 2
-  # Make one plain, clean line of them all
-  result="$(echo "${result}" | awk '{$1=$1;print}')"
-  verbose "timetable_array (${LINENO}): Remove leading/trailing white spaces: $?" 2
-  result="$(echo "${result}" | sed 's/,$//g')"
-  verbose "timetable_array (${LINENO}): Remove trailing commas: $?" 2
-  result="$(echo "${result}" | tr '\n' '\t')"
-  verbose "timetable_array (${LINENO}): Replace all newlines with tabs: $?" 2
-  # Make every stream event a single line
-  result="$(echo "${result}" | sed 's/\"conference/\'$'\n\"conference/g')"
-  verbose "timetable_array (${LINENO}): Insert newlines before conference: $?" 2
-  # Remove first empty line
-  result="$(echo "${result}" | tail -n +2)"
-  verbose "timetable_array (${LINENO}): Remove first newline: $?" 2
-  # Remove all keys from key:value
-  result="$(echo "${result}" | sed 's/\"conference\": //g')"
-  verbose "timetable_array (${LINENO}): Remove 'conference': $?" 2
-  result="$(echo "${result}" | sed 's/\"startsAt\": //g')"
-  verbose "timetable_array (${LINENO}): Remove 'startsAt': $?" 2
-  result="$(echo "${result}" | sed 's/\"endsAt\": //g')"
-  verbose "timetable_array (${LINENO}): Remove 'endsAt': $?" 2
-  result="$(echo "${result}" | sed 's/\"//g')"
-  verbose "timetable_array (${LINENO}): Remove all \": $?" 2
+  result="$(echo "$result" | jq -r '.[]|.startsAt,.endsAt,.conference')"
+  verbose "timetable_array (${LINENO}): Exctract 'startsAt, endsAt, conference' from json: $?" 2
+
   # Remove +0000 in timestamps
   result="$(echo "${result}" | sed 's/+0000//g')"
   verbose "timetable_array (${LINENO}): Remove '+0000': $?" 2
-  # Change order and set conference last
-  result="$(echo "${result}" | awk -v FS='\t' -v OFS='\t' '{print $2, $3, $1}')"
-  verbose "timetable_array (${LINENO}): Change order: $?" 2
+
+  # make one event in one line
+  result="$(echo "${result}" | awk '{if (NR%3) {ORS="\t";print $0} else {ORS="\n";print $0}}')"
+
   # Return only events that are running or planned
   date="$(date -u +"%Y-%m-%dT%H:%M:%S")" # now
   result="$(echo "${result}" | awk -F '\t' -v force_date="${date}" '$2>=force_date && $2!="null" {print $0}')"
   verbose "timetable_array (${LINENO}): Strip timetable array to now"
+
   # Remove disturbing 'T' from UTC timestamps
   result="$(echo "${result}" | sed 's/\([0-9]\{4\}-[0-9][0-9]-[0-9][0-9]\)T\([0-9][0-9]:[0-9][0-9]:[0-9][0-9]\)/\1 \2/g')"
   verbose "timetable_array (${LINENO}): Remove 'T' from timestamps: $?" 2
+
   if [ -z "${result-}" ]; then
     printf "%b\n" "${yellow}Warning: no events found${nc}" 1>&2
   else
