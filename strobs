@@ -339,13 +339,12 @@ manpage() {
 #   None
 #######################################
 manual() {
-  echo "Usage: ${progname} [ -d | -D | -f | -h | -i | -j | -k | -m | -p ${underlined}file${nc} | -s | -t | -v | -V | -x]"
+  echo "Usage: ${progname} [ -d | -D | -f | -h | -j | -k | -m | -p ${underlined}file${nc} | -s | -t | -v | -V | -x]"
   echo "       opens mpv with all active voc streams"
   echo "       -d debug mode: print commands and arguments while executed"
   echo "       -D debug mode: print script lines while read"
   echo "       -f forces (with -p / -j) open playlist / download full json"
   echo "       -h help shown"
-  echo "       -i ingest streams using"
   echo "       -j json export to disk"
   echo "       -k keys/shortcuts shown"
   echo "       -m man page shown"
@@ -382,7 +381,7 @@ voctocat_file() {
 #######################################
 
 # Check options
-while getopts 'dDfhijkmp:stvVx' option 2>/dev/null; do
+while getopts 'dDfhjkmp:stvVx' option 2>/dev/null; do
   case "${option}" in
   d)
     set -x # print commands and arguments while executed
@@ -394,7 +393,6 @@ while getopts 'dDfhijkmp:stvVx' option 2>/dev/null; do
     ;;
   f) force=true ;;
   h) manual ;;
-  i) play_ingest=true;;
   j) print_json=true ;;
   k) keys ;;
   m) manpage ;;
