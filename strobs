@@ -37,7 +37,7 @@ readonly nc='\033[0m' # No Color
 readonly underlined='\033[4m'
 readonly progname="${0##*/}"
 readonly progpath="${0%/*}/"
-readonly version="4.0.36"
+readonly version="4.0.38"
 
 unset debug         # if set print verbose messages red to differ from debug messages
 unset exitscript    # if set don't open mpv; useful for debugging and json export
