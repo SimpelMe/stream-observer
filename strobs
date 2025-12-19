@@ -23,7 +23,8 @@ set -eu
 (set -o pipefail 2> /dev/null) && set -o pipefail
 # word splitting shall happen only on newlines and tab characters
 # By default it is set to $' \n\t' - space, newline, tab - which is too eager
-IFS=$'\n\t'
+# shellcheck disable=SC3003
+IFS=$(printf '\n\t')
 
 #######################################
 ### Globals
