@@ -15,9 +15,12 @@
 
 # Shell Strict Mode: http://redsymbol.net/articles/unofficial-bash-strict-mode
 # set -e: exit if something fails; set -u: exit if a variable is unset
+set -eu
 # set -o pipefail: prevents errors in a pipeline from being masked
 # If a command in pipeline fails, return code will be return code of whole pipeline
-set -euo pipefail
+# Bit set pipefail if it works in a subshell, disregard if unsupported
+# shellcheck disable=SC3040
+(set -o pipefail 2> /dev/null) && set -o pipefail
 # word splitting shall happen only on newlines and tab characters
 # By default it is set to $' \n\t' - space, newline, tab - which is too eager
 IFS=$'\n\t'
